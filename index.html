@@ -42,33 +42,6 @@
             box-sizing: border-box;
         }
 
-        /*
-         * iOS 的 Safari View Controller（例如由 Teams 開啟連結）會把浮動網址列
-         * 疊在網頁上方，而且不會把該高度計入 safe-area-inset-top。為這類觸控
-         * WebKit 瀏覽器保留頂部空間，避免標題列及第一排卡片被網址列遮住。
-         */
-        @supports (-webkit-touch-callout: none) {
-            @media (max-width: 1024px) and (pointer: coarse) {
-                #app-shell {
-                    --ios-browser-top-reserve: 5.25rem;
-                    height: calc(var(--app-viewport-height) - var(--ios-browser-top-reserve)) !important;
-                    min-height: calc(var(--app-viewport-height) - var(--ios-browser-top-reserve));
-                    max-height: calc(var(--app-viewport-height) - var(--ios-browser-top-reserve));
-                    margin-top: var(--ios-browser-top-reserve);
-                    padding-top: 0;
-                }
-            }
-        }
-        @media (display-mode: standalone) {
-            #app-shell {
-                --ios-browser-top-reserve: 0px;
-                height: var(--app-viewport-height) !important;
-                min-height: var(--app-viewport-height);
-                max-height: var(--app-viewport-height);
-                margin-top: 0;
-                padding-top: env(safe-area-inset-top);
-            }
-        }
         button,
         a,
         select,
@@ -214,15 +187,6 @@
                 <p class="text-xs text-center text-slate-500 mb-4">Chemistry Flashcard Bank</p>
                 <h2 id="auth-mode-title" class="text-center text-sm font-black text-slate-700 mb-4">登入 / Sign in</h2>
 
-                <div id="auth-role-picker" class="grid grid-cols-2 gap-2 mb-5" role="group" aria-label="選擇帳戶身分">
-                    <button id="login-role-student" type="button" onclick="selectLoginRole('student')" class="btn-silky py-2.5 rounded-xl border-2 border-emerald-500 bg-emerald-50 text-emerald-700 font-bold text-sm" aria-pressed="true">
-                        <i class="fa-solid fa-user-graduate mr-1"></i> 學生
-                    </button>
-                    <button id="login-role-admin" type="button" onclick="selectLoginRole('admin')" class="btn-silky py-2.5 rounded-xl border-2 border-slate-200 bg-white text-slate-500 font-bold text-sm" aria-pressed="false">
-                        <i class="fa-solid fa-user-shield mr-1"></i> 管理員
-                    </button>
-                </div>
-
                 <form id="auth-login-form" onsubmit="handleLogin(event)" novalidate>
                     <label for="login-email" class="block text-xs font-bold text-slate-600 mb-1.5">電郵或名稱 / Email or name</label>
                     <div class="relative mb-4">
@@ -248,6 +212,15 @@
                 </form>
 
                 <form id="auth-register-form" onsubmit="handleRegistration(event)" class="hidden" novalidate>
+                    <p class="block text-xs font-bold text-slate-600 mb-1.5">帳戶類型 / Account type</p>
+                    <div id="register-role-picker" class="grid grid-cols-2 gap-2 mb-4" role="group" aria-label="選擇註冊帳戶類型">
+                        <button id="register-role-student" type="button" onclick="selectLoginRole('student')" class="btn-silky py-2.5 rounded-xl border-2 border-emerald-500 bg-emerald-50 text-emerald-700 font-bold text-sm" aria-pressed="true">
+                            <i class="fa-solid fa-user-graduate mr-1"></i> 學生
+                        </button>
+                        <button id="register-role-admin" type="button" onclick="selectLoginRole('admin')" class="btn-silky py-2.5 rounded-xl border-2 border-slate-200 bg-white text-slate-500 font-bold text-sm" aria-pressed="false">
+                            <i class="fa-solid fa-user-shield mr-1"></i> 管理員
+                        </button>
+                    </div>
                     <label id="register-name-label" for="register-name" class="block text-xs font-bold text-slate-600 mb-1.5">學生姓名 / Student name</label>
                     <input id="register-name" type="text" autocomplete="name" maxlength="80" class="w-full border-2 border-slate-200 rounded-xl py-3 px-3 text-sm font-semibold outline-none focus:border-emerald-400 mb-3" placeholder="學生姓名" required>
                     <label for="register-email" class="block text-xs font-bold text-slate-600 mb-1.5">電郵 / Email</label>
@@ -1466,15 +1439,14 @@
 
         function selectLoginRole(role) {
             loginRole = role === 'admin' ? 'admin' : 'student';
-            const studentButton = document.getElementById('login-role-student');
-            const adminButton = document.getElementById('login-role-admin');
+            const studentButton = document.getElementById('register-role-student');
+            const adminButton = document.getElementById('register-role-admin');
             const activeClass = 'btn-silky py-2.5 rounded-xl border-2 border-emerald-500 bg-emerald-50 text-emerald-700 font-bold text-sm';
             const inactiveClass = 'btn-silky py-2.5 rounded-xl border-2 border-slate-200 bg-white text-slate-500 font-bold text-sm';
             studentButton.className = loginRole === 'student' ? activeClass : inactiveClass;
             adminButton.className = loginRole === 'admin' ? activeClass : inactiveClass;
             studentButton.setAttribute('aria-pressed', String(loginRole === 'student'));
             adminButton.setAttribute('aria-pressed', String(loginRole === 'admin'));
-            document.getElementById('login-error').innerText = '';
             document.getElementById('register-error').innerText = '';
             const nameLabel = document.getElementById('register-name-label');
             const nameInput = document.getElementById('register-name');
@@ -1488,7 +1460,7 @@
             if (note) {
                 note.innerText = loginRole === 'admin'
                     ? `管理員帳戶註冊後會保持待審批，必須由 ${AUTH_APPROVER_EMAIL} 批准後才可登入。`
-                    : '學生帳戶完成電郵驗證後即可登入。 / Verify your email before signing in.';
+                    : '學生帳戶完成電郵驗證後即可登入；如管理員申請曾被拒絕，可選擇學生並使用相同電郵及原有密碼繼續。 / Rejected administrator applicants may continue as students with the same email and password.';
             }
         }
 
@@ -1509,7 +1481,6 @@
                 otp: 'auth-otp-form', reset: 'auth-reset-form'
             };
             Object.entries(formIds).forEach(([name, id]) => document.getElementById(id).classList.toggle('hidden', name !== authMode));
-            document.getElementById('auth-role-picker').classList.toggle('hidden', !['login', 'register'].includes(authMode));
             document.getElementById('auth-mode-title').innerText = ({
                 login: '登入 / Sign in', register: '註冊 / Register', forgot: '忘記密碼 / Forgot password',
                 otp: '輸入驗證碼 / Verification code', reset: '重設密碼 / Reset password'
@@ -1665,7 +1636,7 @@
             return data;
         }
 
-        async function completeSupabaseLogin(user, expectedRole = null) {
+        async function completeSupabaseLogin(user) {
             if (!user) return false;
             if (sessionStorage.getItem(AUTH_RECOVERY_KEY)) {
                 currentUser = null;
@@ -1684,7 +1655,9 @@
             }
 
             const profile = await fetchCurrentProfile(user.id);
-            const requestedAdmin = profile.requested_role === 'admin' && profile.role !== 'admin';
+            const requestedAdmin = profile.requested_role === 'admin'
+                && profile.role !== 'admin'
+                && profile.admin_status !== 'rejected';
             if (requestedAdmin) {
                 await supabaseClient.auth.signOut({ scope: 'local' });
                 const statusText = profile.admin_status === 'rejected'
@@ -1694,13 +1667,6 @@
                 showLoginGate(statusText);
                 return false;
             }
-            if (expectedRole && profile.role !== expectedRole) {
-                await supabaseClient.auth.signOut({ scope: 'local' });
-                currentUser = null;
-                showLoginGate(expectedRole === 'admin' ? '此帳戶尚未獲管理員權限。' : '請選擇「管理員」身分登入此帳戶。');
-                return false;
-            }
-
             currentUser = {
                 id: user.id,
                 email: user.email || profile.email,
@@ -1742,7 +1708,7 @@
                 setAuthButtonBusy('login-submit', true, '登入中…');
                 error.innerText = '';
                 const { data: loginData, error: loginError } = await supabaseClient.functions.invoke('login-chemistry-account', {
-                    body: { identifier, password, expected_role: loginRole }
+                    body: { identifier, password }
                 });
                 if (loginError) throw loginError;
                 if (!loginData?.access_token || !loginData?.refresh_token) throw new Error(loginData?.error || 'Invalid login response');
@@ -1751,7 +1717,7 @@
                     refresh_token: loginData.refresh_token
                 });
                 if (sessionError) throw sessionError;
-                await completeSupabaseLogin(sessionData.user, loginRole);
+                await completeSupabaseLogin(sessionData.user);
             } catch (signInError) {
                 try {
                     if (signInError?.context && typeof signInError.context.json === 'function') {
@@ -1811,7 +1777,7 @@
                             message.innerText = `此電郵已完成驗證；管理員申請已提交，現正等待 ${AUTH_APPROVER_EMAIL} 批准。 / Email already verified; administrator approval is pending.`;
                             return;
                         }
-                        await completeSupabaseLogin(existingAccount.user, 'student');
+                        await completeSupabaseLogin(existingAccount.user);
                         return;
                     }
                     if (String(existingAccountError?.message || '').toLowerCase().includes('email not confirmed')) {
@@ -1831,7 +1797,7 @@
 
                 if (loginRole === 'admin' && data.session) await supabaseClient.auth.signOut({ scope: 'local' });
                 if (data.session && loginRole === 'student') {
-                    await completeSupabaseLogin(data.user, 'student');
+                    await completeSupabaseLogin(data.user);
                     return;
                 }
                 message.className = message.className.replace('text-rose-500', 'text-emerald-600');
@@ -1850,7 +1816,8 @@
             const target = authMode === 'register' ? document.getElementById('register-error') : document.getElementById('login-error');
             target.innerText = '';
             try {
-                sessionStorage.setItem(AUTH_OAUTH_ROLE_KEY, loginRole);
+                if (authMode === 'register') sessionStorage.setItem(AUTH_OAUTH_ROLE_KEY, loginRole);
+                else sessionStorage.removeItem(AUTH_OAUTH_ROLE_KEY);
                 const { error } = await supabaseClient.auth.signInWithOAuth({
                     provider: 'google',
                     options: {
@@ -1961,7 +1928,7 @@
                 const { data, error } = await supabaseClient.auth.getSession();
                 if (error) throw error;
                 if (data.session?.user && resumeAuthentication) {
-                    await completeSupabaseLogin(data.session.user, sessionStorage.getItem(AUTH_OAUTH_ROLE_KEY));
+                    await completeSupabaseLogin(data.session.user);
                 } else {
                     if (data.session?.user) await supabaseClient.auth.signOut({ scope: 'local' });
                     currentUser = null;
