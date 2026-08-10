@@ -42,6 +42,18 @@
             box-sizing: border-box;
         }
 
+        /*
+         * iOS 的 App 內置瀏覽器（例如 Teams）會把頂部網址列覆蓋在網頁上。
+         * 只在已登入的觸控瀏覽器預留空間，登入畫面則維持垂直置中。
+         */
+        @supports (-webkit-touch-callout: none) {
+            @media (display-mode: browser) and (pointer: coarse) {
+                #app-shell.authenticated-shell {
+                    padding-top: max(env(safe-area-inset-top), 5.25rem);
+                }
+            }
+        }
+
         button,
         a,
         select,
@@ -1007,6 +1019,73 @@
         let authenticationReady = false;
         let authTransitionStartedAt = 0;
 
+        // iOS／App 內置瀏覽器有時會在軟鍵盤收起後保留鍵盤開啟時的高度。
+        // 記住未開鍵盤時的穩定高度，並在焦點離開輸入欄後分階段恢復。
+        let stableViewportHeight = Math.max(
+            window.innerHeight || 0,
+            document.documentElement.clientHeight || 0,
+            window.visualViewport?.height || 0
+        );
+        let viewportRestoreTimers = [];
+
+        function isTextEntryFocused() {
+            const active = document.activeElement;
+            return Boolean(active && active.matches?.('input, textarea, select, [contenteditable="true"]'));
+        }
+
+        function syncAppViewportHeight(options = {}) {
+            const visualHeight = window.visualViewport
+                ? window.visualViewport.height + window.visualViewport.offsetTop
+                : 0;
+            const layoutHeight = Math.max(
+                window.innerHeight || 0,
+                document.documentElement.clientHeight || 0
+            );
+            const keyboardOpen = isTextEntryFocused()
+                && visualHeight > 0
+                && visualHeight < stableViewportHeight * 0.82;
+
+            if (options.resetStable) stableViewportHeight = 0;
+
+            if (keyboardOpen) {
+                document.documentElement.style.setProperty('--app-viewport-height', `${Math.max(320, Math.round(visualHeight))}px`);
+                return;
+            }
+
+            const restoredHeight = Math.max(layoutHeight, visualHeight, stableViewportHeight);
+            if (restoredHeight > 0) {
+                stableViewportHeight = restoredHeight;
+                document.documentElement.style.setProperty('--app-viewport-height', `${Math.round(restoredHeight)}px`);
+            }
+        }
+
+        function scheduleViewportRestore(options = {}) {
+            viewportRestoreTimers.forEach(clearTimeout);
+            viewportRestoreTimers = [0, 80, 240, 520, 900].map(delay => setTimeout(() => {
+                syncAppViewportHeight(options);
+                fitReviewCard();
+            }, delay));
+        }
+
+        syncAppViewportHeight();
+        window.addEventListener('resize', () => syncAppViewportHeight());
+        window.addEventListener('pageshow', () => scheduleViewportRestore());
+        window.addEventListener('orientationchange', () => scheduleViewportRestore({ resetStable: true }));
+        document.addEventListener('focusin', () => {
+            stableViewportHeight = Math.max(
+                stableViewportHeight,
+                window.innerHeight || 0,
+                document.documentElement.clientHeight || 0,
+                window.visualViewport?.height || 0
+            );
+            syncAppViewportHeight();
+        });
+        document.addEventListener('focusout', () => scheduleViewportRestore());
+        window.visualViewport?.addEventListener('resize', () => syncAppViewportHeight());
+        window.visualViewport?.addEventListener('scroll', () => {
+            if (!isTextEntryFocused()) syncAppViewportHeight();
+        });
+
         const uiTranslations = {
             zh: { header: "卡片溫習庫", back: "返回", hint: "點擊卡片翻轉", prev: "上一題", next: "下一題", navHome: "主頁", navStar: "星星卡", navSet: "設定", starTitle: "星星卡", starEmpty: "你尚未儲存任何題目！", btnReviewStar: "溫習星星卡", waitMsg: "此章節暫時未有題目，不如自己新增一張？",
                   addTitle: "新增記憶卡", addTopic: "選擇課題", addQ: "題目", addImg: "題目圖片 (選填)", addA: "答案", addBtn: "儲存記憶卡", starFilterAll: "全部課題",
@@ -1550,6 +1629,7 @@
 
         function showLoginGate(message = '') {
             const gate = document.getElementById('login-gate');
+            document.getElementById('app-shell').classList.remove('authenticated-shell');
             gate.classList.remove('auth-leaving');
             gate.classList.remove('hidden');
             gate.classList.add('flex');
@@ -1561,6 +1641,7 @@
 
         function hideLoginGate() {
             const gate = document.getElementById('login-gate');
+            document.getElementById('app-shell').classList.toggle('authenticated-shell', Boolean(currentUser));
             gate.classList.add('hidden');
             gate.classList.remove('flex');
             gate.classList.remove('auth-leaving');
