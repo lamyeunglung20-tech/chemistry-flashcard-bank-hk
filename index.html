@@ -52,14 +52,11 @@
             overscroll-behavior: none;
         }
 
-        /*
-         * iOS 的 App 內置瀏覽器（例如 Teams）會把頂部網址列覆蓋在網頁上。
-         * 只在已登入的觸控瀏覽器預留空間，登入畫面則維持垂直置中。
-         */
+        /* Teams／Safari 已自行保留網址列位置；登入後只採用裝置原生安全區。 */
         @supports (-webkit-touch-callout: none) {
             @media (display-mode: browser) and (pointer: coarse) {
                 #app-shell.authenticated-shell {
-                    padding-top: max(env(safe-area-inset-top), 5.25rem);
+                    padding-top: env(safe-area-inset-top);
                 }
             }
         }
