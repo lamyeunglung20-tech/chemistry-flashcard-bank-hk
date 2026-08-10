@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="theme-color" content="#ffffff">
     <title>Chemistry Flashcards</title>
     <!-- 引入 Tailwind CSS -->
     <script src="./assets/js/tailwindcss.js"></script>
@@ -39,6 +40,34 @@
             padding-left: env(safe-area-inset-left);
             padding-right: env(safe-area-inset-right);
             box-sizing: border-box;
+        }
+
+        /*
+         * iOS 的 Safari View Controller（例如由 Teams 開啟連結）會把浮動網址列
+         * 疊在網頁上方，而且不會把該高度計入 safe-area-inset-top。為這類觸控
+         * WebKit 瀏覽器保留頂部空間，避免標題列及第一排卡片被網址列遮住。
+         */
+        @supports (-webkit-touch-callout: none) {
+            @media (max-width: 1024px) and (pointer: coarse) {
+                #app-shell {
+                    --ios-browser-top-reserve: 5.25rem;
+                    height: calc(var(--app-viewport-height) - var(--ios-browser-top-reserve)) !important;
+                    min-height: calc(var(--app-viewport-height) - var(--ios-browser-top-reserve));
+                    max-height: calc(var(--app-viewport-height) - var(--ios-browser-top-reserve));
+                    margin-top: var(--ios-browser-top-reserve);
+                    padding-top: 0;
+                }
+            }
+        }
+        @media (display-mode: standalone) {
+            #app-shell {
+                --ios-browser-top-reserve: 0px;
+                height: var(--app-viewport-height) !important;
+                min-height: var(--app-viewport-height);
+                max-height: var(--app-viewport-height);
+                margin-top: 0;
+                padding-top: env(safe-area-inset-top);
+            }
         }
         button,
         a,
