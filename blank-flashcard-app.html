@@ -1,10 +1,10 @@
 <!DOCTYPE html>
-<html lang="zh-HK">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, interactive-widget=overlays-content">
     <meta name="theme-color" content="#ffffff">
-    <title>Chemistry Flashcards</title>
+    <title>Science vocab flashcards</title>
     <!-- 引入 Tailwind CSS -->
     <script src="./assets/js/tailwindcss.js"></script>
     <!-- 引入 FontAwesome -->
@@ -196,96 +196,96 @@
 
     <div id="app-shell" class="w-full max-w-md bg-[#f4f6f9] h-full flex flex-col relative shadow-xl overflow-hidden">
 
-        <!-- 必須登入：Supabase 學生／管理員帳戶 -->
+        <!-- 必須登入：Supabase Student／Administrator account -->
         <div id="login-gate" class="auth-login-fixed absolute inset-0 z-[200] bg-gradient-to-b from-emerald-50 via-white to-slate-100 flex flex-col items-center justify-center p-6 overflow-y-auto">
             <div class="auth-panel w-full max-w-[350px] bg-white rounded-3xl border border-emerald-100 shadow-xl p-6 my-auto">
                 <div class="w-16 h-16 mx-auto rounded-2xl bg-emerald-500 text-white flex items-center justify-center text-3xl shadow-lg shadow-emerald-200 mb-4">
                     <i class="fa-solid fa-flask"></i>
                 </div>
-                <h1 class="text-2xl font-black text-center text-slate-900 mb-1">化學記憶卡</h1>
-                <p class="text-xs text-center text-slate-500 mb-4">Chemistry Flashcard Bank</p>
-                <h2 id="auth-mode-title" class="text-center text-sm font-black text-slate-700 mb-4">登入 / Sign in</h2>
+                <h1 class="text-2xl font-black text-center text-slate-900 mb-1">Science vocab flashcards</h1>
+                <p class="text-xs text-center text-slate-500 mb-4">Build your science vocabulary</p>
+                <h2 id="auth-mode-title" class="text-center text-sm font-black text-slate-700 mb-4">Sign in</h2>
 
                 <form id="auth-login-form" onsubmit="handleLogin(event)" novalidate>
-                    <label for="login-email" class="block text-xs font-bold text-slate-600 mb-1.5">電郵或名稱 / Email or name</label>
+                    <label for="login-email" class="block text-xs font-bold text-slate-600 mb-1.5">Email or name</label>
                     <div class="relative mb-4">
                         <i class="fa-solid fa-user absolute left-3.5 top-3.5 text-slate-300"></i>
-                        <input id="login-email" type="text" autocomplete="username" autocapitalize="none" spellcheck="false" class="w-full border-2 border-slate-200 rounded-xl py-3 pl-10 pr-3 text-sm font-semibold outline-none focus:border-emerald-400" placeholder="電郵或註冊名稱" required>
+                        <input id="login-email" type="text" autocomplete="username" autocapitalize="none" spellcheck="false" class="w-full border-2 border-slate-200 rounded-xl py-3 pl-10 pr-3 text-sm font-semibold outline-none focus:border-emerald-400" placeholder="Email or registered name" required>
                     </div>
                     <div class="flex items-center justify-between mb-1.5">
-                        <label for="login-password" class="text-xs font-bold text-slate-600">密碼 / Password</label>
-                        <button type="button" onclick="setAuthMode('forgot')" class="text-[11px] font-bold text-emerald-600 hover:underline">忘記密碼？</button>
+                        <label for="login-password" class="text-xs font-bold text-slate-600">Password</label>
+                        <button type="button" onclick="setAuthMode('forgot')" class="text-[11px] font-bold text-emerald-600 hover:underline">Forgot password?</button>
                     </div>
                     <div class="relative mb-2">
                         <i class="fa-solid fa-lock absolute left-3.5 top-3.5 text-slate-300"></i>
-                        <input id="login-password" type="password" autocomplete="current-password" class="w-full border-2 border-slate-200 rounded-xl py-3 pl-10 pr-11 text-sm font-semibold outline-none focus:border-emerald-400" placeholder="輸入密碼" required>
-                        <button type="button" onclick="toggleLoginPassword()" class="absolute right-3 top-2.5 w-8 h-8 text-slate-400 hover:text-slate-700" aria-label="顯示或隱藏密碼"><i id="login-password-icon" class="fa-solid fa-eye"></i></button>
+                        <input id="login-password" type="password" autocomplete="current-password" class="w-full border-2 border-slate-200 rounded-xl py-3 pl-10 pr-11 text-sm font-semibold outline-none focus:border-emerald-400" placeholder="Enter password" required>
+                        <button type="button" onclick="toggleLoginPassword()" class="absolute right-3 top-2.5 w-8 h-8 text-slate-400 hover:text-slate-700" aria-label="Show or hide password"><i id="login-password-icon" class="fa-solid fa-eye"></i></button>
                     </div>
                     <p id="login-error" class="min-h-[20px] text-xs font-bold text-rose-500 mb-2" role="alert"></p>
-                    <button id="login-submit" type="submit" class="btn-silky w-full bg-emerald-500 hover:bg-emerald-600 text-white font-black py-3.5 rounded-xl shadow-lg shadow-emerald-200">登入 / Sign in</button>
-                    <div class="flex items-center gap-3 my-4 text-[10px] font-bold text-slate-300"><span class="h-px bg-slate-200 flex-1"></span>或 / OR<span class="h-px bg-slate-200 flex-1"></span></div>
+                    <button id="login-submit" type="submit" class="btn-silky w-full bg-emerald-500 hover:bg-emerald-600 text-white font-black py-3.5 rounded-xl shadow-lg shadow-emerald-200">Sign in</button>
+                    <div class="flex items-center gap-3 my-4 text-[10px] font-bold text-slate-300"><span class="h-px bg-slate-200 flex-1"></span>OR<span class="h-px bg-slate-200 flex-1"></span></div>
                     <button type="button" onclick="signInWithGoogle()" class="btn-silky w-full border-2 border-slate-200 bg-white hover:bg-slate-50 text-slate-700 font-black py-3 rounded-xl">
-                        <i class="fa-brands fa-google text-red-500 mr-2"></i>使用 Google 帳戶登入
+                        <i class="fa-brands fa-google text-red-500 mr-2"></i>Continue with Google
                     </button>
-                    <p class="text-center text-xs text-slate-500 mt-4">未有帳戶？ <button type="button" onclick="setAuthMode('register')" class="font-black text-emerald-600 hover:underline">立即註冊</button></p>
+                    <p class="text-center text-xs text-slate-500 mt-4">No account yet? <button type="button" onclick="setAuthMode('register')" class="font-black text-emerald-600 hover:underline">Register now</button></p>
                 </form>
 
                 <form id="auth-register-form" onsubmit="handleRegistration(event)" class="hidden" novalidate>
-                    <p class="block text-xs font-bold text-slate-600 mb-1.5">帳戶類型 / Account type</p>
-                    <div id="register-role-picker" class="grid grid-cols-2 gap-2 mb-4" role="group" aria-label="選擇註冊帳戶類型">
+                    <p class="block text-xs font-bold text-slate-600 mb-1.5">Account type</p>
+                    <div id="register-role-picker" class="grid grid-cols-2 gap-2 mb-4" role="group" aria-label="Select account type">
                         <button id="register-role-student" type="button" onclick="selectLoginRole('student')" class="btn-silky py-2.5 rounded-xl border-2 border-emerald-500 bg-emerald-50 text-emerald-700 font-bold text-sm" aria-pressed="true">
-                            <i class="fa-solid fa-user-graduate mr-1"></i> 學生
+                            <i class="fa-solid fa-user-graduate mr-1"></i> Student
                         </button>
                         <button id="register-role-admin" type="button" onclick="selectLoginRole('admin')" class="btn-silky py-2.5 rounded-xl border-2 border-slate-200 bg-white text-slate-500 font-bold text-sm" aria-pressed="false">
-                            <i class="fa-solid fa-user-shield mr-1"></i> 管理員
+                            <i class="fa-solid fa-user-shield mr-1"></i> Administrator
                         </button>
                     </div>
-                    <label id="register-name-label" for="register-name" class="block text-xs font-bold text-slate-600 mb-1.5">學生姓名 / Student name</label>
-                    <input id="register-name" type="text" autocomplete="name" maxlength="80" class="w-full border-2 border-slate-200 rounded-xl py-3 px-3 text-sm font-semibold outline-none focus:border-emerald-400 mb-3" placeholder="學生姓名" required>
-                    <label for="register-email" class="block text-xs font-bold text-slate-600 mb-1.5">電郵 / Email</label>
+                    <label id="register-name-label" for="register-name" class="block text-xs font-bold text-slate-600 mb-1.5">Student name</label>
+                    <input id="register-name" type="text" autocomplete="name" maxlength="80" class="w-full border-2 border-slate-200 rounded-xl py-3 px-3 text-sm font-semibold outline-none focus:border-emerald-400 mb-3" placeholder="Student name" required>
+                    <label for="register-email" class="block text-xs font-bold text-slate-600 mb-1.5">Email</label>
                     <input id="register-email" type="email" autocomplete="email" class="w-full border-2 border-slate-200 rounded-xl py-3 px-3 text-sm font-semibold outline-none focus:border-emerald-400 mb-3" placeholder="name@example.com" required>
-                    <label for="register-password" class="block text-xs font-bold text-slate-600 mb-1.5">密碼 / Password</label>
-                    <input id="register-password" type="password" autocomplete="new-password" minlength="8" class="w-full border-2 border-slate-200 rounded-xl py-3 px-3 text-sm font-semibold outline-none focus:border-emerald-400 mb-3" placeholder="最少 8 個字元" required>
-                    <label for="register-confirm" class="block text-xs font-bold text-slate-600 mb-1.5">確認密碼 / Confirm</label>
-                    <input id="register-confirm" type="password" autocomplete="new-password" minlength="8" class="w-full border-2 border-slate-200 rounded-xl py-3 px-3 text-sm font-semibold outline-none focus:border-emerald-400" placeholder="再次輸入密碼" required>
+                    <label for="register-password" class="block text-xs font-bold text-slate-600 mb-1.5">Password</label>
+                    <input id="register-password" type="password" autocomplete="new-password" minlength="8" class="w-full border-2 border-slate-200 rounded-xl py-3 px-3 text-sm font-semibold outline-none focus:border-emerald-400 mb-3" placeholder="At least 8 characters" required>
+                    <label for="register-confirm" class="block text-xs font-bold text-slate-600 mb-1.5">Confirm password</label>
+                    <input id="register-confirm" type="password" autocomplete="new-password" minlength="8" class="w-full border-2 border-slate-200 rounded-xl py-3 px-3 text-sm font-semibold outline-none focus:border-emerald-400" placeholder="Enter the password again" required>
                     <p id="register-role-note" class="text-[11px] leading-relaxed text-slate-500 mt-3"></p>
                     <p id="register-error" class="min-h-[20px] text-xs font-bold text-rose-500 my-2" role="alert"></p>
-                    <button id="register-submit" type="submit" class="btn-silky w-full bg-emerald-500 hover:bg-emerald-600 text-white font-black py-3.5 rounded-xl">建立帳戶 / Register</button>
-                    <button type="button" onclick="signInWithGoogle()" class="btn-silky w-full mt-3 border-2 border-slate-200 bg-white hover:bg-slate-50 text-slate-700 font-black py-3 rounded-xl"><i class="fa-brands fa-google text-red-500 mr-2"></i>使用 Google 帳戶註冊</button>
-                    <p class="text-center text-xs text-slate-500 mt-4">已有帳戶？ <button type="button" onclick="setAuthMode('login')" class="font-black text-emerald-600 hover:underline">返回登入</button></p>
+                    <button id="register-submit" type="submit" class="btn-silky w-full bg-emerald-500 hover:bg-emerald-600 text-white font-black py-3.5 rounded-xl">Register</button>
+                    <button type="button" onclick="signInWithGoogle()" class="btn-silky w-full mt-3 border-2 border-slate-200 bg-white hover:bg-slate-50 text-slate-700 font-black py-3 rounded-xl"><i class="fa-brands fa-google text-red-500 mr-2"></i>Register with Google</button>
+                    <p class="text-center text-xs text-slate-500 mt-4">Already have an account? <button type="button" onclick="setAuthMode('login')" class="font-black text-emerald-600 hover:underline">Back to sign in</button></p>
                 </form>
 
                 <form id="auth-forgot-form" onsubmit="sendPasswordResetCode(event)" class="hidden" novalidate>
-                    <p class="text-xs leading-relaxed text-slate-500 mb-4">輸入註冊電郵，我們會寄出六位數驗證碼。 / Enter your registered email to receive a 6-digit code.</p>
-                    <label for="recovery-email" class="block text-xs font-bold text-slate-600 mb-1.5">註冊電郵 / Registered email</label>
+                    <p class="text-xs leading-relaxed text-slate-500 mb-4">Enter your registered email to receive a 6-digit code.</p>
+                    <label for="recovery-email" class="block text-xs font-bold text-slate-600 mb-1.5">Registered email</label>
                     <input id="recovery-email" type="email" autocomplete="email" class="w-full border-2 border-slate-200 rounded-xl py-3 px-3 text-sm font-semibold outline-none focus:border-emerald-400" placeholder="name@example.com" required>
                     <p id="recovery-error" class="min-h-[20px] text-xs font-bold text-rose-500 my-2" role="alert"></p>
-                    <button id="recovery-send" type="submit" class="btn-silky w-full bg-emerald-500 text-white font-black py-3.5 rounded-xl">寄出驗證碼 / Send code</button>
-                    <button type="button" onclick="setAuthMode('login')" class="w-full text-xs font-bold text-slate-500 mt-4 hover:underline"><i class="fa-solid fa-chevron-left mr-1"></i>返回登入 / Back</button>
+                    <button id="recovery-send" type="submit" class="btn-silky w-full bg-emerald-500 text-white font-black py-3.5 rounded-xl">Send code</button>
+                    <button type="button" onclick="setAuthMode('login')" class="w-full text-xs font-bold text-slate-500 mt-4 hover:underline"><i class="fa-solid fa-chevron-left mr-1"></i>Back to sign in</button>
                 </form>
 
                 <form id="auth-otp-form" onsubmit="verifyPasswordResetCode(event)" class="hidden" novalidate>
                     <p id="otp-sent-note" class="text-xs leading-relaxed text-slate-500 mb-4"></p>
-                    <label for="recovery-code" class="block text-xs font-bold text-slate-600 mb-1.5">電郵驗證碼 / Email code</label>
+                    <label for="recovery-code" class="block text-xs font-bold text-slate-600 mb-1.5">Email verification code</label>
                     <input id="recovery-code" type="text" inputmode="numeric" autocomplete="one-time-code" maxlength="6" pattern="[0-9]{6}" class="w-full border-2 border-slate-200 rounded-xl py-3 px-3 text-center tracking-[0.45em] text-xl font-black outline-none focus:border-emerald-400" placeholder="000000" required>
                     <p id="otp-error" class="min-h-[20px] text-xs font-bold text-rose-500 my-2" role="alert"></p>
-                    <button id="otp-submit" type="submit" class="btn-silky w-full bg-emerald-500 text-white font-black py-3.5 rounded-xl">驗證 / Verify</button>
-                    <button type="button" onclick="setAuthMode('forgot')" class="w-full text-xs font-bold text-slate-500 mt-4 hover:underline">重新寄出 / Send again</button>
+                    <button id="otp-submit" type="submit" class="btn-silky w-full bg-emerald-500 text-white font-black py-3.5 rounded-xl">Verify</button>
+                    <button type="button" onclick="setAuthMode('forgot')" class="w-full text-xs font-bold text-slate-500 mt-4 hover:underline">Send again</button>
                 </form>
 
                 <form id="auth-reset-form" onsubmit="completePasswordReset(event)" class="hidden" novalidate>
-                    <p class="text-xs leading-relaxed text-slate-500 mb-4">驗證成功，請設定新密碼。 / Verified. Set a new password.</p>
-                    <label for="recovery-new-password" class="block text-xs font-bold text-slate-600 mb-1.5">新密碼 / New password</label>
+                    <p class="text-xs leading-relaxed text-slate-500 mb-4">Verified. Set a new password.</p>
+                    <label for="recovery-new-password" class="block text-xs font-bold text-slate-600 mb-1.5">New password</label>
                     <input id="recovery-new-password" type="password" autocomplete="new-password" minlength="8" class="w-full border-2 border-slate-200 rounded-xl py-3 px-3 text-sm font-semibold outline-none focus:border-emerald-400 mb-3" required>
-                    <label for="recovery-confirm-password" class="block text-xs font-bold text-slate-600 mb-1.5">確認新密碼 / Confirm</label>
+                    <label for="recovery-confirm-password" class="block text-xs font-bold text-slate-600 mb-1.5">Confirm new password</label>
                     <input id="recovery-confirm-password" type="password" autocomplete="new-password" minlength="8" class="w-full border-2 border-slate-200 rounded-xl py-3 px-3 text-sm font-semibold outline-none focus:border-emerald-400" required>
                     <p id="reset-error" class="min-h-[20px] text-xs font-bold text-rose-500 my-2" role="alert"></p>
-                    <button id="reset-submit" type="submit" class="btn-silky w-full bg-emerald-500 text-white font-black py-3.5 rounded-xl">更新密碼 / Reset password</button>
+                    <button id="reset-submit" type="submit" class="btn-silky w-full bg-emerald-500 text-white font-black py-3.5 rounded-xl">Reset password</button>
                 </form>
             </div>
         </div>
 
-        <!-- 登入成功後的平滑過渡畫面 -->
+        <!-- Signed in後的平滑過渡畫面 -->
         <div id="auth-transition" class="absolute inset-0 z-[220] hidden items-center justify-center bg-gradient-to-br from-emerald-50 via-white to-teal-50 p-6" aria-hidden="true" aria-live="polite">
             <div class="auth-transition-card w-full max-w-[310px] rounded-[30px] border border-emerald-100 bg-white/95 px-7 py-9 text-center shadow-2xl shadow-emerald-100/80 backdrop-blur">
                 <div class="relative mx-auto mb-6 h-24 w-24">
@@ -293,37 +293,26 @@
                     <div class="absolute inset-[10px] rounded-full bg-gradient-to-br from-emerald-50 to-teal-50 shadow-inner"></div>
                     <div class="auth-loader-flask absolute inset-0 flex items-center justify-center text-4xl text-emerald-500"><i class="fa-solid fa-flask"></i></div>
                 </div>
-                <h2 id="auth-transition-title" class="text-xl font-black tracking-wide text-slate-900">登入成功</h2>
-                <p id="auth-transition-message" class="mt-2 min-h-[40px] text-sm font-semibold leading-relaxed text-slate-500">正在安全載入你的記憶卡…</p>
-                <div class="mt-6 h-2 overflow-hidden rounded-full bg-emerald-100" role="progressbar" aria-label="登入進度" aria-valuemin="0" aria-valuemax="100">
+                <h2 id="auth-transition-title" class="text-xl font-black tracking-wide text-slate-900">Signed in</h2>
+                <p id="auth-transition-message" class="mt-2 min-h-[40px] text-sm font-semibold leading-relaxed text-slate-500">Securely loading your flashcards…</p>
+                <div class="mt-6 h-2 overflow-hidden rounded-full bg-emerald-100" role="progressbar" aria-label="Sign-in progress" aria-valuemin="0" aria-valuemax="100">
                     <div id="auth-transition-progress" class="auth-progress-shimmer h-full w-[12%] rounded-full bg-gradient-to-r from-emerald-500 to-teal-400"></div>
                 </div>
-                <p class="mt-3 text-[10px] font-bold tracking-[.16em] text-emerald-600/70">CHEMISTRY FLASHCARD BANK</p>
+                <p class="mt-3 text-[10px] font-bold tracking-[.16em] text-emerald-600/70">SCIENCE VOCAB FLASHCARDS</p>
             </div>
         </div>
         
         <!-- 頂部導航列 -->
         <header class="bg-white px-3 py-3 flex justify-between items-center gap-2 border-b shadow-sm z-10 flex-shrink-0">
             <div class="flex items-center gap-2 min-w-0">
-                <button id="global-back-btn" type="button" onclick="goBackOnePage()" class="hidden back-btn-silky w-8 h-8 flex-shrink-0 items-center justify-center rounded-full text-slate-500 hover:bg-slate-100 hover:text-slate-800" aria-label="返回上一頁" title="返回上一頁">
+                <button id="global-back-btn" type="button" onclick="goBackOnePage()" class="hidden back-btn-silky w-8 h-8 flex-shrink-0 items-center justify-center rounded-full text-slate-500 hover:bg-slate-100 hover:text-slate-800" aria-label="Go back" title="Go back">
                     <i class="fa-solid fa-chevron-left"></i>
                 </button>
                 <i class="fa-solid fa-flask text-emerald-500 text-lg"></i>
-                <span class="font-black text-[15px] tracking-wide text-slate-900 truncate" id="header-title">卡片溫習庫</span>
+                <span class="font-black text-[15px] tracking-wide text-slate-900 truncate" id="header-title">Science Vocab Flashcards</span>
             </div>
-            <div class="flex items-center gap-1.5 flex-shrink-0">
-                <button id="default-lang-btn" type="button" onclick="setDefaultLanguage()" class="btn-silky h-8 px-2 rounded-md border border-slate-300 bg-slate-50 text-[11px] font-bold text-slate-600 hover:bg-slate-100 flex items-center gap-1" aria-pressed="false">
-                    <i id="default-lang-icon" class="fa-solid fa-thumbtack"></i>
-                    <span id="default-lang-text">預設</span>
-                </button>
-                <div class="relative">
-                    <select id="lang-selector" onchange="changeLanguage()" class="btn-silky border border-slate-300 bg-slate-50 pl-2.5 pr-7 py-1.5 rounded-md text-xs font-semibold text-slate-700 hover:bg-slate-100 outline-none cursor-pointer">
-                        <option value="zh">中文</option>
-                        <option value="en">English</option>
-                        <option value="bi">中英對照</option>
-                    </select>
-                    <i class="fa-solid fa-chevron-down absolute right-2 top-2 text-slate-400 text-xs pointer-events-none"></i>
-                </div>
+            <div class="flex items-center flex-shrink-0" aria-label="English interface">
+                <span class="rounded-full bg-emerald-50 px-2.5 py-1 text-[10px] font-black tracking-wide text-emerald-700">ENGLISH</span>
             </div>
         </header>
 
@@ -342,9 +331,9 @@
                 <div class="flex items-center gap-3 mb-4 pt-2">
                     <button type="button" onclick="closeMicro1Chapters()" class="back-btn-silky text-slate-500 flex items-center gap-2 text-sm font-bold">
                         <i class="fa-solid fa-chevron-left"></i>
-                        <span class="back-btn-text">返回</span>
+                        <span class="back-btn-text">Back</span>
                     </button>
-                    <h2 id="micro1-chapter-title" class="flex-1 text-center text-lg font-black text-slate-900 pr-12">微觀世界I</h2>
+                    <h2 id="micro1-chapter-title" class="flex-1 text-center text-lg font-black text-slate-900 pr-12">Topics</h2>
                 </div>
                 <div id="micro1-chapter-grid" class="grid grid-cols-2 gap-3 pb-4">
                     <!-- Chapter 5–9 cards injected here -->
@@ -356,11 +345,11 @@
                 <div class="flex justify-between items-center mb-6 mt-2">
                     <div class="flex items-center gap-3">
                         <i class="fa-solid fa-star text-yellow-400 text-3xl"></i>
-                        <h2 class="text-2xl font-black tracking-wide text-slate-900" id="starred-title-main">星星卡</h2>
+                        <h2 class="text-2xl font-black tracking-wide text-slate-900" id="starred-title-main">Starred Cards</h2>
                     </div>
                     <div class="relative max-w-[140px] w-full btn-silky">
                         <select id="star-topic-filter" onchange="renderStarredCards()" class="w-full border border-slate-200 bg-white rounded-lg pl-3 pr-7 py-2 text-xs font-bold text-slate-700 outline-none shadow-sm cursor-pointer truncate appearance-none">
-                            <option value="all">全部課題</option>
+                            <option value="all">All Topics</option>
                         </select>
                         <i class="fa-solid fa-chevron-down absolute right-2.5 top-2.5 text-slate-400 text-[10px] pointer-events-none"></i>
                     </div>
@@ -372,16 +361,16 @@
 
             <!-- 分頁三：設定 -->
             <main id="view-settings" class="p-5 hidden flex-col min-h-full pb-36">
-                <h2 class="text-2xl font-black tracking-wide text-slate-900 mb-6 mt-2" id="settings-title-main">設定</h2>
+                <h2 class="text-2xl font-black tracking-wide text-slate-900 mb-6 mt-2" id="settings-title-main">Settings</h2>
                 
-                <!-- 學生個人資訊卡片 -->
+                <!-- Student個人資訊卡片 -->
                 <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-100 mb-6 flex items-center gap-4 transition-all duration-300" id="student-card">
                     <div class="w-14 h-14 bg-blue-50 rounded-full flex items-center justify-center text-blue-500 text-2xl flex-shrink-0 shadow-inner transition-colors duration-300" id="student-avatar">
                         <i class="fa-solid fa-user-graduate"></i>
                     </div>
                     <div class="flex-1">
-                        <h3 class="font-bold text-lg text-slate-800 leading-tight" id="student-name">陳大文 (Chan Tai Man)</h3>
-                        <p id="user-role-label" class="text-xs font-bold text-emerald-600 mt-1">學生帳戶</p>
+                        <h3 class="font-bold text-lg text-slate-800 leading-tight" id="student-name">Student</h3>
+                        <p id="user-role-label" class="text-xs font-bold text-emerald-600 mt-1">Student account</p>
                     </div>
                 </div>
 
@@ -394,18 +383,18 @@
                             <div class="w-8 h-8 rounded-full bg-indigo-50 text-indigo-500 flex items-center justify-center">
                                 <i class="fa-solid fa-user-shield text-sm"></i>
                             </div>
-                            <span class="font-bold text-slate-700 text-sm" id="btn-text-account">帳戶與安全</span>
+                            <span class="font-bold text-slate-700 text-sm" id="btn-text-account">Account & Security</span>
                         </div>
                         <i class="fa-solid fa-chevron-right text-slate-300 text-xs"></i>
                     </button>
 
-                    <!-- 管理員內容管理按鈕：只有已批准管理員才會顯示 -->
+                    <!-- Administrator內容管理按鈕：只有已批准Administrator才會顯示 -->
                     <button id="admin-content-button" onclick="openAdminManager()" class="settings-action-row hidden btn-silky w-full p-4 items-center justify-between border-b border-slate-50 hover:bg-indigo-50 active:bg-indigo-100 transition-colors">
                         <div class="flex items-center gap-3">
                             <div class="w-8 h-8 rounded-full bg-indigo-50 text-indigo-500 flex items-center justify-center">
                                 <i class="fa-solid fa-pen-to-square text-sm"></i>
                             </div>
-                            <span class="font-bold text-slate-700 text-sm">內容管理 / Content manager</span>
+                            <span class="font-bold text-slate-700 text-sm">Content manager</span>
                         </div>
                         <i class="fa-solid fa-chevron-right text-slate-300 text-xs"></i>
                     </button>
@@ -416,7 +405,7 @@
                             <div class="w-8 h-8 rounded-full bg-orange-50 text-orange-500 flex items-center justify-center">
                                 <i class="fa-solid fa-comment-dots text-sm"></i>
                             </div>
-                            <span class="font-bold text-slate-700 text-sm" id="btn-text-feedback">意見反饋</span>
+                            <span class="font-bold text-slate-700 text-sm" id="btn-text-feedback">Feedback</span>
                         </div>
                         <i class="fa-solid fa-chevron-right text-slate-300 text-xs"></i>
                     </button>
@@ -428,7 +417,7 @@
                                 <div class="w-8 h-8 rounded-full bg-red-50 text-red-500 flex items-center justify-center group-hover:bg-red-100 transition-colors">
                                     <i class="fa-solid fa-right-from-bracket text-sm"></i>
                                 </div>
-                                <span class="font-bold text-red-500 text-sm" id="btn-text-logout">登出帳號</span>
+                                <span class="font-bold text-red-500 text-sm" id="btn-text-logout">Log out</span>
                             </div>
                         </button>
                     </div>
@@ -439,144 +428,144 @@
             <div id="view-account" class="absolute inset-0 bg-[#f4f6f9] p-5 hidden flex-col z-30 overflow-y-auto no-scrollbar">
                 <div class="flex justify-between items-center mb-6 mt-2 flex-shrink-0">
                     <button onclick="closeAccountView()" class="text-slate-500 flex items-center gap-2 hover:text-slate-800 text-sm font-medium w-20 back-btn-silky">
-                        <i class="fa-solid fa-chevron-left"></i> <span class="back-btn-text">返回</span>
+                        <i class="fa-solid fa-chevron-left"></i> <span class="back-btn-text">Back</span>
                     </button>
-                    <span class="font-bold text-slate-800 text-lg text-center flex-1" id="account-title">帳戶</span>
+                    <span class="font-bold text-slate-800 text-lg text-center flex-1" id="account-title">Account</span>
                     <div class="w-20"></div>
                 </div>
                 
                 <div class="bg-white rounded-2xl shadow-sm border border-slate-100 p-5 space-y-5 flex-shrink-0">
-                    <h3 class="font-bold text-slate-800 text-md border-b pb-2 mb-4" id="label-change-pwd">修改密碼</h3>
+                    <h3 class="font-bold text-slate-800 text-md border-b pb-2 mb-4" id="label-change-pwd">Change password</h3>
                     <div>
-                        <label class="block text-sm font-bold text-slate-700 mb-2" id="label-old-pwd">舊密碼</label>
+                        <label class="block text-sm font-bold text-slate-700 mb-2" id="label-old-pwd">Current password</label>
                         <input type="password" id="input-old-pwd" class="w-full border border-slate-200 rounded-xl p-3 bg-slate-50 text-slate-700 outline-none focus:border-indigo-500 transition-colors duration-300">
                     </div>
                     <div>
-                        <label class="block text-sm font-bold text-slate-700 mb-2" id="label-new-pwd">新密碼</label>
+                        <label class="block text-sm font-bold text-slate-700 mb-2" id="label-new-pwd">New password</label>
                         <input type="password" id="input-new-pwd" class="w-full border border-slate-200 rounded-xl p-3 bg-slate-50 text-slate-700 outline-none focus:border-indigo-500 transition-colors duration-300">
                     </div>
                     <div>
-                        <label class="block text-sm font-bold text-slate-700 mb-2" id="label-confirm-pwd">確認新密碼</label>
+                        <label class="block text-sm font-bold text-slate-700 mb-2" id="label-confirm-pwd">Confirm new password</label>
                         <input type="password" id="input-confirm-pwd" class="w-full border border-slate-200 rounded-xl p-3 bg-slate-50 text-slate-700 outline-none focus:border-indigo-500 transition-colors duration-300">
                     </div>
                     
                     <button onclick="changePassword()" class="btn-silky w-full bg-indigo-500 text-white font-bold py-3.5 rounded-xl shadow-[0_4px_14px_0_rgba(99,102,241,0.39)] hover:bg-indigo-600 hover:shadow-[0_6px_20px_rgba(99,102,241,0.23)] mt-6" id="btn-save-pwd">
-                        更新密碼
+                        Update password
                     </button>
                 </div>
 
                 <section class="mt-5 bg-white rounded-2xl shadow-sm border border-rose-100 p-5 flex-shrink-0">
                     <div class="mb-4">
-                        <h3 class="font-black text-rose-600 text-sm">刪除帳號 / Delete account</h3>
-                        <p class="text-[11px] text-slate-500 leading-relaxed mt-1">輸入目前登入帳號的電郵和密碼。系統會寄出確認連結；開啟連結後才會永久刪除帳號。</p>
+                        <h3 class="font-black text-rose-600 text-sm">Delete account</h3>
+                        <p class="text-[11px] text-slate-500 leading-relaxed mt-1">Enter the email and password for this account. We will email a confirmation link; the account is permanently deleted only after that link is opened.</p>
                     </div>
                     <div class="space-y-3">
                         <div>
-                            <label for="account-deletion-email" class="block text-xs font-bold text-slate-600 mb-1.5">目前帳號電郵 / Current account email</label>
+                            <label for="account-deletion-email" class="block text-xs font-bold text-slate-600 mb-1.5">Current account email</label>
                             <input id="account-deletion-email" type="email" autocomplete="email" class="w-full border-2 border-slate-200 rounded-xl p-3 text-sm font-semibold outline-none focus:border-rose-400">
                         </div>
                         <div>
-                            <label for="account-deletion-password" class="block text-xs font-bold text-slate-600 mb-1.5">目前帳號密碼 / Current password</label>
+                            <label for="account-deletion-password" class="block text-xs font-bold text-slate-600 mb-1.5">Current password</label>
                             <input id="account-deletion-password" type="password" autocomplete="current-password" class="w-full border-2 border-slate-200 rounded-xl p-3 text-sm font-semibold outline-none focus:border-rose-400">
                         </div>
                         <p id="account-deletion-status" class="hidden rounded-xl p-3 text-xs font-bold" role="status"></p>
-                        <button id="account-deletion-button" type="button" onclick="requestAccountDeletion()" class="btn-silky w-full rounded-xl bg-rose-500 text-white py-3.5 font-black"><i class="fa-solid fa-envelope-circle-check mr-2"></i>寄出刪除確認電郵</button>
+                        <button id="account-deletion-button" type="button" onclick="requestAccountDeletion()" class="btn-silky w-full rounded-xl bg-rose-500 text-white py-3.5 font-black"><i class="fa-solid fa-envelope-circle-check mr-2"></i>Send deletion confirmation email</button>
                     </div>
                 </section>
 
                 <section id="super-admin-accounts-panel" class="hidden mt-5 bg-white rounded-2xl shadow-sm border border-violet-100 p-5 flex-shrink-0">
                     <div class="flex items-center justify-between gap-3 mb-3">
                         <div>
-                            <h3 class="font-black text-violet-700 text-sm">帳號管理 / Account management</h3>
-                            <p class="text-[11px] text-slate-500 mt-1">只限總管理員查看及管理學生與管理員帳號；名單內的刪除會即時生效，不會寄出確認電郵。</p>
+                            <h3 class="font-black text-violet-700 text-sm">Account management</h3>
+                            <p class="text-[11px] text-slate-500 mt-1">Only the super administrator can view and manage student and administrator accounts. Deletions from this list take effect immediately without a confirmation email.</p>
                         </div>
-                        <button type="button" onclick="loadManagedAccounts()" class="btn-silky w-9 h-9 rounded-full bg-violet-50 text-violet-600" aria-label="重新載入所有帳號"><i class="fa-solid fa-rotate"></i></button>
+                        <button type="button" onclick="loadManagedAccounts()" class="btn-silky w-9 h-9 rounded-full bg-violet-50 text-violet-600" aria-label="Reload all accounts"><i class="fa-solid fa-rotate"></i></button>
                     </div>
-                    <div id="super-admin-account-list" class="space-y-3"><p class="text-xs text-slate-400">載入中…</p></div>
+                    <div id="super-admin-account-list" class="space-y-3"><p class="text-xs text-slate-400">Loading…</p></div>
                 </section>
 
                 <section id="admin-approval-panel" class="hidden mt-5 bg-white rounded-2xl shadow-sm border border-indigo-100 p-5 flex-shrink-0">
                     <div class="flex items-center justify-between gap-3 mb-3">
                         <div>
-                            <h3 class="font-black text-slate-800 text-sm">管理員申請審批</h3>
+                            <h3 class="font-black text-slate-800 text-sm">Administrator approval requests</h3>
                             <p class="text-[11px] text-slate-500 mt-1">Administrator approval requests</p>
                         </div>
-                        <button type="button" onclick="loadAdminRequests()" class="btn-silky w-9 h-9 rounded-full bg-indigo-50 text-indigo-600" aria-label="重新載入申請"><i class="fa-solid fa-rotate"></i></button>
+                        <button type="button" onclick="loadAdminRequests()" class="btn-silky w-9 h-9 rounded-full bg-indigo-50 text-indigo-600" aria-label="Reload requests"><i class="fa-solid fa-rotate"></i></button>
                     </div>
-                    <div id="admin-request-list" class="space-y-3"><p class="text-xs text-slate-400">載入中…</p></div>
+                    <div id="admin-request-list" class="space-y-3"><p class="text-xs text-slate-400">Loading…</p></div>
                 </section>
             </div>
 
-            <!-- 管理員專用：預設課題及記憶卡管理 -->
+            <!-- Administrator專用：預設課題及記憶卡管理 -->
             <div id="view-admin" class="absolute inset-0 bg-[#f4f6f9] p-5 hidden flex-col z-30 overflow-y-auto no-scrollbar">
                 <div class="grid grid-cols-[5rem_1fr_5rem] items-center gap-3 mb-5 mt-2 flex-shrink-0">
                     <button type="button" onclick="closeAdminManager()" class="back-btn-silky w-20 text-slate-500 flex items-center gap-2 text-sm font-bold">
-                        <i class="fa-solid fa-chevron-left"></i><span class="back-btn-text">返回</span>
+                        <i class="fa-solid fa-chevron-left"></i><span class="back-btn-text">Back</span>
                     </button>
                     <div class="text-center">
-                        <h2 class="font-black text-slate-900 text-lg">內容管理</h2>
+                        <h2 class="font-black text-slate-900 text-lg">Content Manager</h2>
                         <p class="text-[10px] text-indigo-500 font-bold tracking-wide">ADMIN CONTENT MANAGER</p>
                     </div>
-                    <div class="flex justify-end"><button type="button" onclick="refreshAdminContent()" class="btn-silky w-10 h-10 rounded-full bg-white border border-slate-200 text-indigo-500 shadow-sm" aria-label="重新載入內容"><i class="fa-solid fa-rotate"></i></button></div>
+                    <div class="flex justify-end"><button type="button" onclick="refreshAdminContent()" class="btn-silky w-10 h-10 rounded-full bg-white border border-slate-200 text-indigo-500 shadow-sm" aria-label="Reload content"><i class="fa-solid fa-rotate"></i></button></div>
                 </div>
 
                 <div class="rounded-2xl bg-indigo-50 border border-indigo-100 p-4 mb-4 text-xs leading-relaxed text-indigo-800">
-                    這裡的改動會套用到所有學生帳戶。所有新增、修改和刪除操作均受管理員權限保護。
+                    Changes made here apply to every student account. All create, edit and delete actions are protected by administrator permissions.
                 </div>
                 <p id="admin-manager-status" class="hidden rounded-xl px-3 py-2 mb-3 text-xs font-bold" role="status"></p>
 
                 <div class="grid grid-cols-2 gap-2 bg-white rounded-2xl p-1.5 shadow-sm border border-slate-100 mb-4">
-                    <button id="admin-tab-topics" type="button" onclick="switchAdminPanel('topics')" class="btn-silky py-2.5 rounded-xl bg-indigo-500 text-white font-black text-sm"><i class="fa-solid fa-folder-tree mr-1"></i>課題</button>
-                    <button id="admin-tab-cards" type="button" onclick="switchAdminPanel('cards')" class="btn-silky py-2.5 rounded-xl text-slate-500 font-black text-sm"><i class="fa-solid fa-clone mr-1"></i>記憶卡</button>
+                    <button id="admin-tab-topics" type="button" onclick="switchAdminPanel('topics')" class="btn-silky py-2.5 rounded-xl bg-indigo-500 text-white font-black text-sm"><i class="fa-solid fa-folder-tree mr-1"></i>Topics</button>
+                    <button id="admin-tab-cards" type="button" onclick="switchAdminPanel('cards')" class="btn-silky py-2.5 rounded-xl text-slate-500 font-black text-sm"><i class="fa-solid fa-clone mr-1"></i>Flashcards</button>
                 </div>
 
                 <section id="admin-topics-panel" class="flex flex-col gap-3 pb-12">
-                    <button type="button" onclick="openAdminTopicForm()" class="btn-silky w-full rounded-2xl bg-indigo-500 text-white py-3.5 font-black shadow-lg shadow-indigo-100"><i class="fa-solid fa-plus mr-2"></i>新增課題 / Add topic</button>
+                    <button type="button" onclick="openAdminTopicForm()" class="btn-silky w-full rounded-2xl bg-indigo-500 text-white py-3.5 font-black shadow-lg shadow-indigo-100"><i class="fa-solid fa-plus mr-2"></i>Add topic</button>
                     <form id="admin-topic-form" onsubmit="saveAdminTopic(event)" class="hidden bg-white rounded-2xl border border-indigo-100 shadow-sm p-4 space-y-3">
                         <input id="admin-topic-edit-id" type="hidden">
                         <div class="flex items-center justify-between">
-                            <h3 id="admin-topic-form-title" class="font-black text-slate-800">新增課題</h3>
+                            <h3 id="admin-topic-form-title" class="font-black text-slate-800">Add topic</h3>
                             <button type="button" onclick="closeAdminTopicForm()" class="w-8 h-8 rounded-full bg-slate-100 text-slate-500"><i class="fa-solid fa-xmark"></i></button>
                         </div>
-                        <div>
+                        <div class="hidden" aria-hidden="true">
                             <label for="admin-topic-zh" class="block text-xs font-bold text-slate-600 mb-1.5">中文課題名稱</label>
-                            <input id="admin-topic-zh" maxlength="100" required class="w-full border-2 border-slate-200 rounded-xl p-3 text-sm font-semibold outline-none focus:border-indigo-400">
+                            <input id="admin-topic-zh" type="hidden" maxlength="100">
                         </div>
                         <div>
                             <label for="admin-topic-en" class="block text-xs font-bold text-slate-600 mb-1.5">English topic name</label>
                             <input id="admin-topic-en" maxlength="140" required class="w-full border-2 border-slate-200 rounded-xl p-3 text-sm font-semibold outline-none focus:border-indigo-400">
                         </div>
-                        <button id="admin-topic-save" type="submit" class="btn-silky w-full rounded-xl bg-emerald-500 text-white py-3 font-black">儲存課題 / Save topic</button>
+                        <button id="admin-topic-save" type="submit" class="btn-silky w-full rounded-xl bg-emerald-500 text-white py-3 font-black">Save topic</button>
                     </form>
                     <form id="admin-subtopic-form" onsubmit="saveAdminSubtopic(event)" class="hidden bg-white rounded-2xl border border-violet-100 shadow-sm p-4 space-y-3">
                         <input id="admin-subtopic-topic-id" type="hidden">
                         <input id="admin-subtopic-edit-id" type="hidden">
                         <div class="flex items-center justify-between">
                             <div>
-                                <h3 id="admin-subtopic-form-title" class="font-black text-slate-800">新增 Subtopic</h3>
+                                <h3 id="admin-subtopic-form-title" class="font-black text-slate-800">Add subtopic</h3>
                                 <p id="admin-subtopic-parent-name" class="text-[11px] text-violet-600 font-bold mt-0.5"></p>
                             </div>
                             <button type="button" onclick="closeAdminSubtopicForm()" class="w-8 h-8 rounded-full bg-slate-100 text-slate-500"><i class="fa-solid fa-xmark"></i></button>
                         </div>
-                        <div>
+                        <div class="hidden" aria-hidden="true">
                             <label for="admin-subtopic-zh" class="block text-xs font-bold text-slate-600 mb-1.5">中文 Subtopic 名稱</label>
-                            <input id="admin-subtopic-zh" maxlength="120" required class="w-full border-2 border-slate-200 rounded-xl p-3 text-sm font-semibold outline-none focus:border-violet-400">
+                            <input id="admin-subtopic-zh" type="hidden" maxlength="120">
                         </div>
                         <div>
                             <label for="admin-subtopic-en" class="block text-xs font-bold text-slate-600 mb-1.5">English subtopic name</label>
                             <input id="admin-subtopic-en" maxlength="160" required class="w-full border-2 border-slate-200 rounded-xl p-3 text-sm font-semibold outline-none focus:border-violet-400">
                         </div>
-                        <button id="admin-subtopic-save" type="submit" class="btn-silky w-full rounded-xl bg-violet-500 text-white py-3 font-black">儲存 Subtopic / Save</button>
+                        <button id="admin-subtopic-save" type="submit" class="btn-silky w-full rounded-xl bg-violet-500 text-white py-3 font-black">Save subtopic</button>
                     </form>
-                    <div id="admin-topic-list" class="space-y-3"><p class="text-xs text-slate-400 text-center py-8">載入中…</p></div>
+                    <div id="admin-topic-list" class="space-y-3"><p class="text-xs text-slate-400 text-center py-8">Loading…</p></div>
                 </section>
 
                 <section id="admin-cards-panel" class="hidden flex-col gap-3 pb-12">
-                    <button type="button" onclick="openAdminCardEditor()" class="btn-silky w-full rounded-2xl bg-indigo-500 text-white py-3.5 font-black shadow-lg shadow-indigo-100"><i class="fa-solid fa-plus mr-2"></i>新增預設記憶卡</button>
+                    <button type="button" onclick="openAdminCardEditor()" class="btn-silky w-full rounded-2xl bg-indigo-500 text-white py-3.5 font-black shadow-lg shadow-indigo-100"><i class="fa-solid fa-plus mr-2"></i>Add shared flashcard</button>
                     <div class="bg-white rounded-2xl border border-slate-100 p-3 space-y-2 shadow-sm">
                         <div class="relative">
                             <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-3.5 text-slate-300"></i>
-                            <input id="admin-card-search" type="search" oninput="renderAdminCards()" class="w-full border border-slate-200 bg-slate-50 rounded-xl py-3 pl-10 pr-3 text-sm outline-none focus:border-indigo-400" placeholder="搜尋題目或答案…">
+                            <input id="admin-card-search" type="search" oninput="renderAdminCards()" class="w-full border border-slate-200 bg-slate-50 rounded-xl py-3 pl-10 pr-3 text-sm outline-none focus:border-indigo-400" placeholder="Search questions or answers…">
                         </div>
                         <div class="relative">
                             <select id="admin-card-topic-filter" onchange="updateAdminCardSubtopicFilter(); renderAdminCards()" class="w-full border border-slate-200 bg-slate-50 rounded-xl p-3 pr-9 text-sm font-bold outline-none"></select>
@@ -588,35 +577,35 @@
                         </div>
                     </div>
                     <p id="admin-card-count" class="text-[11px] text-slate-500 font-bold px-1"></p>
-                    <div id="admin-card-list" class="space-y-3"><p class="text-xs text-slate-400 text-center py-8">載入中…</p></div>
+                    <div id="admin-card-list" class="space-y-3"><p class="text-xs text-slate-400 text-center py-8">Loading…</p></div>
                 </section>
             </div>
 
-            <!-- 管理員記憶卡編輯器 -->
+            <!-- Administrator記憶卡編輯器 -->
             <div id="view-admin-card-editor" class="absolute inset-0 bg-[#f4f6f9] p-5 hidden flex-col z-40 overflow-y-auto no-scrollbar">
                 <div class="flex items-center justify-between mb-5 mt-2 flex-shrink-0">
-                    <button type="button" onclick="closeAdminCardEditor()" class="back-btn-silky w-20 text-slate-500 flex items-center gap-2 text-sm font-bold"><i class="fa-solid fa-chevron-left"></i><span class="back-btn-text">返回</span></button>
-                    <h2 id="admin-card-editor-title" class="font-black text-slate-900 text-lg text-center">新增預設記憶卡</h2>
+                    <button type="button" onclick="closeAdminCardEditor()" class="back-btn-silky w-20 text-slate-500 flex items-center gap-2 text-sm font-bold"><i class="fa-solid fa-chevron-left"></i><span class="back-btn-text">Back</span></button>
+                    <h2 id="admin-card-editor-title" class="font-black text-slate-900 text-lg text-center">Add shared flashcard</h2>
                     <div class="w-20"></div>
                 </div>
                 <form id="admin-card-form" onsubmit="saveAdminCard(event)" class="bg-white rounded-2xl border border-slate-100 shadow-sm p-5 space-y-4 mb-10">
                     <input id="admin-card-id" type="hidden">
                     <div>
-                        <label for="admin-card-topic" class="block text-xs font-bold text-slate-600 mb-1.5">課題 / Topic</label>
+                        <label for="admin-card-topic" class="block text-xs font-bold text-slate-600 mb-1.5">Topic</label>
                         <select id="admin-card-topic" onchange="updateAdminSubtopicField()" required class="w-full border-2 border-slate-200 rounded-xl p-3 text-sm font-bold outline-none focus:border-indigo-400"></select>
                     </div>
                     <div id="admin-card-subtopic-wrap">
-                        <label for="admin-card-subtopic" class="block text-xs font-bold text-slate-600 mb-1.5">Subtopic / 章節</label>
+                        <label for="admin-card-subtopic" class="block text-xs font-bold text-slate-600 mb-1.5">Subtopic</label>
                         <select id="admin-card-subtopic" class="w-full border-2 border-slate-200 rounded-xl p-3 text-sm font-bold outline-none focus:border-violet-400"></select>
-                        <p id="admin-card-subtopic-help" class="text-[10px] text-slate-400 mt-1.5">請先選擇課題，再選擇 Subtopic。</p>
+                        <p id="admin-card-subtopic-help" class="text-[10px] text-slate-400 mt-1.5">Select a topic, then choose a subtopic.</p>
                     </div>
-                    <div>
+                    <div class="hidden" aria-hidden="true">
                         <label for="admin-card-q-zh" class="block text-xs font-bold text-slate-600 mb-1.5">中文題目</label>
-                        <textarea id="admin-card-q-zh" rows="4" maxlength="5000" required class="w-full border-2 border-slate-200 rounded-xl p-3 text-sm leading-relaxed outline-none focus:border-indigo-400"></textarea>
+                        <textarea id="admin-card-q-zh" rows="4" maxlength="5000"></textarea>
                     </div>
-                    <div>
+                    <div class="hidden" aria-hidden="true">
                         <label for="admin-card-a-zh" class="block text-xs font-bold text-slate-600 mb-1.5">中文答案</label>
-                        <textarea id="admin-card-a-zh" rows="5" maxlength="8000" required class="w-full border-2 border-slate-200 rounded-xl p-3 text-sm leading-relaxed outline-none focus:border-emerald-400"></textarea>
+                        <textarea id="admin-card-a-zh" rows="5" maxlength="8000"></textarea>
                     </div>
                     <div>
                         <label for="admin-card-q-en" class="block text-xs font-bold text-slate-600 mb-1.5">English question</label>
@@ -628,21 +617,21 @@
                     </div>
 
                     <div class="rounded-2xl bg-blue-50/70 border border-blue-100 p-4">
-                        <label for="admin-card-q-image" class="block text-xs font-black text-blue-800 mb-2">題目圖片 / Question image</label>
-                        <img id="admin-card-q-preview" src="" class="hidden w-full max-h-52 object-contain bg-white rounded-xl border border-blue-100 mb-3" alt="題目圖片預覽">
+                        <label for="admin-card-q-image" class="block text-xs font-black text-blue-800 mb-2">Question image</label>
+                        <img id="admin-card-q-preview" src="" class="hidden w-full max-h-52 object-contain bg-white rounded-xl border border-blue-100 mb-3" alt="Question image preview">
                         <input id="admin-card-q-image" type="file" accept="image/jpeg,image/png,image/webp,image/gif" onchange="previewAdminImage('question')" class="w-full text-xs text-slate-500 file:mr-2 file:py-2 file:px-3 file:rounded-lg file:border-0 file:font-bold file:bg-blue-100 file:text-blue-700">
-                        <label id="admin-card-q-remove-wrap" class="hidden mt-3 items-center gap-2 text-xs font-bold text-rose-600"><input id="admin-card-q-remove" type="checkbox" class="w-4 h-4 accent-rose-500">刪除現有題目圖片</label>
+                        <label id="admin-card-q-remove-wrap" class="hidden mt-3 items-center gap-2 text-xs font-bold text-rose-600"><input id="admin-card-q-remove" type="checkbox" class="w-4 h-4 accent-rose-500">Remove current question image</label>
                     </div>
 
                     <div class="rounded-2xl bg-emerald-50/70 border border-emerald-100 p-4">
-                        <label for="admin-card-a-image" class="block text-xs font-black text-emerald-800 mb-2">答案圖片 / Answer image</label>
-                        <img id="admin-card-a-preview" src="" class="hidden w-full max-h-52 object-contain bg-white rounded-xl border border-emerald-100 mb-3" alt="答案圖片預覽">
+                        <label for="admin-card-a-image" class="block text-xs font-black text-emerald-800 mb-2">Answer image</label>
+                        <img id="admin-card-a-preview" src="" class="hidden w-full max-h-52 object-contain bg-white rounded-xl border border-emerald-100 mb-3" alt="Answer image preview">
                         <input id="admin-card-a-image" type="file" accept="image/jpeg,image/png,image/webp,image/gif" onchange="previewAdminImage('answer')" class="w-full text-xs text-slate-500 file:mr-2 file:py-2 file:px-3 file:rounded-lg file:border-0 file:font-bold file:bg-emerald-100 file:text-emerald-700">
-                        <label id="admin-card-a-remove-wrap" class="hidden mt-3 items-center gap-2 text-xs font-bold text-rose-600"><input id="admin-card-a-remove" type="checkbox" class="w-4 h-4 accent-rose-500">刪除現有答案圖片</label>
+                        <label id="admin-card-a-remove-wrap" class="hidden mt-3 items-center gap-2 text-xs font-bold text-rose-600"><input id="admin-card-a-remove" type="checkbox" class="w-4 h-4 accent-rose-500">Remove current answer image</label>
                     </div>
 
                     <p id="admin-card-form-error" class="hidden rounded-xl bg-rose-50 text-rose-600 p-3 text-xs font-bold" role="alert"></p>
-                    <button id="admin-card-save" type="submit" class="btn-silky w-full rounded-xl bg-indigo-500 text-white py-3.5 font-black shadow-lg shadow-indigo-100">儲存記憶卡 / Save flashcard</button>
+                    <button id="admin-card-save" type="submit" class="btn-silky w-full rounded-xl bg-indigo-500 text-white py-3.5 font-black shadow-lg shadow-indigo-100">Save flashcard</button>
                 </form>
             </div>
 
@@ -650,15 +639,15 @@
             <div id="view-add-card" class="absolute inset-0 bg-[#f4f6f9] p-5 hidden flex-col z-30 overflow-y-auto no-scrollbar">
                 <div class="flex justify-between items-center mb-6 mt-2 flex-shrink-0">
                     <button onclick="closeAddCard()" class="text-slate-500 flex items-center gap-2 hover:text-slate-800 text-sm font-medium w-20 back-btn-silky">
-                        <i class="fa-solid fa-chevron-left"></i> <span class="back-btn-text">返回</span>
+                        <i class="fa-solid fa-chevron-left"></i> <span class="back-btn-text">Back</span>
                     </button>
-                    <span class="font-bold text-slate-800 text-lg text-center flex-1" id="add-card-title">新增記憶卡</span>
+                    <span class="font-bold text-slate-800 text-lg text-center flex-1" id="add-card-title">Add Flashcard</span>
                     <div class="w-20"></div>
                 </div>
                 
                 <div class="bg-white rounded-2xl shadow-sm border border-slate-100 p-5 space-y-5 flex-shrink-0">
                     <div>
-                        <label class="block text-sm font-bold text-slate-700 mb-2" id="label-topic">選擇課題</label>
+                        <label class="block text-sm font-bold text-slate-700 mb-2" id="label-topic">Select Topic</label>
                         <div class="relative btn-silky">
                             <select id="input-topic" class="w-full border border-slate-200 rounded-xl p-3 bg-slate-50 text-slate-700 outline-none focus:border-blue-500 font-medium appearance-none cursor-pointer">
                             </select>
@@ -666,26 +655,26 @@
                         </div>
                     </div>
                     <div>
-                        <label class="block text-sm font-bold text-slate-700 mb-2" id="label-qtext">題目</label>
-                        <textarea id="input-qtext" rows="3" class="w-full border border-slate-200 rounded-xl p-3 bg-slate-50 text-slate-700 outline-none focus:border-blue-500 transition-colors duration-300 placeholder:text-slate-400" placeholder="請輸入問題內容..."></textarea>
+                        <label class="block text-sm font-bold text-slate-700 mb-2" id="label-qtext">Question</label>
+                        <textarea id="input-qtext" rows="3" class="w-full border border-slate-200 rounded-xl p-3 bg-slate-50 text-slate-700 outline-none focus:border-blue-500 transition-colors duration-300 placeholder:text-slate-400" placeholder="Enter the question…"></textarea>
                     </div>
                     <div>
-                        <label class="block text-sm font-bold text-slate-700 mb-2" id="label-qimg">題目圖片 (選填)</label>
+                        <label class="block text-sm font-bold text-slate-700 mb-2" id="label-qimg">Question Image (Optional)</label>
                         <input type="file" id="input-qimg" accept="image/*" class="w-full text-sm text-slate-500 file:mr-4 file:py-2.5 file:px-4 file:rounded-xl file:border-0 file:text-sm file:font-bold file:bg-blue-50 file:text-blue-600 hover:file:bg-blue-100 transition-colors duration-300 cursor-pointer btn-silky">
                         <img id="preview-img" src="" class="mt-3 max-h-40 hidden rounded-xl border border-slate-200 object-contain w-full bg-slate-50 transition-opacity duration-300">
                     </div>
                     <div>
-                        <label class="block text-sm font-bold text-slate-700 mb-2" id="label-atext">答案</label>
-                        <textarea id="input-atext" rows="3" class="w-full border border-slate-200 rounded-xl p-3 bg-slate-50 text-slate-700 outline-none focus:border-emerald-500 transition-colors duration-300 placeholder:text-slate-400" placeholder="請輸入答案內容..."></textarea>
+                        <label class="block text-sm font-bold text-slate-700 mb-2" id="label-atext">Answer</label>
+                        <textarea id="input-atext" rows="3" class="w-full border border-slate-200 rounded-xl p-3 bg-slate-50 text-slate-700 outline-none focus:border-emerald-500 transition-colors duration-300 placeholder:text-slate-400" placeholder="Enter the answer…"></textarea>
                     </div>
                     <div>
-                        <label class="block text-sm font-bold text-slate-700 mb-2" id="label-aimg">答案圖片 (選填)</label>
+                        <label class="block text-sm font-bold text-slate-700 mb-2" id="label-aimg">Answer Image (Optional)</label>
                         <input type="file" id="input-aimg" accept="image/*" class="w-full text-sm text-slate-500 file:mr-4 file:py-2.5 file:px-4 file:rounded-xl file:border-0 file:text-sm file:font-bold file:bg-emerald-50 file:text-emerald-600 hover:file:bg-emerald-100 transition-colors duration-300 cursor-pointer btn-silky">
-                        <img id="preview-answer-img" src="" class="mt-3 max-h-40 hidden rounded-xl border border-slate-200 object-contain w-full bg-slate-50 transition-opacity duration-300" alt="答案圖片預覽">
+                        <img id="preview-answer-img" src="" class="mt-3 max-h-40 hidden rounded-xl border border-slate-200 object-contain w-full bg-slate-50 transition-opacity duration-300" alt="Answer image preview">
                     </div>
                     
                     <button onclick="saveNewCard()" class="btn-silky w-full bg-blue-500 text-white font-bold py-3.5 rounded-xl shadow-[0_4px_14px_0_rgba(59,130,246,0.39)] hover:bg-blue-600 hover:shadow-[0_6px_20px_rgba(59,130,246,0.23)] mt-6" id="btn-save-card">
-                        儲存記憶卡
+                        Save Card
                     </button>
                 </div>
                 <div class="h-12 flex-shrink-0 w-full"></div>
@@ -695,7 +684,7 @@
             <div id="view-flashcards" class="absolute inset-0 bg-[#f4f6f9] p-5 hidden flex-col z-20 pb-10 overflow-y-auto no-scrollbar">
                 <div class="flex justify-between items-center mb-4">
                     <button onclick="closeReview()" class="text-slate-500 flex items-center gap-2 hover:text-slate-800 text-sm font-medium back-btn-silky">
-                        <i class="fa-solid fa-chevron-left"></i> <span class="back-btn-text">返回</span>
+                        <i class="fa-solid fa-chevron-left"></i> <span class="back-btn-text">Back</span>
                     </button>
                     <span id="progress-text" class="text-sm font-bold text-slate-500 bg-slate-200 px-3 py-1 rounded-full transition-all duration-300">1 / 3</span>
                 </div>
@@ -707,31 +696,31 @@
                             <button onclick="toggleStar(event)" class="absolute top-5 left-5 text-2xl text-slate-200 hover:text-yellow-400 transition-colors duration-300 btn-silky z-30">
                                 <i class="fa-solid fa-star star-icon"></i>
                             </button>
-                            <button type="button" onclick="editCurrentFlashcard(event)" class="admin-review-edit hidden absolute top-4 right-4 w-10 h-10 rounded-full bg-indigo-50 text-indigo-600 items-center justify-center shadow-sm border border-indigo-100 btn-silky z-30" aria-label="編輯這張預設記憶卡" title="編輯這張預設記憶卡">
+                            <button type="button" onclick="editCurrentFlashcard(event)" class="admin-review-edit hidden absolute top-4 right-4 w-10 h-10 rounded-full bg-indigo-50 text-indigo-600 items-center justify-center shadow-sm border border-indigo-100 btn-silky z-30" aria-label="Edit this shared flashcard" title="Edit this shared flashcard">
                                 <i class="fa-solid fa-pen"></i>
                             </button>
                             <span class="review-label w-full text-center text-blue-500 text-sm font-bold uppercase tracking-widest" id="label-q">Question</span>
                             <div class="review-content flex flex-col justify-center items-center w-full">
-                                <div id="question-text" class="review-copy text-[22px] font-bold text-center text-slate-800 leading-snug w-full transition-opacity duration-300">載入中...</div>
+                                <div id="question-text" class="review-copy text-[22px] font-bold text-center text-slate-800 leading-snug w-full transition-opacity duration-300">Loading…</div>
                                 <div id="question-image-container" class="mt-4 hidden w-full flex justify-center">
-                                    <img id="question-image" src="" onclick="openImagePreview(event, this.src)" class="diagram-img rounded-xl border border-slate-100 bg-white" alt="題目圖示">
+                                    <img id="question-image" src="" onclick="openImagePreview(event, this.src)" class="diagram-img rounded-xl border border-slate-100 bg-white" alt="Question diagram">
                                 </div>
                             </div>
-                            <p class="review-hint text-slate-300 text-xs animate-pulse font-medium" id="hint-text">點擊卡片翻轉睇答案</p>
+                            <p class="review-hint text-slate-300 text-xs animate-pulse font-medium" id="hint-text">Tap the card to reveal the answer</p>
                         </div>
                         <!-- 背面 -->
                         <div class="review-face absolute w-full h-full bg-emerald-50 rounded-3xl shadow-md backface-hidden rotate-y-180 flex flex-col items-center p-6 border-2 border-emerald-200 no-scrollbar">
                             <button onclick="toggleStar(event)" class="absolute top-5 left-5 text-2xl text-slate-200 hover:text-yellow-400 transition-colors duration-300 btn-silky z-30">
                                 <i class="fa-solid fa-star star-icon"></i>
                             </button>
-                            <button type="button" onclick="editCurrentFlashcard(event)" class="admin-review-edit hidden absolute top-4 right-4 w-10 h-10 rounded-full bg-white text-indigo-600 items-center justify-center shadow-sm border border-indigo-100 btn-silky z-30" aria-label="編輯這張預設記憶卡" title="編輯這張預設記憶卡">
+                            <button type="button" onclick="editCurrentFlashcard(event)" class="admin-review-edit hidden absolute top-4 right-4 w-10 h-10 rounded-full bg-white text-indigo-600 items-center justify-center shadow-sm border border-indigo-100 btn-silky z-30" aria-label="Edit this shared flashcard" title="Edit this shared flashcard">
                                 <i class="fa-solid fa-pen"></i>
                             </button>
                             <span class="review-label w-full text-center text-emerald-600 text-sm font-bold uppercase tracking-widest" id="label-a">Answer</span>
                             <div class="review-content flex flex-col justify-center items-center w-full">
-                                <div id="answer-text" class="review-copy text-[22px] font-bold text-center text-emerald-900 leading-snug w-full transition-opacity duration-300">載入中...</div>
+                                <div id="answer-text" class="review-copy text-[22px] font-bold text-center text-emerald-900 leading-snug w-full transition-opacity duration-300">Loading…</div>
                                 <div id="answer-image-container" class="mt-4 hidden w-full flex justify-center">
-                                    <img id="answer-image" src="" onclick="openImagePreview(event, this.src)" class="diagram-img rounded-xl border border-emerald-200 bg-white" alt="答案圖示">
+                                    <img id="answer-image" src="" onclick="openImagePreview(event, this.src)" class="diagram-img rounded-xl border border-emerald-200 bg-white" alt="Answer diagram">
                                 </div>
                             </div>
                         </div>
@@ -739,8 +728,8 @@
                 </div>
 
                 <div id="review-nav-controls" class="flex justify-between mt-8 gap-4 flex-shrink-0">
-                    <button onclick="prevCard()" class="btn-silky flex-1 bg-white border-2 border-slate-200 text-slate-600 font-bold py-3.5 rounded-2xl shadow-sm hover:bg-slate-50" id="btn-prev">上一題</button>
-                    <button onclick="nextCard()" class="btn-silky flex-1 bg-emerald-500 text-white font-bold py-3.5 rounded-2xl shadow-[0_4px_14px_0_rgba(16,185,129,0.39)] hover:bg-emerald-600 hover:shadow-[0_6px_20px_rgba(16,185,129,0.23)]" id="btn-next">下一題</button>
+                    <button onclick="prevCard()" class="btn-silky flex-1 bg-white border-2 border-slate-200 text-slate-600 font-bold py-3.5 rounded-2xl shadow-sm hover:bg-slate-50" id="btn-prev">Previous</button>
+                    <button onclick="nextCard()" class="btn-silky flex-1 bg-emerald-500 text-white font-bold py-3.5 rounded-2xl shadow-[0_4px_14px_0_rgba(16,185,129,0.39)] hover:bg-emerald-600 hover:shadow-[0_6px_20px_rgba(16,185,129,0.23)]" id="btn-next">Next</button>
                 </div>
             </div>
         </div>
@@ -749,15 +738,15 @@
         <nav id="bottom-nav" class="absolute bottom-6 left-1/2 transform -translate-x-1/2 w-[94%] max-w-[400px] bg-white/95 backdrop-blur-md shadow-[0_8px_30px_rgb(0,0,0,0.12)] rounded-full p-1.5 flex justify-around items-center z-50 border border-slate-100 gap-1 transition-transform duration-300">
             <button onclick="switchTab('home')" id="tab-home" class="nav-btn btn-silky w-1/3 flex flex-col items-center justify-center py-2 rounded-full bg-[#fff0e6] text-[#c05a22]">
                 <i class="fa-solid fa-house text-[20px] mb-1"></i>
-                <span class="text-[10px] font-bold" id="nav-text-home">主頁</span>
+                <span class="text-[10px] font-bold" id="nav-text-home">Home</span>
             </button>
             <button onclick="switchTab('starred')" id="tab-starred" class="nav-btn btn-silky w-1/3 flex flex-col items-center justify-center py-2 rounded-full text-slate-400 hover:bg-slate-50 hover:text-slate-500">
                 <i class="fa-solid fa-star text-[20px] mb-1"></i>
-                <span class="text-[10px] font-bold" id="nav-text-starred">星星卡</span>
+                <span class="text-[10px] font-bold" id="nav-text-starred">Starred</span>
             </button>
             <button onclick="switchTab('settings')" id="tab-settings" class="nav-btn btn-silky w-1/3 flex flex-col items-center justify-center py-2 rounded-full text-slate-400 hover:bg-slate-50 hover:text-slate-500">
                 <i class="fa-solid fa-gear text-[20px] mb-1"></i>
-                <span class="text-[10px] font-bold" id="nav-text-settings">設定</span>
+                <span class="text-[10px] font-bold" id="nav-text-settings">Settings</span>
             </button>
         </nav>
 
@@ -767,8 +756,8 @@
                 <div id="modal-icon" class="w-16 h-16 rounded-full bg-blue-50 text-blue-500 flex items-center justify-center text-2xl mb-4">
                     <i class="fa-solid fa-envelope"></i>
                 </div>
-                <h3 id="modal-title" class="text-xl font-bold text-slate-800 mb-2">標題</h3>
-                <p id="modal-desc" class="text-slate-500 text-sm mb-6 leading-relaxed">描述內容</p>
+                <h3 id="modal-title" class="text-xl font-bold text-slate-800 mb-2">Message</h3>
+                <p id="modal-desc" class="text-slate-500 text-sm mb-6 leading-relaxed">Details</p>
                 <div class="flex gap-3 w-full" id="modal-actions">
                     <!-- 彈窗按鈕由 JS 動態生成 -->
                 </div>
@@ -777,10 +766,10 @@
 
         <!-- 圖片全螢幕預覽，確保複雜標示可完整閱讀 -->
         <div id="image-preview-modal" class="absolute inset-0 z-[120] hidden items-center justify-center bg-slate-950/90 p-3" onclick="closeImagePreview()">
-            <button type="button" onclick="closeImagePreview(event)" class="absolute right-4 top-4 w-11 h-11 rounded-full bg-white/15 text-white text-xl btn-silky" aria-label="關閉圖片預覽">
+            <button type="button" onclick="closeImagePreview(event)" class="absolute right-4 top-4 w-11 h-11 rounded-full bg-white/15 text-white text-xl btn-silky" aria-label="Close image preview">
                 <i class="fa-solid fa-xmark"></i>
             </button>
-            <img id="image-preview-full" src="" class="max-w-full max-h-full object-contain rounded-xl bg-white" alt="完整圖片預覽">
+            <img id="image-preview-full" src="" class="max-w-full max-h-full object-contain rounded-xl bg-white" alt="Full-size image preview">
         </div>
 
     </div>
@@ -829,10 +818,11 @@
         let currentReviewList = [];
         let currentIndex = 0;
         let isFlipped = false;
-        let currentLang = 'zh'; 
+        const APP_LANGUAGE = 'en';
+        let currentLang = APP_LANGUAGE;
         let activeTab = 'home';
         let isLoggedOut = false; 
-        let defaultLang = 'zh';
+        let defaultLang = APP_LANGUAGE;
         let loginRole = 'student';
         let currentUser = null;
         let reviewReturnView = 'tab';
@@ -849,15 +839,15 @@
         const managedCardIds = new Set();
         const sourceCardIds = new Set(sourceFlashcards.map(card => card.id));
         const ADMIN_IMAGE_BUCKET = 'chemistry-flashcard-images';
-        const STORAGE_KEY = 'chemistry-blank-flashcards-ui-v1';
-        const DEFAULT_LANGUAGE_KEY = 'chemistry-blank-flashcards-default-language-v1';
-        const SUPABASE_URL = 'https://jhrsdcxkryvblkygnnhh.supabase.co';
-        const SUPABASE_PUBLISHABLE_KEY = 'sb_publishable_8E4lBCQ0leSFRT1s9iNLwg_74Lgk4P3';
-        const AUTH_PRODUCTION_REDIRECT_URL = 'https://chemistry-flashcard-bank-hk.stapes-scrips-4o4vxq.chatgpt.site/chemistry/';
+        const STORAGE_KEY = 'science-vocab-flashcards-ui-v1';
+        const DEFAULT_LANGUAGE_KEY = 'science-vocab-flashcards-language-v1';
+        const SUPABASE_URL = 'https://xrvhtkgbguflsildhrzv.supabase.co';
+        const SUPABASE_PUBLISHABLE_KEY = 'sb_publishable_JjQAcXeAIN_66sgCK9Ifcw_tP_Jus8l';
+        const AUTH_PRODUCTION_REDIRECT_URL = 'https://lamyeunglung20-tech.github.io/chemistry-flashcard-bank-hk/blank-flashcard-app.html';
         const AUTH_APPROVER_EMAIL = 'lamyeunglung20@gmail.com';
-        const AUTH_OAUTH_ROLE_KEY = 'chemistry-blank-flashcards-oauth-role-v1';
-        const AUTH_RECOVERY_KEY = 'chemistry-blank-flashcards-password-recovery-v1';
-        const AUTH_RECOVERY_EMAIL_KEY = 'chemistry-blank-flashcards-password-recovery-email-v1';
+        const AUTH_OAUTH_ROLE_KEY = 'science-vocab-flashcards-oauth-role-v1';
+        const AUTH_RECOVERY_KEY = 'science-vocab-flashcards-password-recovery-v1';
+        const AUTH_RECOVERY_EMAIL_KEY = 'science-vocab-flashcards-password-recovery-email-v1';
         let supabaseClient = null;
         let authMode = 'login';
         let authenticationReady = false;
@@ -934,11 +924,11 @@
         }, 250);
 
         const uiTranslations = {
-            zh: { header: "卡片溫習庫", back: "返回", hint: "點擊卡片翻轉", prev: "上一題", next: "下一題", navHome: "主頁", navStar: "星星卡", navSet: "設定", starTitle: "星星卡", starEmpty: "你尚未儲存任何題目！", btnReviewStar: "溫習星星卡", waitMsg: "此章節暫時未有題目，不如自己新增一張？",
+            zh: { header: "Science Vocab Flashcards", back: "返回", hint: "點擊卡片翻轉", prev: "上一題", next: "下一題", navHome: "主頁", navStar: "星星卡", navSet: "設定", starTitle: "星星卡", starEmpty: "你尚未儲存任何題目！", btnReviewStar: "溫習星星卡", waitMsg: "此章節暫時未有題目，不如自己新增一張？",
                   addTitle: "新增記憶卡", addTopic: "選擇課題", addQ: "題目", addImg: "題目圖片 (選填)", addA: "答案", addAnswerImg: "答案圖片 (選填)", addBtn: "儲存記憶卡", starFilterAll: "全部課題",
                   setMain: "設定", setFeedback: "意見反饋", setLogout: "登出帳號", guest: "訪客", notLoggedIn: "未登入", online: "在線", offline: "離線",
                   feedbackTitle: "意見反饋", feedbackDesc: "有任何問題請聯絡這個 Email：<br><a href='mailto:lamyeunglung20@gmail.com' class='text-blue-500 font-bold mt-2 inline-block hover:underline'>lamyeunglung20@gmail.com</a>", btnGotIt: "知道",
-                  logoutTitle: "登出帳號", logoutDesc: "確定要登出目前的帳號嗎？", btnYes: "登出", btnNo: "取消",
+                  logoutTitle: "登出帳號", logoutDesc: "確定要登出目前的帳號嗎？", btnYes: "登出", btnNo: "Cancel",
                   btnAccount: "帳戶與安全", accountTitle: "帳戶", changePwdTitle: "修改密碼", oldPwd: "舊密碼", newPwd: "新密碼", confirmPwd: "確認新密碼", btnUpdatePwd: "更新密碼", pwdEmpty: "請填寫所有密碼欄位！", pwdMismatch: "新密碼與確認密碼不一致！", pwdSuccess: "密碼修改成功！",
                   imageLarge: "圖片太大，請選擇 1.5MB 以下的圖片。" },
             en: { header: "Flashcard Bank", back: "Back", hint: "Tap to flip", prev: "Prev", next: "Next", navHome: "Home", navStar: "Starred", navSet: "Settings", starTitle: "Starred Cards", starEmpty: "No starred cards yet!", btnReviewStar: "Review Starred", waitMsg: "No cards here yet. Why not create one?",
@@ -948,11 +938,11 @@
                   logoutTitle: "Log Out", logoutDesc: "Are you sure you want to log out?", btnYes: "Log Out", btnNo: "Cancel",
                   btnAccount: "Account & Security", accountTitle: "Account", changePwdTitle: "Change Password", oldPwd: "Old Password", newPwd: "New Password", confirmPwd: "Confirm New Password", btnUpdatePwd: "Update Password", pwdEmpty: "Please fill in all fields!", pwdMismatch: "New passwords do not match!", pwdSuccess: "Password updated successfully!",
                   imageLarge: "The image is too large. Please choose one under 1.5 MB." },
-            bi: { header: "卡片溫習庫", back: "返回 Back", hint: "點擊翻轉 Tap to flip", prev: "上一題 Prev", next: "下一題 Next", navHome: "主頁", navStar: "星星卡", navSet: "設定", starTitle: "星星卡 Starred", starEmpty: "尚未儲存 Empty!", btnReviewStar: "溫習星星卡 Review", waitMsg: "未有題目 No cards yet!",
+            bi: { header: "Science Vocab Flashcards", back: "返回 Back", hint: "點擊翻轉 Tap to flip", prev: "上一題 Prev", next: "下一題 Next", navHome: "主頁", navStar: "星星卡", navSet: "設定", starTitle: "星星卡 Starred", starEmpty: "尚未儲存 Empty!", btnReviewStar: "溫習星星卡 Review", waitMsg: "未有題目 No cards yet!",
                   addTitle: "新增記憶卡 Add Card", addTopic: "課題 Topic", addQ: "題目 Question", addImg: "題目圖片 Question Image (Opt.)", addA: "答案 Answer", addAnswerImg: "答案圖片 Answer Image (Opt.)", addBtn: "儲存 Save", starFilterAll: "全部 All",
                   setMain: "設定 Settings", setFeedback: "反饋 Feedback", setLogout: "登出 Log Out", guest: "訪客 Guest", notLoggedIn: "未登入 No account", online: "在線 Online", offline: "離線 Offline",
                   feedbackTitle: "意見反饋 Feedback", feedbackDesc: "有任何問題請聯絡這個 Email：<br>For inquiries, contact:<br><a href='mailto:lamyeunglung20@gmail.com' class='text-blue-500 font-bold mt-2 inline-block hover:underline'>lamyeunglung20@gmail.com</a>", btnGotIt: "知道 Got it",
-                  logoutTitle: "登出 Log Out", logoutDesc: "確定要登出？ Are you sure?", btnYes: "登出 Yes", btnNo: "取消 No",
+                  logoutTitle: "登出 Log Out", logoutDesc: "確定要登出？ Are you sure?", btnYes: "登出 Yes", btnNo: "Cancel No",
                   btnAccount: "帳戶 Account", accountTitle: "帳戶 Account", changePwdTitle: "修改密碼 Change Password", oldPwd: "舊密碼 Old Password", newPwd: "新密碼 New Password", confirmPwd: "確認密碼 Confirm Password", btnUpdatePwd: "更新 Update", pwdEmpty: "請填寫所有欄位 Please fill all fields!", pwdMismatch: "密碼不一致 Passwords mismatch!", pwdSuccess: "修改成功 Updated successfully!",
                   imageLarge: "圖片太大。 Image must be under 1.5 MB." }
         };
@@ -1026,11 +1016,8 @@
         function loadState() {
             try {
                 const saved = JSON.parse(localStorage.getItem(STORAGE_KEY) || 'null');
-                const savedLanguage = saved && ['zh','en','bi'].includes(saved.currentLang) ? saved.currentLang : null;
-                if (savedLanguage) {
-                    currentLang = savedLanguage;
-                    defaultLang = savedLanguage;
-                }
+                currentLang = APP_LANGUAGE;
+                defaultLang = APP_LANGUAGE;
                 if (saved && typeof saved.isLoggedOut === 'boolean') isLoggedOut = saved.isLoggedOut;
             } catch (error) {
                 console.warn('Unable to load saved interface state:', error);
@@ -1109,20 +1096,18 @@
             if (!currentUser || !initSupabaseClient()) return false;
             if (managedContentLoaded && !options.force) return true;
 
-            const [topicResult, subtopicResult, cardResult, starResult, personalResult, preferenceResult] = await Promise.all([
+            const [topicResult, subtopicResult, cardResult, starResult, personalResult] = await Promise.all([
                 supabaseClient.from('chemistry_blank_topics').select('id,name_zh,name_en,icon,color,sort_order,layout').order('sort_order', { ascending: true }).order('id', { ascending: true }),
                 supabaseClient.from('chemistry_blank_subtopics').select('id,topic_id,legacy_section,name_zh,name_en,icon,color,sort_order').order('sort_order', { ascending: true }).order('id', { ascending: true }),
                 supabaseClient.from('chemistry_blank_flashcards').select('id,topic_id,subtopic_id,section,question_zh,answer_zh,question_en,answer_en,question_image_url,question_image_path,answer_image_url,answer_image_path,sort_order').order('sort_order', { ascending: true }).order('id', { ascending: true }),
                 supabaseClient.from('chemistry_blank_user_flashcard_state').select('flashcard_id,is_starred').eq('user_id', currentUser.id),
-                supabaseClient.from('chemistry_blank_personal_flashcards').select('id,topic_id,question_zh,answer_zh,question_en,answer_en,question_image_url,question_image_path,answer_image_url,answer_image_path,is_starred,sort_order').eq('user_id', currentUser.id).order('sort_order', { ascending: true }).order('id', { ascending: true }),
-                supabaseClient.from('chemistry_blank_user_preferences').select('default_language').eq('user_id', currentUser.id).maybeSingle()
+                supabaseClient.from('chemistry_blank_personal_flashcards').select('id,topic_id,question_zh,answer_zh,question_en,answer_en,question_image_url,question_image_path,answer_image_url,answer_image_path,is_starred,sort_order').eq('user_id', currentUser.id).order('sort_order', { ascending: true }).order('id', { ascending: true })
             ]);
             if (topicResult.error) throw topicResult.error;
             if (subtopicResult.error) throw subtopicResult.error;
             if (cardResult.error) throw cardResult.error;
             if (starResult.error) throw starResult.error;
             if (personalResult.error) throw personalResult.error;
-            if (preferenceResult.error) throw preferenceResult.error;
 
             const starredById = new Map((starResult.data || []).map(item => [Number(item.flashcard_id), Boolean(item.is_starred)]));
             managedCardIds.clear();
@@ -1138,15 +1123,8 @@
             }));
             micro1Sections = subtopics.filter(item => item.topicId === 'micro1').map(item => ({ ...item, id: String(item.id) }));
             flashcards = [...managedCards, ...(personalResult.data || []).map(personalRowToCard)];
-            if (['zh', 'en', 'bi'].includes(preferenceResult.data?.default_language)) {
-                defaultLang = preferenceResult.data.default_language;
-                currentLang = defaultLang;
-                document.getElementById('lang-selector').value = currentLang;
-            } else {
-                defaultLang = 'zh';
-                currentLang = 'zh';
-                document.getElementById('lang-selector').value = currentLang;
-            }
+            defaultLang = APP_LANGUAGE;
+            currentLang = APP_LANGUAGE;
             managedContentLoaded = true;
             refreshContentControls();
             saveState();
@@ -1162,18 +1140,16 @@
                     html += `
                         <button type="button" onclick="openAddCard()" class="btn-silky ${ch.color} text-white p-4 rounded-[20px] shadow-[0_4px_14px_0_rgba(59,130,246,0.39)] flex flex-col items-center justify-center text-center cursor-pointer hover:bg-blue-600 hover:shadow-lg aspect-[4/5] relative">
                             <i class="fa-solid ${ch.icon} text-[36px] mb-3 opacity-100"></i>
-                            <div class="font-bold text-[16px] tracking-wide mb-1 leading-tight w-full">${ch.zh}</div>
-                            <div class="text-[11px] font-medium opacity-90 leading-tight px-1">${ch.en}</div>
+                            <div class="font-bold text-[16px] tracking-wide leading-tight w-full">${ch.en}</div>
                         </button>
                     `;
                 } else {
-                    let countText = currentLang === 'en' ? `${ch.count} Cards` : `${ch.count} 題`;
+                    const countText = `${ch.count} Cards`;
                     const openAction = ch.layout === 'micro1' ? 'openMicro1Chapters()' : `startChapter('${ch.id}')`;
                     html += `
                         <button type="button" onclick="${openAction}" class="btn-silky ${ch.color} text-white p-4 rounded-[20px] shadow-sm flex flex-col items-center justify-center text-center cursor-pointer hover:shadow-md aspect-[4/5] relative">
                             <i class="fa-solid ${ch.icon} text-[32px] mb-3 opacity-95"></i>
-                            <div class="font-bold text-[15px] tracking-wide mb-1 leading-tight w-full">${ch.zh}</div>
-                            <div class="text-[11px] font-medium opacity-90 mb-5 leading-tight px-1 text-center">${ch.en}</div>
+                            <div class="font-bold text-[15px] tracking-wide mb-5 leading-tight w-full">${ch.en}</div>
                             <div class="absolute bottom-4 text-[10px] font-bold bg-white/20 px-3 py-1 rounded-full backdrop-blur-sm tracking-wider">${countText}</div>
                         </button>
                     `;
@@ -1186,15 +1162,14 @@
             const grid = document.getElementById('micro1-chapter-grid');
             const title = document.getElementById('micro1-chapter-title');
             const microTopic = chapters.find(chapter => chapter.layout === 'micro1') || { zh: '微觀世界I', en: 'Microscopic World I' };
-            title.innerText = currentLang === 'en' ? microTopic.en : (currentLang === 'bi' ? `${microTopic.zh} / ${microTopic.en}` : microTopic.zh);
+            title.innerText = microTopic.en;
             grid.innerHTML = micro1Sections.map(section => {
                 const count = flashcards.filter(card => card.chapter === 'micro1' && (card.subtopicId === Number(section.id) || (!card.subtopicId && card.section === section.legacySection))).length;
-                const countText = currentLang === 'en' ? `${count} Cards` : `${count} 題`;
+                const countText = `${count} Cards`;
                 return `
                     <button type="button" onclick="startMicro1Section('${section.id}')" class="btn-silky ${section.color} text-white p-4 rounded-[20px] shadow-sm flex flex-col items-center justify-center text-center cursor-pointer hover:shadow-md aspect-[4/5] relative">
                         <i class="fa-solid ${section.icon} text-[32px] mb-3 opacity-95"></i>
-                        <div class="font-bold text-[15px] tracking-wide mb-1 leading-tight w-full">${section.zh}</div>
-                        <div class="text-[11px] font-medium opacity-90 mb-5 leading-tight px-1 text-center">${section.en}</div>
+                        <div class="font-bold text-[15px] tracking-wide mb-5 leading-tight w-full">${section.en}</div>
                         <div class="absolute bottom-4 text-[10px] font-bold bg-white/20 px-3 py-1 rounded-full backdrop-blur-sm tracking-wider">${countText}</div>
                     </button>
                 `;
@@ -1229,13 +1204,13 @@
         }
 
         function changeLanguage() {
-            currentLang = document.getElementById('lang-selector').value;
-            const t = uiTranslations[currentLang];
-            document.documentElement.lang = currentLang === 'en' ? 'en' : 'zh-HK';
-            document.title = currentLang === 'en' ? 'Chemistry Flashcards' : '化學記憶卡';
+            currentLang = APP_LANGUAGE;
+            defaultLang = APP_LANGUAGE;
+            const t = uiTranslations.en;
+            document.documentElement.lang = 'en';
+            document.title = 'Science vocab flashcards';
             
             document.getElementById('header-title').innerText = t.header;
-            updateDefaultLanguageButton();
             document.querySelectorAll('.back-btn-text').forEach(el => el.innerText = t.back);
             document.getElementById('hint-text').innerText = t.hint;
             document.getElementById('btn-prev').innerText = t.prev;
@@ -1281,63 +1256,13 @@
         }
 
         function updateDefaultLanguageButton() {
-            const button = document.getElementById('default-lang-btn');
-            const label = document.getElementById('default-lang-text');
-            const icon = document.getElementById('default-lang-icon');
-            if (!button || !label || !icon) return;
-            const labels = { zh: '預設', en: 'Default', bi: '預設' };
-            const languageNames = {
-                zh: { zh: '中文', en: 'Chinese', bi: '中文 Chinese' },
-                en: { zh: '英文', en: 'English', bi: '英文 English' },
-                bi: { zh: '中英對照', en: 'Bilingual', bi: '中英對照 Bilingual' }
-            };
-            const isCurrentDefault = currentLang === defaultLang;
-            label.innerText = labels[currentLang];
-            icon.className = `fa-solid ${isCurrentDefault ? 'fa-circle-check' : 'fa-thumbtack'}`;
-            button.setAttribute('aria-pressed', String(isCurrentDefault));
-            button.className = `btn-silky h-8 px-2 rounded-md border text-[11px] font-bold flex items-center gap-1 ${isCurrentDefault ? 'border-emerald-300 bg-emerald-50 text-emerald-700' : 'border-slate-300 bg-slate-50 text-slate-600 hover:bg-slate-100'}`;
-            const chosenName = languageNames[defaultLang][currentLang];
-            const title = currentLang === 'en'
-                ? `Default language: ${chosenName}. Select another language, then press here to change it.`
-                : currentLang === 'bi'
-                    ? `預設語言 Default language: ${chosenName}`
-                    : `預設語言：${chosenName}。先選擇其他語言，再按此鍵即可更改。`;
-            button.title = title;
-            button.setAttribute('aria-label', title);
+            currentLang = APP_LANGUAGE;
+            defaultLang = APP_LANGUAGE;
         }
 
         async function setDefaultLanguage() {
-            defaultLang = currentLang;
-            try {
-                if (!currentUser || !initSupabaseClient()) throw new Error('Authentication required');
-                const { error } = await supabaseClient.from('chemistry_blank_user_preferences').upsert({
-                    user_id: currentUser.id,
-                    default_language: defaultLang,
-                    updated_at: new Date().toISOString()
-                }, { onConflict: 'user_id' });
-                if (error) throw error;
-            } catch (error) {
-                console.warn('Unable to save the account default language:', error);
-                openModal({
-                    icon: 'fa-triangle-exclamation', iconBgClass: 'bg-rose-50', iconTextClass: 'text-rose-500',
-                    title: currentLang === 'en' ? 'Unable to save' : '未能儲存',
-                    desc: authErrorMessage(error, '未能把預設語言儲存到此帳號，請稍後再試。'),
-                    buttons: [{ text: uiTranslations[currentLang].btnGotIt, styleClass: 'bg-slate-700 text-white', onClick: null }]
-                });
-                return;
-            }
-            updateDefaultLanguageButton();
-            const languageName = currentLang === 'zh' ? '中文' : currentLang === 'en' ? 'English' : '中英對照 / Bilingual';
-            openModal({
-                icon: 'fa-language', iconBgClass: 'bg-emerald-50', iconTextClass: 'text-emerald-500',
-                title: currentLang === 'en' ? 'Default language saved' : currentLang === 'bi' ? '已儲存預設語言 / Saved' : '已儲存預設語言',
-                desc: currentLang === 'en'
-                    ? `${languageName} will be used the next time this student opens or signs in to the app.`
-                    : currentLang === 'bi'
-                        ? `下次開啟或登入時會使用 ${languageName}。<br>${languageName} will be used next time.`
-                        : `學生下次開啟或登入此應用程式時，將自動使用${languageName}介面。`,
-                buttons: [{ text: uiTranslations[currentLang].btnGotIt, styleClass: 'bg-emerald-500 text-white hover:bg-emerald-600', onClick: null }]
-            });
+            currentLang = APP_LANGUAGE;
+            defaultLang = APP_LANGUAGE;
         }
 
         function updateGlobalBackButton() {
@@ -1379,15 +1304,15 @@
             const nameInput = document.getElementById('register-name');
             if (nameLabel && nameInput) {
                 const isAdmin = loginRole === 'admin';
-                nameLabel.innerText = isAdmin ? '管理員姓名 / Administrator name' : '學生姓名 / Student name';
-                nameInput.placeholder = isAdmin ? '管理員姓名' : '學生姓名';
+                nameLabel.innerText = isAdmin ? 'Administrator name' : 'Student name';
+                nameInput.placeholder = isAdmin ? 'Administrator name' : 'Student name';
                 nameInput.setAttribute('aria-label', nameLabel.innerText);
             }
             const note = document.getElementById('register-role-note');
             if (note) {
                 note.innerText = loginRole === 'admin'
-                    ? `管理員帳戶註冊後會保持待審批，必須由 ${AUTH_APPROVER_EMAIL} 批准後才可登入。`
-                    : '學生帳戶完成電郵驗證後即可登入；如管理員申請曾被拒絕，可選擇學生並使用相同電郵及原有密碼繼續。 / Rejected administrator applicants may continue as students with the same email and password.';
+                    ? `Administrator registrations remain pending until approved by ${AUTH_APPROVER_EMAIL}.`
+                    : 'Student accounts can sign in after email verification. A rejected administrator applicant may register as a student with the same email and password.';
             }
         }
 
@@ -1410,8 +1335,8 @@
             };
             Object.entries(formIds).forEach(([name, id]) => document.getElementById(id).classList.toggle('hidden', name !== authMode));
             document.getElementById('auth-mode-title').innerText = ({
-                login: '登入 / Sign in', register: '註冊 / Register', forgot: '忘記密碼 / Forgot password',
-                otp: '輸入驗證碼 / Verification code', reset: '重設密碼 / Reset password'
+                login: 'Sign in', register: 'Register', forgot: 'Forgot password',
+                otp: 'Verification code', reset: 'Reset password'
             })[authMode];
             clearAuthMessages();
             if (authMode === 'register') selectLoginRole(loginRole);
@@ -1440,7 +1365,7 @@
         function initSupabaseClient() {
             if (supabaseClient) return true;
             if (!window.supabase?.createClient) {
-                document.getElementById('login-error').innerText = '無法載入安全登入服務，請檢查網絡後重新整理。 / Unable to load sign-in service.';
+                document.getElementById('login-error').innerText = 'Unable to load the secure sign-in service. Check your connection and reload.';
                 return false;
             }
             supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, {
@@ -1451,15 +1376,15 @@
 
         function authErrorMessage(error, fallback) {
             const message = String(error?.message || '').toLowerCase();
-            if (message.includes('invalid login credentials')) return '電郵或密碼不正確。 / Invalid email or password.';
-            if (message.includes('email not confirmed')) return '請先按註冊電郵內的連結完成驗證。 / Please verify your email first.';
-            if (message.includes('user already registered')) return '此電郵已註冊，請直接登入或使用忘記密碼。';
-            if (message.includes('rate limit') || message.includes('too many')) return '嘗試次數太多，請稍後再試。 / Please try again later.';
-            if (message.includes('token') || message.includes('otp')) return '驗證碼不正確或已過期，請重新取得。 / Invalid or expired code.';
-            return fallback || error?.message || '暫時無法完成，請稍後再試。';
+            if (message.includes('invalid login credentials')) return 'Invalid email or password.';
+            if (message.includes('email not confirmed')) return 'Please verify your email first.';
+            if (message.includes('user already registered')) return 'This email is already registered. Sign in or use Forgot password.';
+            if (message.includes('rate limit') || message.includes('too many')) return 'Too many attempts. Please try again later.';
+            if (message.includes('token') || message.includes('otp')) return 'Invalid or expired code. Request a new code.';
+            return fallback || error?.message || 'Unable to complete the request. Please try again later.';
         }
 
-        function setAuthButtonBusy(id, busy, busyLabel = '處理中…') {
+        function setAuthButtonBusy(id, busy, busyLabel = 'Working…') {
             const button = document.getElementById(id);
             if (!button) return;
             if (!button.dataset.originalLabel) button.dataset.originalLabel = button.innerHTML;
@@ -1520,7 +1445,7 @@
         function showAuthTransition(displayName = '') {
             const overlay = document.getElementById('auth-transition');
             authTransitionStartedAt = performance.now();
-            updateAuthTransition(14, displayName ? `歡迎回來，${displayName}。正在載入你的記憶卡…` : '正在安全載入你的記憶卡…', '登入成功');
+            updateAuthTransition(14, displayName ? `Welcome back, ${displayName}. Loading your flashcards…` : 'Securely loading your flashcards…', 'Signed in');
             overlay.classList.remove('hidden');
             overlay.classList.add('flex');
             overlay.setAttribute('aria-hidden', 'false');
@@ -1530,10 +1455,10 @@
         async function finishAuthTransition() {
             const overlay = document.getElementById('auth-transition');
             const gate = document.getElementById('login-gate');
-            updateAuthTransition(78, '資料已準備好，正在開啟主頁…');
+            updateAuthTransition(78, 'Your data is ready. Opening the home page…');
             const elapsed = performance.now() - authTransitionStartedAt;
             await waitForTransition(Math.max(0, 700 - elapsed));
-            updateAuthTransition(100, '完成！', '歡迎回來');
+            updateAuthTransition(100, 'Ready!', 'Welcome back');
             gate.classList.add('auth-leaving');
             await waitForTransition(420);
             hideLoginGate();
@@ -1542,7 +1467,7 @@
             overlay.classList.add('hidden');
             overlay.classList.remove('flex');
             overlay.setAttribute('aria-hidden', 'true');
-            updateAuthTransition(14, '正在安全載入你的記憶卡…', '登入成功');
+            updateAuthTransition(14, 'Securely loading your flashcards…', 'Signed in');
         }
 
         function isAuthenticationCallback() {
@@ -1579,6 +1504,22 @@
                 return false;
             }
 
+            if (new URLSearchParams(window.location.search).get('delete_account') === '1') {
+                try {
+                    const { data, error } = await supabaseClient.functions.invoke('confirm-science-vocab-account-deletion', { body: {} });
+                    if (error) throw error;
+                    if (!data?.deleted) throw new Error(data?.error || 'Unable to confirm account deletion.');
+                    await supabaseClient.auth.signOut({ scope: 'local' });
+                    currentUser = null;
+                    clearAuthenticationCallbackUrl();
+                    showLoginGate('Your account has been permanently deleted.');
+                } catch (deleteError) {
+                    clearAuthenticationCallbackUrl();
+                    showLoginGate(authErrorMessage(deleteError, 'Unable to confirm account deletion. Please request a new confirmation email.'));
+                }
+                return false;
+            }
+
             const oauthRole = sessionStorage.getItem(AUTH_OAUTH_ROLE_KEY);
             if (oauthRole === 'admin') {
                 const { error: requestError } = await supabaseClient.rpc('request_chemistry_admin_access');
@@ -1595,8 +1536,8 @@
             if (requestedAdmin) {
                 await supabaseClient.auth.signOut({ scope: 'local' });
                 const statusText = profile.admin_status === 'rejected'
-                    ? '管理員申請未獲批准，請聯絡審批人。 / Administrator request was rejected.'
-                    : `管理員申請正等待 ${AUTH_APPROVER_EMAIL} 批准。 / Administrator approval is pending.`;
+                    ? 'Your administrator request was rejected. Contact the approver if you need help.'
+                    : `Administrator approval from ${AUTH_APPROVER_EMAIL} is pending.`;
                 currentUser = null;
                 showLoginGate(statusText);
                 return false;
@@ -1609,16 +1550,16 @@
                 displayName: profile.display_name || user.user_metadata?.full_name || user.email
             };
             showAuthTransition(currentUser.displayName);
-            updateAuthTransition(28, '正在讀取你的個人設定…');
+            updateAuthTransition(28, 'Loading your account settings…');
             try {
                 await loadManagedContent({ force: true });
             } catch (contentError) {
                 console.warn('Unable to load managed chemistry content; using the packaged fallback.', contentError);
             }
-            updateAuthTransition(62, '正在整理課題及星星卡…');
+            updateAuthTransition(62, 'Preparing topics and starred cards…');
             isLoggedOut = false;
-            currentLang = defaultLang;
-            document.getElementById('lang-selector').value = currentLang;
+            currentLang = APP_LANGUAGE;
+            defaultLang = APP_LANGUAGE;
             switchTab('home');
             changeLanguage();
             updateLoginUI();
@@ -1635,13 +1576,13 @@
             const password = document.getElementById('login-password').value;
             const error = document.getElementById('login-error');
             if (!identifier || !password) {
-                error.innerText = '請輸入電郵或名稱，以及密碼。 / Enter your email or name and password.';
+                error.innerText = 'Enter your email or name and password.';
                 return;
             }
             try {
-                setAuthButtonBusy('login-submit', true, '登入中…');
+                setAuthButtonBusy('login-submit', true, 'Signing in…');
                 error.innerText = '';
-                const { data: loginData, error: loginError } = await supabaseClient.functions.invoke('login-chemistry-account', {
+                const { data: loginData, error: loginError } = await supabaseClient.functions.invoke('login-science-vocab-account', {
                     body: { identifier, password }
                 });
                 if (loginError) throw loginError;
@@ -1662,7 +1603,7 @@
                         }
                     }
                 } catch {}
-                error.innerText = authErrorMessage(signInError, '登入失敗，請檢查電郵／名稱及密碼。 / Check your email or name and password.');
+                error.innerText = authErrorMessage(signInError, 'Sign-in failed. Check your email or name and password.');
             } finally {
                 setAuthButtonBusy('login-submit', false);
             }
@@ -1676,11 +1617,11 @@
             const password = document.getElementById('register-password').value;
             const confirmPassword = document.getElementById('register-confirm').value;
             const message = document.getElementById('register-error');
-            if (!name || !email || !password || !confirmPassword) return void (message.innerText = '請填寫所有欄位。 / Complete all fields.');
-            if (password.length < 8) return void (message.innerText = '密碼最少需要 8 個字元。 / Use at least 8 characters.');
-            if (password !== confirmPassword) return void (message.innerText = '兩次輸入的密碼不一致。 / Passwords do not match.');
+            if (!name || !email || !password || !confirmPassword) return void (message.innerText = 'Complete all fields.');
+            if (password.length < 8) return void (message.innerText = 'Use at least 8 characters.');
+            if (password !== confirmPassword) return void (message.innerText = 'Passwords do not match.');
             try {
-                setAuthButtonBusy('register-submit', true, '註冊中…');
+                setAuthButtonBusy('register-submit', true, 'Registering…');
                 message.className = message.className.replace('text-emerald-600', 'text-rose-500');
                 message.innerText = '';
                 const { data, error } = await supabaseClient.auth.signUp({
@@ -1708,7 +1649,7 @@
                             if (requestError) throw requestError;
                             await supabaseClient.auth.signOut({ scope: 'local' });
                             message.className = message.className.replace('text-rose-500', 'text-emerald-600');
-                            message.innerText = `此電郵已完成驗證；管理員申請已提交，現正等待 ${AUTH_APPROVER_EMAIL} 批准。 / Email already verified; administrator approval is pending.`;
+                            message.innerText = `Email verified. The administrator request is pending approval from ${AUTH_APPROVER_EMAIL}.`;
                             return;
                         }
                         await completeSupabaseLogin(existingAccount.user);
@@ -1722,10 +1663,10 @@
                         });
                         if (resendError) throw resendError;
                         message.className = message.className.replace('text-rose-500', 'text-emerald-600');
-                        message.innerText = '驗證電郵已重新寄出，請同時檢查垃圾郵件匣。 / Verification email resent; please also check Spam.';
+                        message.innerText = 'Verification email resent. Please also check your Spam folder.';
                         return;
                     }
-                    message.innerText = '如這個電郵已有帳戶，請返回登入或使用「忘記密碼」；否則請檢查垃圾郵件匣後稍後再試。 / Sign in or reset the password if this email is already registered.';
+                    message.innerText = 'If this email already has an account, sign in or reset the password. Otherwise check Spam and try again later.';
                     return;
                 }
 
@@ -1736,10 +1677,10 @@
                 }
                 message.className = message.className.replace('text-rose-500', 'text-emerald-600');
                 message.innerText = loginRole === 'admin'
-                    ? `註冊成功。請先驗證電郵；其後仍須等待 ${AUTH_APPROVER_EMAIL} 批准。`
-                    : '註冊成功，請查收驗證電郵後登入。 / Check your email to verify the account.';
+                    ? `Registration successful. Verify your email, then wait for approval from ${AUTH_APPROVER_EMAIL}.`
+                    : 'Registration successful. Check your email to verify the account, then sign in.';
             } catch (registerError) {
-                message.innerText = authErrorMessage(registerError, '註冊失敗，請稍後再試。');
+                message.innerText = authErrorMessage(registerError, 'Registration failed. Please try again later.');
             } finally {
                 setAuthButtonBusy('register-submit', false);
             }
@@ -1762,7 +1703,7 @@
                 if (error) throw error;
             } catch (googleError) {
                 sessionStorage.removeItem(AUTH_OAUTH_ROLE_KEY);
-                target.innerText = authErrorMessage(googleError, 'Google 登入尚未啟用或設定不完整，請聯絡管理員。');
+                target.innerText = authErrorMessage(googleError, 'Google sign-in is not enabled or is not fully configured. Contact the administrator.');
             }
         }
 
@@ -1771,9 +1712,9 @@
             if (!initSupabaseClient()) return;
             const email = document.getElementById('recovery-email').value.trim().toLowerCase();
             const errorElement = document.getElementById('recovery-error');
-            if (!email) return void (errorElement.innerText = '請輸入註冊電郵。 / Enter your registered email.');
+            if (!email) return void (errorElement.innerText = 'Enter your registered email.');
             try {
-                setAuthButtonBusy('recovery-send', true, '寄出中…');
+                setAuthButtonBusy('recovery-send', true, 'Sending…');
                 sessionStorage.setItem(AUTH_RECOVERY_KEY, '1');
                 sessionStorage.setItem(AUTH_RECOVERY_EMAIL_KEY, email);
                 const { error } = await supabaseClient.auth.signInWithOtp({
@@ -1781,12 +1722,12 @@
                     options: { shouldCreateUser: false, emailRedirectTo: authRedirectUrl() }
                 });
                 if (error) throw error;
-                document.getElementById('otp-sent-note').innerText = `驗證碼已寄往 ${email}。請在 60 分鐘內輸入。 / Code sent to ${email}.`;
+                document.getElementById('otp-sent-note').innerText = `Code sent to ${email}. Enter it within 60 minutes.`;
                 setAuthMode('otp');
             } catch (recoveryError) {
                 sessionStorage.removeItem(AUTH_RECOVERY_KEY);
                 sessionStorage.removeItem(AUTH_RECOVERY_EMAIL_KEY);
-                errorElement.innerText = authErrorMessage(recoveryError, '未能寄出驗證碼，請稍後再試。');
+                errorElement.innerText = authErrorMessage(recoveryError, 'Unable to send the code. Please try again later.');
             } finally {
                 setAuthButtonBusy('recovery-send', false);
             }
@@ -1798,14 +1739,14 @@
             const email = sessionStorage.getItem(AUTH_RECOVERY_EMAIL_KEY) || '';
             const token = document.getElementById('recovery-code').value.trim();
             const errorElement = document.getElementById('otp-error');
-            if (!/^\d{6}$/.test(token)) return void (errorElement.innerText = '請輸入六位數驗證碼。 / Enter the 6-digit code.');
+            if (!/^\d{6}$/.test(token)) return void (errorElement.innerText = 'Enter the 6-digit code.');
             try {
-                setAuthButtonBusy('otp-submit', true, '驗證中…');
+                setAuthButtonBusy('otp-submit', true, 'Verifying…');
                 const { error } = await supabaseClient.auth.verifyOtp({ email, token, type: 'email' });
                 if (error) throw error;
                 setAuthMode('reset');
             } catch (otpError) {
-                errorElement.innerText = authErrorMessage(otpError, '驗證碼不正確或已過期。');
+                errorElement.innerText = authErrorMessage(otpError, 'The verification code is invalid or has expired.');
             } finally {
                 setAuthButtonBusy('otp-submit', false);
             }
@@ -1817,10 +1758,10 @@
             const password = document.getElementById('recovery-new-password').value;
             const confirmation = document.getElementById('recovery-confirm-password').value;
             const errorElement = document.getElementById('reset-error');
-            if (password.length < 8) return void (errorElement.innerText = '新密碼最少需要 8 個字元。');
-            if (password !== confirmation) return void (errorElement.innerText = '兩次輸入的密碼不一致。');
+            if (password.length < 8) return void (errorElement.innerText = 'The new password must contain at least 8 characters.');
+            if (password !== confirmation) return void (errorElement.innerText = 'Passwords do not match.');
             try {
-                setAuthButtonBusy('reset-submit', true, '更新中…');
+                setAuthButtonBusy('reset-submit', true, 'Updating…');
                 const { error } = await supabaseClient.auth.updateUser({ password });
                 if (error) throw error;
                 await supabaseClient.auth.signOut({ scope: 'local' });
@@ -1829,9 +1770,9 @@
                 setAuthMode('login');
                 const loginMessage = document.getElementById('login-error');
                 loginMessage.className = loginMessage.className.replace('text-rose-500', 'text-emerald-600');
-                loginMessage.innerText = '密碼已更新，請使用新密碼登入。 / Password updated.';
+                loginMessage.innerText = 'Password updated. Sign in with your new password.';
             } catch (resetError) {
-                errorElement.innerText = authErrorMessage(resetError, '未能更新密碼，請重新取得驗證碼。');
+                errorElement.innerText = authErrorMessage(resetError, 'Unable to update the password. Request a new code.');
             } finally {
                 setAuthButtonBusy('reset-submit', false);
             }
@@ -1873,7 +1814,7 @@
             } catch (error) {
                 currentUser = null;
                 isLoggedOut = true;
-                showLoginGate(authErrorMessage(error, '未能恢復登入狀態，請重新登入。'));
+                showLoginGate(authErrorMessage(error, 'Unable to restore the sign-in session. Please sign in again.'));
                 updateLoginUI();
             } finally {
                 authenticationReady = true;
@@ -1915,8 +1856,8 @@
                 const isAdmin = currentUser.role === 'admin';
                 nameEl.innerText = currentUser.displayName;
                 roleEl.innerText = isAdmin
-                    ? (currentLang === 'en' ? 'Administrator account' : currentLang === 'bi' ? '管理員帳戶 / Administrator' : '管理員帳戶')
-                    : (currentLang === 'en' ? 'Student account' : currentLang === 'bi' ? '學生帳戶 / Student' : '學生帳戶');
+                    ? (currentLang === 'en' ? 'Administrator account' : currentLang === 'bi' ? 'Administrator account / Administrator' : 'Administrator account')
+                    : (currentLang === 'en' ? 'Student account' : currentLang === 'bi' ? 'Student account / Student' : 'Student account');
                 roleEl.className = `text-xs font-bold mt-1 ${isAdmin ? 'text-indigo-600' : 'text-emerald-600'}`;
                 avatarEl.className = `w-14 h-14 rounded-full flex items-center justify-center text-2xl flex-shrink-0 shadow-inner transition-colors duration-300 ${isAdmin ? 'bg-indigo-50 text-indigo-500' : 'bg-blue-50 text-blue-500'}`;
                 avatarEl.innerHTML = `<i class="fa-solid ${isAdmin ? 'fa-user-shield' : 'fa-user-graduate'}"></i>`;
@@ -2103,8 +2044,8 @@
             } catch (passwordError) {
                 openModal({
                     icon: 'fa-lock', iconBgClass: 'bg-red-50', iconTextClass: 'text-red-500',
-                    title: currentLang === 'en' ? 'Unable to update password' : '未能修改密碼',
-                    desc: authErrorMessage(passwordError, '舊密碼不正確；Google 帳戶可使用登入頁的「忘記密碼」設定密碼。'),
+                    title: currentLang === 'en' ? 'Unable to update password' : 'Unable to update password',
+                    desc: authErrorMessage(passwordError, 'The current password is incorrect. Google accounts can set a password from Forgot password on the sign-in page.'),
                     buttons: [{ text: currentLang === 'en' ? 'OK' : '知道', styleClass: 'bg-indigo-500 text-white', onClick: null }]
                 });
             }
@@ -2126,16 +2067,16 @@
             if (currentUser?.email?.toLowerCase() !== AUTH_APPROVER_EMAIL) return;
             const account = managedAccounts.find(item => item.id === userId && item.email.toLowerCase() !== AUTH_APPROVER_EMAIL);
             if (!account) return;
-            const roleLabel = account.role === 'student' ? '學生' : '管理員';
+            const roleLabel = account.role === 'student' ? 'Student' : 'Administrator';
             openModal({
                 icon: 'fa-user-xmark',
                 iconBgClass: 'bg-rose-50',
                 iconTextClass: 'text-rose-500',
-                title: `永久刪除${roleLabel}帳號？`,
-                desc: `<strong>${escapeHTML(account.display_name || account.email)}</strong><br><span class="break-all">${escapeHTML(account.email)}</span><br><br>刪除會立即生效，不會寄出確認電郵，亦無法復原。`,
+                title: `Permanently delete this ${roleLabel.toLowerCase()} account?`,
+                desc: `<strong>${escapeHTML(account.display_name || account.email)}</strong><br><span class="break-all">${escapeHTML(account.email)}</span><br><br>Deletion takes effect immediately, does not send a confirmation email, and cannot be undone.`,
                 buttons: [
-                    { text: '取消', styleClass: 'bg-slate-100 text-slate-600', onClick: null },
-                    { text: '確認刪除', styleClass: 'bg-rose-500 text-white', onClick: () => directDeleteManagedAccount(userId) }
+                    { text: 'Cancel', styleClass: 'bg-slate-100 text-slate-600', onClick: null },
+                    { text: 'Delete permanently', styleClass: 'bg-rose-500 text-white', onClick: () => directDeleteManagedAccount(userId) }
                 ]
             });
         }
@@ -2147,10 +2088,10 @@
             const button = document.getElementById(`managed-delete-${userId}`);
             if (button) {
                 button.disabled = true;
-                button.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-1"></i>正在永久刪除…';
+                button.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-1"></i>Deleting permanently…';
             }
             try {
-                const { data, error } = await supabaseClient.functions.invoke('request-chemistry-account-deletion', {
+                const { data, error } = await supabaseClient.functions.invoke('request-science-vocab-account-deletion', {
                     body: { target_user_id: userId, direct_delete: true }
                 });
                 if (error) throw error;
@@ -2159,20 +2100,20 @@
                 await loadManagedAccounts();
                 openModal({
                     icon: 'fa-check', iconBgClass: 'bg-emerald-50', iconTextClass: 'text-emerald-500',
-                    title: '帳號已永久刪除',
-                    desc: `${escapeHTML(account.email)} 已從系統移除，沒有寄出確認電郵。`,
-                    buttons: [{ text: '完成', styleClass: 'bg-emerald-500 text-white', onClick: null }]
+                    title: 'Account permanently deleted',
+                    desc: `${escapeHTML(account.email)} has been removed from the system without a confirmation email.`,
+                    buttons: [{ text: 'Done', styleClass: 'bg-emerald-500 text-white', onClick: null }]
                 });
             } catch (error) {
                 openModal({
                     icon: 'fa-triangle-exclamation', iconBgClass: 'bg-rose-50', iconTextClass: 'text-rose-500',
-                    title: '未能刪除帳號',
-                    desc: escapeHTML(await accountDeletionErrorMessage(error, '未能永久刪除帳號，請稍後再試。')),
-                    buttons: [{ text: '知道', styleClass: 'bg-slate-800 text-white', onClick: null }]
+                    title: 'Unable to delete account',
+                    desc: escapeHTML(await accountDeletionErrorMessage(error, 'Unable to permanently delete the account. Please try again later.')),
+                    buttons: [{ text: 'OK', styleClass: 'bg-slate-800 text-white', onClick: null }]
                 });
                 if (button) {
                     button.disabled = false;
-                    button.innerHTML = `<i class="fa-solid fa-user-xmark mr-1"></i>刪除此${account.role === 'student' ? '學生' : '管理員'}帳號`;
+                    button.innerHTML = `<i class="fa-solid fa-user-xmark mr-1"></i>Delete this ${account.role === 'student' ? 'student' : 'administrator'} account`;
                 }
             }
         }
@@ -2185,13 +2126,13 @@
                 return;
             }
             panel.classList.remove('hidden');
-            list.innerHTML = '<p class="text-xs text-slate-400"><i class="fa-solid fa-spinner fa-spin mr-1"></i>載入中…</p>';
+            list.innerHTML = '<p class="text-xs text-slate-400"><i class="fa-solid fa-spinner fa-spin mr-1"></i>Loading…</p>';
             const { data, error } = await supabaseClient.from('chemistry_profiles')
                 .select('id,email,display_name,role,admin_status,created_at')
                 .order('role', { ascending: true })
                 .order('created_at', { ascending: true });
             if (error) {
-                list.innerHTML = `<p class="text-xs font-bold text-rose-500">${escapeHTML(authErrorMessage(error, '未能載入帳號。'))}</p>`;
+                list.innerHTML = `<p class="text-xs font-bold text-rose-500">${escapeHTML(authErrorMessage(error, 'Unable to load accounts.'))}</p>`;
                 return;
             }
             managedAccounts = data || [];
@@ -2201,14 +2142,14 @@
                 return `<article class="rounded-xl border ${isSuper ? 'border-violet-200 bg-violet-50' : 'border-slate-100 bg-slate-50'} p-3">
                     <div class="flex items-start gap-3">
                         <div class="w-9 h-9 rounded-full ${isSuper ? 'bg-violet-500' : isStudent ? 'bg-emerald-500' : 'bg-indigo-500'} text-white flex items-center justify-center flex-shrink-0"><i class="fa-solid ${isStudent ? 'fa-user-graduate' : 'fa-user-shield'} text-sm"></i></div>
-                        <div class="flex-1 min-w-0"><p class="text-sm font-black text-slate-700 break-words">${escapeHTML(account.display_name || account.email)}</p><p class="text-[11px] text-slate-500 break-all mt-0.5">${escapeHTML(account.email)}</p><span class="inline-block mt-1 rounded-full bg-white px-2 py-1 text-[9px] font-black ${isSuper ? 'text-violet-700' : isStudent ? 'text-emerald-700' : 'text-indigo-700'}">${isSuper ? '總管理員 / Super administrator' : isStudent ? '學生 / Student' : '管理員 / Administrator'}</span></div>
+                        <div class="flex-1 min-w-0"><p class="text-sm font-black text-slate-700 break-words">${escapeHTML(account.display_name || account.email)}</p><p class="text-[11px] text-slate-500 break-all mt-0.5">${escapeHTML(account.email)}</p><span class="inline-block mt-1 rounded-full bg-white px-2 py-1 text-[9px] font-black ${isSuper ? 'text-violet-700' : isStudent ? 'text-emerald-700' : 'text-indigo-700'}">${isSuper ? 'Super administrator' : isStudent ? 'Student' : 'Administrator'}</span></div>
                     </div>
-                    ${isSuper ? '' : `<button id="managed-delete-${account.id}" type="button" onclick="confirmManagedAccountDeletion('${account.id}')" class="btn-silky w-full min-h-[42px] mt-3 rounded-lg bg-rose-50 text-rose-600 px-3 py-2 text-xs leading-relaxed font-black disabled:opacity-60"><i class="fa-solid fa-user-xmark mr-1"></i>刪除此${isStudent ? '學生' : '管理員'}帳號</button>`}
+                    ${isSuper ? '' : `<button id="managed-delete-${account.id}" type="button" onclick="confirmManagedAccountDeletion('${account.id}')" class="btn-silky w-full min-h-[42px] mt-3 rounded-lg bg-rose-50 text-rose-600 px-3 py-2 text-xs leading-relaxed font-black disabled:opacity-60"><i class="fa-solid fa-user-xmark mr-1"></i>Delete this ${isStudent ? 'student' : 'administrator'} account</button>`}
                 </article>`;
-            }).join('') || '<p class="text-xs text-slate-400">沒有帳號。</p>';
+            }).join('') || '<p class="text-xs text-slate-400">No accounts.</p>';
         }
 
-        async function accountDeletionErrorMessage(error, fallback = '未能寄出刪除確認電郵，請稍後再試。') {
+        async function accountDeletionErrorMessage(error, fallback = 'Unable to send the deletion confirmation email. Please try again later.') {
             try {
                 if (error?.context && typeof error.context.json === 'function') {
                     const payload = await error.context.json();
@@ -2223,24 +2164,24 @@
             const email = document.getElementById('account-deletion-email').value.trim().toLowerCase();
             const password = document.getElementById('account-deletion-password').value;
             const button = document.getElementById('account-deletion-button');
-            if (!email || !password) return setAccountDeletionStatus('請輸入目前登入帳號的電郵及密碼。', 'error');
-            if (email !== currentUser.email.toLowerCase()) return setAccountDeletionStatus('輸入的電郵與目前登入帳號不一致。', 'error');
+            if (!email || !password) return setAccountDeletionStatus('Enter the email and password for the signed-in account.', 'error');
+            if (email !== currentUser.email.toLowerCase()) return setAccountDeletionStatus('The email does not match the signed-in account.', 'error');
             button.disabled = true;
-            button.innerText = '正在驗證及寄出…';
-            setAccountDeletionStatus('正在驗證帳號資料…');
+            button.innerText = 'Verifying and sending…';
+            setAccountDeletionStatus('Verifying account details…');
             try {
-                const { data, error } = await supabaseClient.functions.invoke('request-chemistry-account-deletion', {
+                const { data, error } = await supabaseClient.functions.invoke('request-science-vocab-account-deletion', {
                     body: { email, password }
                 });
                 if (error) throw error;
                 if (!data?.sent) throw new Error(data?.error || 'Unable to send confirmation email');
                 document.getElementById('account-deletion-password').value = '';
-                setAccountDeletionStatus(`確認電郵已寄到 ${email}。請在30分鐘內開啟連結完成刪除。`, 'success');
+                setAccountDeletionStatus(`Confirmation email sent to ${email}. Open the link within 30 minutes to finish deleting the account.`, 'success');
             } catch (error) {
                 setAccountDeletionStatus(await accountDeletionErrorMessage(error), 'error');
             } finally {
                 button.disabled = false;
-                button.innerHTML = '<i class="fa-solid fa-envelope-circle-check mr-2"></i>寄出刪除確認電郵';
+                button.innerHTML = '<i class="fa-solid fa-envelope-circle-check mr-2"></i>Send deletion confirmation email';
             }
         }
 
@@ -2252,18 +2193,18 @@
                 return;
             }
             panel.classList.remove('hidden');
-            list.innerHTML = '<p class="text-xs text-slate-400"><i class="fa-solid fa-spinner fa-spin mr-1"></i>載入中…</p>';
+            list.innerHTML = '<p class="text-xs text-slate-400"><i class="fa-solid fa-spinner fa-spin mr-1"></i>Loading…</p>';
             const { data, error } = await supabaseClient
                 .from('chemistry_admin_requests')
                 .select('user_id,email,display_name,requested_at')
                 .eq('status', 'pending')
                 .order('requested_at', { ascending: true });
             if (error) {
-                list.innerHTML = `<p class="text-xs font-bold text-rose-500">${escapeHTML(authErrorMessage(error, '未能載入申請。'))}</p>`;
+                list.innerHTML = `<p class="text-xs font-bold text-rose-500">${escapeHTML(authErrorMessage(error, 'Unable to load requests.'))}</p>`;
                 return;
             }
             if (!data.length) {
-                list.innerHTML = '<p class="text-xs text-slate-400">目前沒有待審批申請。 / No pending requests.</p>';
+                list.innerHTML = '<p class="text-xs text-slate-400">No pending requests.</p>';
                 return;
             }
             list.innerHTML = data.map(request => `
@@ -2271,8 +2212,8 @@
                     <p class="text-sm font-black text-slate-700 break-words">${escapeHTML(request.display_name || request.email)}</p>
                     <p class="text-[11px] text-slate-500 break-all mt-1">${escapeHTML(request.email)}</p>
                     <div class="grid grid-cols-2 gap-2 mt-3">
-                        <button type="button" onclick="reviewAdminRequest('${request.user_id}', 'rejected')" class="btn-silky py-2 rounded-lg bg-rose-50 text-rose-600 text-xs font-black">拒絕 Reject</button>
-                        <button type="button" onclick="reviewAdminRequest('${request.user_id}', 'approved')" class="btn-silky py-2 rounded-lg bg-emerald-500 text-white text-xs font-black">批准 Approve</button>
+                        <button type="button" onclick="reviewAdminRequest('${request.user_id}', 'rejected')" class="btn-silky py-2 rounded-lg bg-rose-50 text-rose-600 text-xs font-black">Reject</button>
+                        <button type="button" onclick="reviewAdminRequest('${request.user_id}', 'approved')" class="btn-silky py-2 rounded-lg bg-emerald-500 text-white text-xs font-black">Approve</button>
                     </div>
                 </article>`).join('');
         }
@@ -2285,7 +2226,7 @@
                 decision
             });
             if (error) {
-                list.insertAdjacentHTML('afterbegin', `<p class="text-xs font-bold text-rose-500 mb-2">${escapeHTML(authErrorMessage(error, '審批失敗，請重試。'))}</p>`);
+                list.insertAdjacentHTML('afterbegin', `<p class="text-xs font-bold text-rose-500 mb-2">${escapeHTML(authErrorMessage(error, 'Review failed. Please try again.'))}</p>`);
                 return;
             }
             await loadAdminRequests();
@@ -2319,13 +2260,13 @@
             document.getElementById('view-admin').classList.add('flex');
             document.getElementById('bottom-nav').classList.add('translate-y-24');
             switchAdminPanel('topics');
-            setAdminManagerStatus('正在同步最新內容…');
+            setAdminManagerStatus('Syncing the latest content…');
             try {
                 await loadManagedContent({ force: true });
-                setAdminManagerStatus('內容已同步。', 'success');
+                setAdminManagerStatus('Content synced.', 'success');
                 setTimeout(() => setAdminManagerStatus(''), 1800);
             } catch (error) {
-                setAdminManagerStatus(authErrorMessage(error, '未能載入管理內容。'), 'error');
+                setAdminManagerStatus(authErrorMessage(error, 'Unable to load managed content.'), 'error');
             }
             updateGlobalBackButton();
         }
@@ -2343,13 +2284,13 @@
 
         async function refreshAdminContent() {
             if (!hasAdminContentAccess()) return;
-            setAdminManagerStatus('正在重新載入…');
+            setAdminManagerStatus('Reloading…');
             try {
                 await loadManagedContent({ force: true });
                 renderAdminManager();
-                setAdminManagerStatus('已載入最新內容。', 'success');
+                setAdminManagerStatus('Latest content loaded.', 'success');
             } catch (error) {
-                setAdminManagerStatus(authErrorMessage(error, '重新載入失敗。'), 'error');
+                setAdminManagerStatus(authErrorMessage(error, 'Reload failed.'), 'error');
             }
         }
 
@@ -2379,7 +2320,7 @@
             const list = document.getElementById('admin-topic-list');
             const topics = chapters.filter(chapter => !chapter.isAction);
             if (!topics.length) {
-                list.innerHTML = '<div class="rounded-2xl bg-white border border-slate-100 p-8 text-center text-sm text-slate-400">尚未有課題。請新增第一個課題。</div>';
+                list.innerHTML = '<div class="rounded-2xl bg-white border border-slate-100 p-8 text-center text-sm text-slate-400">No topics yet. Add your first topic.</div>';
                 return;
             }
             list.innerHTML = topics.map(topic => {
@@ -2390,31 +2331,30 @@
                     return `<article class="rounded-xl border border-violet-100 bg-violet-50/40 p-3">
                         <div class="flex items-start gap-2">
                             <div class="w-8 h-8 rounded-lg ${subtopic.color} text-white flex items-center justify-center flex-shrink-0"><i class="fa-solid ${subtopic.icon} text-xs"></i></div>
-                            <div class="flex-1 min-w-0"><p class="text-xs font-black text-slate-700 break-words">${escapeHTML(subtopic.zh)}</p><p class="text-[10px] text-slate-500 break-words mt-0.5">${escapeHTML(subtopic.en)}</p><p class="text-[10px] font-bold text-violet-600 mt-1">${cardCount} 張預設記憶卡</p></div>
+                            <div class="flex-1 min-w-0"><p class="text-xs font-black text-slate-700 break-words">${escapeHTML(subtopic.en)}</p><p class="text-[10px] font-bold text-violet-600 mt-1">${cardCount} shared flashcards</p></div>
                         </div>
                         <div class="grid grid-cols-2 gap-2 mt-2">
-                            <button type="button" onclick="confirmDeleteAdminSubtopic(${subtopic.id})" class="btn-silky py-2 rounded-lg bg-rose-50 text-rose-600 text-[11px] font-black"><i class="fa-solid fa-trash mr-1"></i>刪除</button>
-                            <button type="button" onclick="openAdminSubtopicForm('${topic.id}', ${subtopic.id})" class="btn-silky py-2 rounded-lg bg-white text-violet-600 text-[11px] font-black border border-violet-100"><i class="fa-solid fa-pen mr-1"></i>編輯名稱</button>
+                            <button type="button" onclick="confirmDeleteAdminSubtopic(${subtopic.id})" class="btn-silky py-2 rounded-lg bg-rose-50 text-rose-600 text-[11px] font-black"><i class="fa-solid fa-trash mr-1"></i>Delete</button>
+                            <button type="button" onclick="openAdminSubtopicForm('${topic.id}', ${subtopic.id})" class="btn-silky py-2 rounded-lg bg-white text-violet-600 text-[11px] font-black border border-violet-100"><i class="fa-solid fa-pen mr-1"></i>Edit name</button>
                         </div>
                     </article>`;
-                }).join('') : '<p class="rounded-xl bg-slate-50 p-4 text-center text-xs text-slate-400">這個課題尚未有 Subtopic。</p>';
+                }).join('') : '<p class="rounded-xl bg-slate-50 p-4 text-center text-xs text-slate-400">This topic has no subtopics yet.</p>';
                 return `
                 <article class="bg-white rounded-2xl border border-slate-100 shadow-sm p-4">
                     <button type="button" onclick="toggleAdminTopicSubtopics('${topic.id}')" class="w-full flex items-start gap-3 text-left">
                         <div class="w-11 h-11 rounded-xl ${topic.color} text-white flex items-center justify-center flex-shrink-0"><i class="fa-solid ${topic.icon}"></i></div>
                         <div class="flex-1 min-w-0">
-                            <h3 class="font-black text-slate-800 break-words">${escapeHTML(topic.zh)}</h3>
-                            <p class="text-xs text-slate-500 break-words mt-0.5">${escapeHTML(topic.en)}</p>
-                            <p class="text-[10px] font-bold text-indigo-500 mt-1">${topicSubtopics.length} 個 Subtopic · ${topic.count} 張預設記憶卡</p>
+                            <h3 class="font-black text-slate-800 break-words">${escapeHTML(topic.en)}</h3>
+                            <p class="text-[10px] font-bold text-indigo-500 mt-1">${topicSubtopics.length} subtopics · ${topic.count} shared flashcards</p>
                         </div>
                         <i class="fa-solid fa-chevron-${expanded ? 'up' : 'down'} text-slate-400 mt-3"></i>
                     </button>
                     <div class="grid grid-cols-2 gap-2 mt-3">
-                        <button type="button" onclick="confirmDeleteAdminTopic('${topic.id}')" class="btn-silky py-2.5 rounded-xl bg-rose-50 text-rose-600 text-xs font-black"><i class="fa-solid fa-trash mr-1"></i>刪除</button>
-                        <button type="button" onclick="editAdminTopic('${topic.id}')" class="btn-silky py-2.5 rounded-xl bg-indigo-50 text-indigo-600 text-xs font-black"><i class="fa-solid fa-pen mr-1"></i>編輯名稱</button>
+                        <button type="button" onclick="confirmDeleteAdminTopic('${topic.id}')" class="btn-silky py-2.5 rounded-xl bg-rose-50 text-rose-600 text-xs font-black"><i class="fa-solid fa-trash mr-1"></i>Delete</button>
+                        <button type="button" onclick="editAdminTopic('${topic.id}')" class="btn-silky py-2.5 rounded-xl bg-indigo-50 text-indigo-600 text-xs font-black"><i class="fa-solid fa-pen mr-1"></i>Edit name</button>
                     </div>
                     <div class="${expanded ? 'block' : 'hidden'} mt-3 pt-3 border-t border-slate-100 space-y-2">
-                        <button type="button" onclick="openAdminSubtopicForm('${topic.id}')" class="btn-silky w-full rounded-xl bg-violet-500 text-white py-2.5 text-xs font-black"><i class="fa-solid fa-plus mr-1"></i>新增 Subtopic</button>
+                        <button type="button" onclick="openAdminSubtopicForm('${topic.id}')" class="btn-silky w-full rounded-xl bg-violet-500 text-white py-2.5 text-xs font-black"><i class="fa-solid fa-plus mr-1"></i>Add subtopic</button>
                         ${subtopicMarkup}
                     </div>
                 </article>`;
@@ -2432,11 +2372,11 @@
             adminEditingTopicId = topicId;
             const topic = topicId ? chapters.find(chapter => chapter.id === topicId) : null;
             document.getElementById('admin-topic-edit-id').value = topicId || '';
-            document.getElementById('admin-topic-zh').value = topic?.zh || '';
             document.getElementById('admin-topic-en').value = topic?.en || '';
-            document.getElementById('admin-topic-form-title').innerText = topic ? '編輯課題名稱 / Edit topic' : '新增課題 / Add topic';
+            document.getElementById('admin-topic-zh').value = topic?.en || '';
+            document.getElementById('admin-topic-form-title').innerText = topic ? 'Edit topic' : 'Add topic';
             document.getElementById('admin-topic-form').classList.remove('hidden');
-            document.getElementById('admin-topic-zh').focus();
+            document.getElementById('admin-topic-en').focus();
         }
 
         function editAdminTopic(topicId) {
@@ -2458,12 +2398,12 @@
             expandedAdminTopics.add(topicId);
             document.getElementById('admin-subtopic-topic-id').value = topicId;
             document.getElementById('admin-subtopic-edit-id').value = subtopic?.id || '';
-            document.getElementById('admin-subtopic-zh').value = subtopic?.zh || '';
             document.getElementById('admin-subtopic-en').value = subtopic?.en || '';
-            document.getElementById('admin-subtopic-form-title').innerText = subtopic ? '編輯 Subtopic 名稱' : '新增 Subtopic';
-            document.getElementById('admin-subtopic-parent-name').innerText = `${topic.zh} / ${topic.en}`;
+            document.getElementById('admin-subtopic-zh').value = subtopic?.en || '';
+            document.getElementById('admin-subtopic-form-title').innerText = subtopic ? 'Edit subtopic' : 'Add subtopic';
+            document.getElementById('admin-subtopic-parent-name').innerText = topic.en;
             document.getElementById('admin-subtopic-form').classList.remove('hidden');
-            document.getElementById('admin-subtopic-zh').focus();
+            document.getElementById('admin-subtopic-en').focus();
         }
 
         function closeAdminSubtopicForm() {
@@ -2476,12 +2416,12 @@
             event.preventDefault();
             if (!hasAdminContentAccess() || !initSupabaseClient()) return;
             const topicId = document.getElementById('admin-subtopic-topic-id').value;
-            const nameZh = document.getElementById('admin-subtopic-zh').value.trim();
             const nameEn = document.getElementById('admin-subtopic-en').value.trim();
+            const nameZh = nameEn;
             const button = document.getElementById('admin-subtopic-save');
-            if (!topicId || !nameZh || !nameEn) return setAdminManagerStatus('請完整填寫 Subtopic 的中英文名稱。', 'error');
+            if (!topicId || !nameEn) return setAdminManagerStatus('Enter a subtopic name.', 'error');
             button.disabled = true;
-            button.innerText = '儲存中…';
+            button.innerText = 'Saving…';
             try {
                 let result;
                 if (adminEditingSubtopicId) {
@@ -2495,12 +2435,12 @@
                 await loadManagedContent({ force: true });
                 expandedAdminTopics.add(topicId);
                 renderAdminTopics();
-                setAdminManagerStatus('Subtopic 已儲存，學生和管理員會看到最新名稱。', 'success');
+                setAdminManagerStatus('Subtopic saved. All users will see the latest name.', 'success');
             } catch (error) {
-                setAdminManagerStatus(authErrorMessage(error, '未能儲存 Subtopic。'), 'error');
+                setAdminManagerStatus(authErrorMessage(error, 'Unable to save the subtopic.'), 'error');
             } finally {
                 button.disabled = false;
-                button.innerText = '儲存 Subtopic / Save';
+                button.innerText = 'Save subtopic';
             }
         }
 
@@ -2510,11 +2450,11 @@
             const count = flashcards.filter(card => card.isManaged && card.subtopicId === subtopic.id).length;
             openModal({
                 icon: 'fa-trash', iconBgClass: 'bg-rose-50', iconTextClass: 'text-rose-500',
-                title: '刪除 Subtopic？',
-                desc: `「${escapeHTML(subtopic.zh)}」及其中 ${count} 張預設記憶卡將會永久刪除。`,
+                title: 'Delete subtopic?',
+                desc: `「${escapeHTML(subtopic.zh)}」and its ${count} shared flashcards will be permanently deleted.`,
                 buttons: [
-                    { text: '取消', styleClass: 'bg-slate-100 text-slate-600', onClick: null },
-                    { text: '確認刪除', styleClass: 'bg-rose-500 text-white', onClick: () => deleteAdminSubtopic(subtopic.id) }
+                    { text: 'Cancel', styleClass: 'bg-slate-100 text-slate-600', onClick: null },
+                    { text: 'Delete permanently', styleClass: 'bg-rose-500 text-white', onClick: () => deleteAdminSubtopic(subtopic.id) }
                 ]
             });
         }
@@ -2523,7 +2463,7 @@
             if (!hasAdminContentAccess() || !initSupabaseClient()) return;
             const subtopic = subtopics.find(item => item.id === Number(subtopicId));
             if (!subtopic) return;
-            setAdminManagerStatus('正在刪除 Subtopic…');
+            setAdminManagerStatus('Deleting subtopic…');
             try {
                 const cards = flashcards.filter(card => card.isManaged && card.subtopicId === subtopic.id);
                 const imagePaths = cards.flatMap(card => [card.imagePath, card.answerImagePath]).filter(Boolean);
@@ -2533,9 +2473,9 @@
                 await loadManagedContent({ force: true });
                 expandedAdminTopics.add(subtopic.topicId);
                 renderAdminTopics();
-                setAdminManagerStatus('Subtopic 及其中的預設記憶卡已刪除。', 'success');
+                setAdminManagerStatus('Subtopic and its shared flashcards deleted.', 'success');
             } catch (error) {
-                setAdminManagerStatus(authErrorMessage(error, '未能刪除 Subtopic。'), 'error');
+                setAdminManagerStatus(authErrorMessage(error, 'Unable to delete the subtopic.'), 'error');
             }
         }
 
@@ -2546,12 +2486,12 @@
         async function saveAdminTopic(event) {
             event.preventDefault();
             if (!hasAdminContentAccess() || !initSupabaseClient()) return;
-            const nameZh = document.getElementById('admin-topic-zh').value.trim();
             const nameEn = document.getElementById('admin-topic-en').value.trim();
+            const nameZh = nameEn;
             const button = document.getElementById('admin-topic-save');
-            if (!nameZh || !nameEn) return setAdminManagerStatus('請填寫中英文課題名稱。', 'error');
+            if (!nameEn) return setAdminManagerStatus('Enter a topic name.', 'error');
             button.disabled = true;
-            button.innerText = '儲存中…';
+            button.innerText = 'Saving…';
             try {
                 let result;
                 if (adminEditingTopicId) {
@@ -2563,12 +2503,12 @@
                 if (result.error) throw result.error;
                 closeAdminTopicForm();
                 await loadManagedContent({ force: true });
-                setAdminManagerStatus('課題已儲存，所有學生將看到最新名稱。', 'success');
+                setAdminManagerStatus('Topic saved. All students will see the latest name.', 'success');
             } catch (error) {
-                setAdminManagerStatus(authErrorMessage(error, '未能儲存課題。'), 'error');
+                setAdminManagerStatus(authErrorMessage(error, 'Unable to save the topic.'), 'error');
             } finally {
                 button.disabled = false;
-                button.innerText = '儲存課題 / Save topic';
+                button.innerText = 'Save topic';
             }
         }
 
@@ -2577,39 +2517,39 @@
             if (!topic) return;
             openModal({
                 icon: 'fa-trash', iconBgClass: 'bg-rose-50', iconTextClass: 'text-rose-500',
-                title: '刪除課題？',
-                desc: `「${escapeHTML(topic.zh)}」及其中 ${topic.count} 張預設記憶卡將會永久刪除。如有學生的個人記憶卡正在使用此課題，系統會保留資料並阻止刪除。`,
+                title: 'Delete topic?',
+                desc: `“${escapeHTML(topic.en)}” and its ${topic.count} shared flashcards will be permanently deleted. If a student's personal flashcard uses this topic, the data will be retained and deletion will be blocked.`,
                 buttons: [
-                    { text: '取消', styleClass: 'bg-slate-100 text-slate-600', onClick: null },
-                    { text: '確認刪除', styleClass: 'bg-rose-500 text-white', onClick: () => deleteAdminTopic(topicId) }
+                    { text: 'Cancel', styleClass: 'bg-slate-100 text-slate-600', onClick: null },
+                    { text: 'Delete', styleClass: 'bg-rose-500 text-white', onClick: () => deleteAdminTopic(topicId) }
                 ]
             });
         }
 
         async function deleteAdminTopic(topicId) {
             if (!hasAdminContentAccess() || !initSupabaseClient()) return;
-            setAdminManagerStatus('正在刪除課題…');
+            setAdminManagerStatus('Deleting topic…');
             try {
                 const imagePaths = flashcards.filter(card => card.isManaged && card.chapter === topicId).flatMap(card => [card.imagePath, card.answerImagePath]).filter(Boolean);
                 const { error } = await supabaseClient.from('chemistry_blank_topics').delete().eq('id', topicId);
                 if (error) throw error;
                 if (imagePaths.length) await supabaseClient.storage.from(ADMIN_IMAGE_BUCKET).remove(imagePaths);
                 await loadManagedContent({ force: true });
-                setAdminManagerStatus('課題及其中的預設記憶卡已刪除。', 'success');
+                setAdminManagerStatus('The topic and its shared flashcards were deleted.', 'success');
             } catch (error) {
                 const message = error?.code === '23503'
-                    ? '為保護學生的永久資料，此課題仍被個人記憶卡使用，因此不能刪除。可先保留課題或重新命名。'
-                    : authErrorMessage(error, '未能刪除課題。');
+                    ? 'This topic is still used by a personal flashcard and cannot be deleted. Keep it or rename it instead.'
+                    : authErrorMessage(error, 'Unable to delete the topic.');
                 setAdminManagerStatus(message, 'error');
             }
         }
 
         function populateAdminTopicControls() {
             const topics = chapters.filter(chapter => !chapter.isAction);
-            const options = topics.map(topic => `<option value="${topic.id}">${escapeHTML(topic.zh)} / ${escapeHTML(topic.en)}</option>`).join('');
+            const options = topics.map(topic => `<option value="${topic.id}">${escapeHTML(topic.en)}</option>`).join('');
             const filter = document.getElementById('admin-card-topic-filter');
             const previousFilter = filter.value || 'all';
-            filter.innerHTML = `<option value="all">全部課題 / All topics</option>${options}`;
+            filter.innerHTML = `<option value="all">All topics</option>${options}`;
             filter.value = [...filter.options].some(option => option.value === previousFilter) ? previousFilter : 'all';
             const editorTopic = document.getElementById('admin-card-topic');
             const previousTopic = editorTopic.value;
@@ -2625,7 +2565,7 @@
             const previous = select.value || 'all';
             const options = (topicId === 'all' ? subtopics : subtopics.filter(item => item.topicId === topicId))
                 .map(item => `<option value="${item.id}">${escapeHTML(item.zh)} / ${escapeHTML(item.en)}</option>`).join('');
-            select.innerHTML = `<option value="all">全部 Subtopic / All subtopics</option><option value="none">未分類 / Uncategorised</option>${options}`;
+            select.innerHTML = `<option value="all">All subtopics</option><option value="none">Uncategorised</option>${options}`;
             select.value = [...select.options].some(option => option.value === previous) ? previous : 'all';
         }
 
@@ -2638,10 +2578,10 @@
             if (topicId !== 'all') cards = cards.filter(card => card.chapter === topicId);
             if (subtopicId === 'none') cards = cards.filter(card => !card.subtopicId);
             else if (subtopicId !== 'all') cards = cards.filter(card => card.subtopicId === Number(subtopicId));
-            if (search) cards = cards.filter(card => `${card.q_zh} ${card.a_zh} ${card.q_en} ${card.a_en}`.toLowerCase().includes(search));
-            document.getElementById('admin-card-count').innerText = `顯示 ${cards.length} 張預設記憶卡`;
+            if (search) cards = cards.filter(card => `${card.q_en} ${card.a_en}`.toLowerCase().includes(search));
+            document.getElementById('admin-card-count').innerText = `Showing ${cards.length} shared flashcards`;
             if (!cards.length) {
-                list.innerHTML = '<div class="rounded-2xl bg-white border border-slate-100 p-8 text-center text-sm text-slate-400">沒有符合條件的預設記憶卡。</div>';
+                list.innerHTML = '<div class="rounded-2xl bg-white border border-slate-100 p-8 text-center text-sm text-slate-400">No matching shared flashcards.</div>';
                 return;
             }
             list.innerHTML = cards.map(card => {
@@ -2650,14 +2590,14 @@
                 return `
                     <article class="bg-white rounded-2xl border border-slate-100 shadow-sm p-4">
                         <div class="flex items-center justify-between gap-2 mb-2">
-                            <span class="text-[10px] font-black text-indigo-600 bg-indigo-50 px-2 py-1 rounded-full">${escapeHTML(topic?.zh || card.chapter)}${subtopic ? ` · ${escapeHTML(subtopic.zh)}` : ' · 未分類'}</span>
-                            ${(card.img || card.answerImg) ? '<i class="fa-solid fa-image text-emerald-500" title="包含圖片"></i>' : ''}
+                            <span class="text-[10px] font-black text-indigo-600 bg-indigo-50 px-2 py-1 rounded-full">${escapeHTML(topic?.en || card.chapter)}${subtopic ? ` · ${escapeHTML(subtopic.en)}` : ' · Uncategorised'}</span>
+                            ${(card.img || card.answerImg) ? '<i class="fa-solid fa-image text-emerald-500" title="Contains an image"></i>' : ''}
                         </div>
-                        <h3 class="font-black text-slate-800 text-sm leading-relaxed line-clamp-3">${escapeHTML(card.q_zh)}</h3>
-                        <p class="text-xs text-slate-500 leading-relaxed mt-2 line-clamp-2">${escapeHTML(card.a_zh)}</p>
+                        <h3 class="font-black text-slate-800 text-sm leading-relaxed line-clamp-3">${escapeHTML(card.q_en)}</h3>
+                        <p class="text-xs text-slate-500 leading-relaxed mt-2 line-clamp-2">${escapeHTML(card.a_en)}</p>
                         <div class="grid grid-cols-2 gap-2 mt-3">
-                            <button type="button" onclick="confirmDeleteAdminCard(${card.id})" class="btn-silky py-2.5 rounded-xl bg-rose-50 text-rose-600 text-xs font-black"><i class="fa-solid fa-trash mr-1"></i>刪除</button>
-                            <button type="button" onclick="openAdminCardEditor(${card.id})" class="btn-silky py-2.5 rounded-xl bg-indigo-50 text-indigo-600 text-xs font-black"><i class="fa-solid fa-pen mr-1"></i>編輯</button>
+                            <button type="button" onclick="confirmDeleteAdminCard(${card.id})" class="btn-silky py-2.5 rounded-xl bg-rose-50 text-rose-600 text-xs font-black"><i class="fa-solid fa-trash mr-1"></i>Delete</button>
+                            <button type="button" onclick="openAdminCardEditor(${card.id})" class="btn-silky py-2.5 rounded-xl bg-indigo-50 text-indigo-600 text-xs font-black"><i class="fa-solid fa-pen mr-1"></i>Edit</button>
                         </div>
                     </article>`;
             }).join('');
@@ -2671,11 +2611,11 @@
             const choices = subtopics.filter(item => item.topicId === topicId);
             select.innerHTML = choices.length
                 ? choices.map(item => `<option value="${item.id}">${escapeHTML(item.zh)} / ${escapeHTML(item.en)}</option>`).join('')
-                : '<option value="">未有 Subtopic / No subtopic</option>';
+                : '<option value="">No subtopic</option>';
             select.disabled = !choices.length;
             select.required = choices.length > 0;
             if (choices.some(item => String(item.id) === previous)) select.value = previous;
-            help.innerText = choices.length ? '選擇這張記憶卡所屬的 Subtopic。' : '此課題尚未有 Subtopic；可先到「課題」分頁新增。';
+            help.innerText = choices.length ? 'Choose the subtopic for this flashcard.' : 'This topic has no subtopics yet. Add one from the Topics tab first.';
         }
 
         function setAdminImagePreview(side, url) {
@@ -2705,7 +2645,7 @@
             adminEditingCard = card ? { ...card } : null;
             populateAdminTopicControls();
             document.getElementById('admin-card-id').value = card?.id || '';
-            document.getElementById('admin-card-editor-title').innerText = card ? '編輯預設記憶卡' : '新增預設記憶卡';
+            document.getElementById('admin-card-editor-title').innerText = card ? 'Edit shared flashcard' : 'Add shared flashcard';
             document.getElementById('admin-card-topic').value = card?.chapter || chapters.find(chapter => !chapter.isAction)?.id || '';
             updateAdminSubtopicField(card?.subtopicId || null);
             document.getElementById('admin-card-q-zh').value = card?.q_zh || '';
@@ -2758,7 +2698,7 @@
             if (file.size > 3 * 1024 * 1024 || !['image/jpeg', 'image/png', 'image/webp', 'image/gif'].includes(file.type)) {
                 input.value = '';
                 document.getElementById('admin-card-form-error').className = 'rounded-xl bg-rose-50 text-rose-600 p-3 text-xs font-bold';
-                document.getElementById('admin-card-form-error').innerText = '圖片必須是 JPG、PNG、WebP 或 GIF，大小不可超過 3MB。';
+                document.getElementById('admin-card-form-error').innerText = 'Use a JPG, PNG, WebP or GIF image no larger than 3 MB.';
                 return;
             }
             document.getElementById(`admin-card-${prefix}-remove`).checked = false;
@@ -2783,7 +2723,7 @@
             const topicId = document.getElementById('admin-card-topic').value;
             if (!topicId) {
                 errorElement.className = 'rounded-xl bg-rose-50 text-rose-600 p-3 text-xs font-bold';
-                errorElement.innerText = '請先新增並選擇一個課題。';
+                errorElement.innerText = 'Add and select a topic first.';
                 return;
             }
             const topic = chapters.find(chapter => chapter.id === topicId);
@@ -2791,24 +2731,21 @@
             const subtopicId = document.getElementById('admin-card-subtopic').value;
             if (topicSubtopics.length && !subtopicId) {
                 errorElement.className = 'rounded-xl bg-rose-50 text-rose-600 p-3 text-xs font-bold';
-                errorElement.innerText = '請選擇 Subtopic。';
+                errorElement.innerText = 'Select a subtopic.';
                 return;
             }
             const selectedSubtopic = subtopics.find(item => item.id === Number(subtopicId));
-            const fields = {
-                question_zh: document.getElementById('admin-card-q-zh').value.trim(),
-                answer_zh: document.getElementById('admin-card-a-zh').value.trim(),
-                question_en: document.getElementById('admin-card-q-en').value.trim(),
-                answer_en: document.getElementById('admin-card-a-en').value.trim()
-            };
-            if (Object.values(fields).some(value => !value)) {
+            const question = document.getElementById('admin-card-q-en').value.trim();
+            const answer = document.getElementById('admin-card-a-en').value.trim();
+            const fields = { question_zh: question, answer_zh: answer, question_en: question, answer_en: answer };
+            if (!question || !answer) {
                 errorElement.className = 'rounded-xl bg-rose-50 text-rose-600 p-3 text-xs font-bold';
-                errorElement.innerText = '請完整填寫中文及英文的題目和答案。';
+                errorElement.innerText = 'Enter both the question and answer.';
                 return;
             }
 
             button.disabled = true;
-            button.innerText = '儲存中…';
+            button.innerText = 'Saving…';
             errorElement.classList.add('hidden');
             const newUploads = [];
             try {
@@ -2868,15 +2805,15 @@
                 closeAdminCardEditor();
                 if (!shouldReturnToReview) {
                     switchAdminPanel('cards');
-                    setAdminManagerStatus('預設記憶卡已儲存，所有學生將看到最新內容。', 'success');
+                    setAdminManagerStatus('Shared flashcard saved. All students will see the latest content.', 'success');
                 }
             } catch (error) {
                 if (newUploads.length) await supabaseClient.storage.from(ADMIN_IMAGE_BUCKET).remove(newUploads);
                 errorElement.className = 'rounded-xl bg-rose-50 text-rose-600 p-3 text-xs font-bold';
-                errorElement.innerText = authErrorMessage(error, '未能儲存記憶卡。');
+                errorElement.innerText = authErrorMessage(error, 'Unable to save the flashcard.');
             } finally {
                 button.disabled = false;
-                button.innerText = '儲存記憶卡 / Save flashcard';
+                button.innerText = 'Save flashcard';
             }
         }
 
@@ -2885,11 +2822,11 @@
             if (!card) return;
             openModal({
                 icon: 'fa-trash', iconBgClass: 'bg-rose-50', iconTextClass: 'text-rose-500',
-                title: '刪除預設記憶卡？',
+                title: 'Delete shared flashcard?',
                 desc: escapeHTML(card.q_zh),
                 buttons: [
-                    { text: '取消', styleClass: 'bg-slate-100 text-slate-600', onClick: null },
-                    { text: '確認刪除', styleClass: 'bg-rose-500 text-white', onClick: () => deleteAdminCard(card.id) }
+                    { text: 'Cancel', styleClass: 'bg-slate-100 text-slate-600', onClick: null },
+                    { text: 'Delete permanently', styleClass: 'bg-rose-500 text-white', onClick: () => deleteAdminCard(card.id) }
                 ]
             });
         }
@@ -2898,16 +2835,16 @@
             if (!hasAdminContentAccess() || !initSupabaseClient()) return;
             const card = flashcards.find(item => item.isManaged && item.id === Number(cardId));
             if (!card) return;
-            setAdminManagerStatus('正在刪除記憶卡…');
+            setAdminManagerStatus('Deleting flashcard…');
             try {
                 const { error } = await supabaseClient.from('chemistry_blank_flashcards').delete().eq('id', card.id);
                 if (error) throw error;
                 const paths = [card.imagePath, card.answerImagePath].filter(Boolean);
                 if (paths.length) await supabaseClient.storage.from(ADMIN_IMAGE_BUCKET).remove(paths);
                 await loadManagedContent({ force: true });
-                setAdminManagerStatus('預設記憶卡已刪除。', 'success');
+                setAdminManagerStatus('Shared flashcard deleted.', 'success');
             } catch (error) {
-                setAdminManagerStatus(authErrorMessage(error, '未能刪除記憶卡。'), 'error');
+                setAdminManagerStatus(authErrorMessage(error, 'Unable to delete the flashcard.'), 'error');
             }
         }
 
@@ -3405,13 +3342,13 @@
                 return;
             }
 
-            if (!currentUser || !initSupabaseClient()) return showLoginGate('請先登入才可儲存個人記憶卡。');
+            if (!currentUser || !initSupabaseClient()) return showLoginGate('Sign in before saving a personal flashcard.');
             const button = document.getElementById('btn-save-card');
             const questionImageFile = document.getElementById('input-qimg').files[0] || null;
             const answerImageFile = document.getElementById('input-aimg').files[0] || null;
             const uploadedPaths = [];
             button.disabled = true;
-            button.innerText = currentLang === 'en' ? 'Saving…' : '儲存中…';
+            button.innerText = currentLang === 'en' ? 'Saving…' : 'Saving…';
             try {
                 const questionUpload = await uploadPersonalCardImage(questionImageFile, 'question');
                 const answerUpload = await uploadPersonalCardImage(answerImageFile, 'answer');
@@ -3440,7 +3377,7 @@
                 openModal({
                     icon: 'fa-cloud-arrow-up', iconBgClass: 'bg-rose-50', iconTextClass: 'text-rose-500',
                     title: currentLang === 'en' ? 'Unable to save card' : '未能儲存記憶卡',
-                    desc: authErrorMessage(error, '未能把記憶卡儲存到你的帳號，請重試。'),
+                    desc: authErrorMessage(error, 'Unable to save the flashcard to your account. Please try again.'),
                     buttons: [{ text: uiTranslations[currentLang].btnGotIt, styleClass: 'bg-slate-700 text-white', onClick: null }]
                 });
                 return;
@@ -3653,7 +3590,7 @@
                 openModal({
                     icon: 'fa-cloud-arrow-up', iconBgClass: 'bg-rose-50', iconTextClass: 'text-rose-500',
                     title: currentLang === 'en' ? 'Unable to save' : '未能儲存星星卡',
-                    desc: authErrorMessage(error, '未能把這項操作儲存到你的帳號，請重試。'),
+                    desc: authErrorMessage(error, 'Unable to save this change to your account. Please try again.'),
                     buttons: [{ text: uiTranslations[currentLang].btnGotIt, styleClass: 'bg-slate-700 text-white', onClick: null }]
                 });
             }
@@ -3716,7 +3653,7 @@
                 openModal({
                     icon: 'fa-cloud-arrow-up', iconBgClass: 'bg-rose-50', iconTextClass: 'text-rose-500',
                     title: currentLang === 'en' ? 'Unable to save' : '未能更新星星卡',
-                    desc: authErrorMessage(error, '未能把這項操作儲存到你的帳號，請重試。'),
+                    desc: authErrorMessage(error, 'Unable to save this change to your account. Please try again.'),
                     buttons: [{ text: uiTranslations[currentLang].btnGotIt, styleClass: 'bg-slate-700 text-white', onClick: null }]
                 });
             }
@@ -3750,7 +3687,6 @@
 
         // 初始化：載入這部裝置上次的卡片、星號及語言設定
         loadState();
-        document.getElementById('lang-selector').value = currentLang;
         changeLanguage();
         selectLoginRole('student');
         initialiseAuthentication();
