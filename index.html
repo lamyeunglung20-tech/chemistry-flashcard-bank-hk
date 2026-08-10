@@ -678,6 +678,11 @@
                         <label class="block text-sm font-bold text-slate-700 mb-2" id="label-atext">答案</label>
                         <textarea id="input-atext" rows="3" class="w-full border border-slate-200 rounded-xl p-3 bg-slate-50 text-slate-700 outline-none focus:border-emerald-500 transition-colors duration-300 placeholder:text-slate-400" placeholder="請輸入答案內容..."></textarea>
                     </div>
+                    <div>
+                        <label class="block text-sm font-bold text-slate-700 mb-2" id="label-aimg">答案圖片 (選填)</label>
+                        <input type="file" id="input-aimg" accept="image/*" class="w-full text-sm text-slate-500 file:mr-4 file:py-2.5 file:px-4 file:rounded-xl file:border-0 file:text-sm file:font-bold file:bg-emerald-50 file:text-emerald-600 hover:file:bg-emerald-100 transition-colors duration-300 cursor-pointer btn-silky">
+                        <img id="preview-answer-img" src="" class="mt-3 max-h-40 hidden rounded-xl border border-slate-200 object-contain w-full bg-slate-50 transition-opacity duration-300" alt="答案圖片預覽">
+                    </div>
                     
                     <button onclick="saveNewCard()" class="btn-silky w-full bg-blue-500 text-white font-bold py-3.5 rounded-xl shadow-[0_4px_14px_0_rgba(59,130,246,0.39)] hover:bg-blue-600 hover:shadow-[0_6px_20px_rgba(59,130,246,0.23)] mt-6" id="btn-save-card">
                         儲存記憶卡
@@ -702,6 +707,9 @@
                             <button onclick="toggleStar(event)" class="absolute top-5 left-5 text-2xl text-slate-200 hover:text-yellow-400 transition-colors duration-300 btn-silky z-30">
                                 <i class="fa-solid fa-star star-icon"></i>
                             </button>
+                            <button type="button" onclick="editCurrentFlashcard(event)" class="admin-review-edit hidden absolute top-4 right-4 w-10 h-10 rounded-full bg-indigo-50 text-indigo-600 items-center justify-center shadow-sm border border-indigo-100 btn-silky z-30" aria-label="編輯這張預設記憶卡" title="編輯這張預設記憶卡">
+                                <i class="fa-solid fa-pen"></i>
+                            </button>
                             <span class="review-label w-full text-center text-blue-500 text-sm font-bold uppercase tracking-widest" id="label-q">Question</span>
                             <div class="review-content flex flex-col justify-center items-center w-full">
                                 <div id="question-text" class="review-copy text-[22px] font-bold text-center text-slate-800 leading-snug w-full transition-opacity duration-300">載入中...</div>
@@ -715,6 +723,9 @@
                         <div class="review-face absolute w-full h-full bg-emerald-50 rounded-3xl shadow-md backface-hidden rotate-y-180 flex flex-col items-center p-6 border-2 border-emerald-200 no-scrollbar">
                             <button onclick="toggleStar(event)" class="absolute top-5 left-5 text-2xl text-slate-200 hover:text-yellow-400 transition-colors duration-300 btn-silky z-30">
                                 <i class="fa-solid fa-star star-icon"></i>
+                            </button>
+                            <button type="button" onclick="editCurrentFlashcard(event)" class="admin-review-edit hidden absolute top-4 right-4 w-10 h-10 rounded-full bg-white text-indigo-600 items-center justify-center shadow-sm border border-indigo-100 btn-silky z-30" aria-label="編輯這張預設記憶卡" title="編輯這張預設記憶卡">
+                                <i class="fa-solid fa-pen"></i>
                             </button>
                             <span class="review-label w-full text-center text-emerald-600 text-sm font-bold uppercase tracking-widest" id="label-a">Answer</span>
                             <div class="review-content flex flex-col justify-center items-center w-full">
@@ -995,7 +1006,6 @@
         let isFlipped = false;
         let currentLang = 'zh'; 
         let activeTab = 'home';
-        let currentImageBase64 = ""; 
         let isLoggedOut = false; 
         let defaultLang = 'zh';
         let loginRole = 'student';
@@ -1004,6 +1014,8 @@
         let managedContentLoaded = false;
         let adminPanel = 'topics';
         let adminEditingCard = null;
+        let adminEditorReturnView = 'admin';
+        let adminEditorReviewContext = null;
         let adminEditingTopicId = null;
         let adminEditingSubtopicId = null;
         let subtopics = [];
@@ -1098,21 +1110,21 @@
 
         const uiTranslations = {
             zh: { header: "卡片溫習庫", back: "返回", hint: "點擊卡片翻轉", prev: "上一題", next: "下一題", navHome: "主頁", navStar: "星星卡", navSet: "設定", starTitle: "星星卡", starEmpty: "你尚未儲存任何題目！", btnReviewStar: "溫習星星卡", waitMsg: "此章節暫時未有題目，不如自己新增一張？",
-                  addTitle: "新增記憶卡", addTopic: "選擇課題", addQ: "題目", addImg: "題目圖片 (選填)", addA: "答案", addBtn: "儲存記憶卡", starFilterAll: "全部課題",
+                  addTitle: "新增記憶卡", addTopic: "選擇課題", addQ: "題目", addImg: "題目圖片 (選填)", addA: "答案", addAnswerImg: "答案圖片 (選填)", addBtn: "儲存記憶卡", starFilterAll: "全部課題",
                   setMain: "設定", setFeedback: "意見反饋", setLogout: "登出帳號", guest: "訪客", notLoggedIn: "未登入", online: "在線", offline: "離線",
                   feedbackTitle: "意見反饋", feedbackDesc: "有任何問題請聯絡這個 Email：<br><a href='mailto:lamyeunglung20@gmail.com' class='text-blue-500 font-bold mt-2 inline-block hover:underline'>lamyeunglung20@gmail.com</a>", btnGotIt: "知道",
                   logoutTitle: "登出帳號", logoutDesc: "確定要登出目前的帳號嗎？", btnYes: "登出", btnNo: "取消",
                   btnAccount: "帳戶與安全", accountTitle: "帳戶", changePwdTitle: "修改密碼", oldPwd: "舊密碼", newPwd: "新密碼", confirmPwd: "確認新密碼", btnUpdatePwd: "更新密碼", pwdEmpty: "請填寫所有密碼欄位！", pwdMismatch: "新密碼與確認密碼不一致！", pwdSuccess: "密碼修改成功！",
                   imageLarge: "圖片太大，請選擇 1.5MB 以下的圖片。" },
             en: { header: "Flashcard Bank", back: "Back", hint: "Tap to flip", prev: "Prev", next: "Next", navHome: "Home", navStar: "Starred", navSet: "Settings", starTitle: "Starred Cards", starEmpty: "No starred cards yet!", btnReviewStar: "Review Starred", waitMsg: "No cards here yet. Why not create one?",
-                  addTitle: "Add Flashcard", addTopic: "Select Topic", addQ: "Question", addImg: "Image (Optional)", addA: "Answer", addBtn: "Save Card", starFilterAll: "All Topics",
+                  addTitle: "Add Flashcard", addTopic: "Select Topic", addQ: "Question", addImg: "Question Image (Optional)", addA: "Answer", addAnswerImg: "Answer Image (Optional)", addBtn: "Save Card", starFilterAll: "All Topics",
                   setMain: "Settings", setFeedback: "Feedback", setLogout: "Log Out", guest: "Guest", notLoggedIn: "Not logged in", online: "Online", offline: "Offline",
                   feedbackTitle: "Feedback", feedbackDesc: "For any inquiries, please contact:<br><a href='mailto:lamyeunglung20@gmail.com' class='text-blue-500 font-bold mt-2 inline-block hover:underline'>lamyeunglung20@gmail.com</a>", btnGotIt: "Got it",
                   logoutTitle: "Log Out", logoutDesc: "Are you sure you want to log out?", btnYes: "Log Out", btnNo: "Cancel",
                   btnAccount: "Account & Security", accountTitle: "Account", changePwdTitle: "Change Password", oldPwd: "Old Password", newPwd: "New Password", confirmPwd: "Confirm New Password", btnUpdatePwd: "Update Password", pwdEmpty: "Please fill in all fields!", pwdMismatch: "New passwords do not match!", pwdSuccess: "Password updated successfully!",
                   imageLarge: "The image is too large. Please choose one under 1.5 MB." },
             bi: { header: "卡片溫習庫", back: "返回 Back", hint: "點擊翻轉 Tap to flip", prev: "上一題 Prev", next: "下一題 Next", navHome: "主頁", navStar: "星星卡", navSet: "設定", starTitle: "星星卡 Starred", starEmpty: "尚未儲存 Empty!", btnReviewStar: "溫習星星卡 Review", waitMsg: "未有題目 No cards yet!",
-                  addTitle: "新增記憶卡 Add Card", addTopic: "課題 Topic", addQ: "題目 Question", addImg: "圖片 Image (Opt.)", addA: "答案 Answer", addBtn: "儲存 Save", starFilterAll: "全部 All",
+                  addTitle: "新增記憶卡 Add Card", addTopic: "課題 Topic", addQ: "題目 Question", addImg: "題目圖片 Question Image (Opt.)", addA: "答案 Answer", addAnswerImg: "答案圖片 Answer Image (Opt.)", addBtn: "儲存 Save", starFilterAll: "全部 All",
                   setMain: "設定 Settings", setFeedback: "反饋 Feedback", setLogout: "登出 Log Out", guest: "訪客 Guest", notLoggedIn: "未登入 No account", online: "在線 Online", offline: "離線 Offline",
                   feedbackTitle: "意見反饋 Feedback", feedbackDesc: "有任何問題請聯絡這個 Email：<br>For inquiries, contact:<br><a href='mailto:lamyeunglung20@gmail.com' class='text-blue-500 font-bold mt-2 inline-block hover:underline'>lamyeunglung20@gmail.com</a>", btnGotIt: "知道 Got it",
                   logoutTitle: "登出 Log Out", logoutDesc: "確定要登出？ Are you sure?", btnYes: "登出 Yes", btnNo: "取消 No",
@@ -1249,8 +1261,8 @@
                 a_en: row.answer_en,
                 img: row.question_image_url || null,
                 imagePath: row.question_image_path || null,
-                answerImg: null,
-                answerImagePath: null,
+                answerImg: row.answer_image_url || null,
+                answerImagePath: row.answer_image_path || null,
                 sortOrder: row.sort_order || 0,
                 isStarred: Boolean(row.is_starred),
                 isPersonal: true
@@ -1277,7 +1289,7 @@
                 supabaseClient.from('chemistry_subtopics').select('id,topic_id,legacy_section,name_zh,name_en,icon,color,sort_order').order('sort_order', { ascending: true }).order('id', { ascending: true }),
                 supabaseClient.from('chemistry_flashcards').select('id,topic_id,subtopic_id,section,question_zh,answer_zh,question_en,answer_en,question_image_url,question_image_path,answer_image_url,answer_image_path,sort_order').order('sort_order', { ascending: true }).order('id', { ascending: true }),
                 supabaseClient.from('chemistry_user_flashcard_state').select('flashcard_id,is_starred').eq('user_id', currentUser.id),
-                supabaseClient.from('chemistry_personal_flashcards').select('id,topic_id,question_zh,answer_zh,question_en,answer_en,question_image_url,question_image_path,is_starred,sort_order').eq('user_id', currentUser.id).order('sort_order', { ascending: true }).order('id', { ascending: true }),
+                supabaseClient.from('chemistry_personal_flashcards').select('id,topic_id,question_zh,answer_zh,question_en,answer_en,question_image_url,question_image_path,answer_image_url,answer_image_path,is_starred,sort_order').eq('user_id', currentUser.id).order('sort_order', { ascending: true }).order('id', { ascending: true }),
                 supabaseClient.from('chemistry_user_preferences').select('default_language').eq('user_id', currentUser.id).maybeSingle()
             ]);
             if (topicResult.error) throw topicResult.error;
@@ -1414,6 +1426,7 @@
             document.getElementById('label-qtext').innerText = t.addQ;
             document.getElementById('label-qimg').innerText = t.addImg;
             document.getElementById('label-atext').innerText = t.addA;
+            document.getElementById('label-aimg').innerText = t.addAnswerImg;
             document.getElementById('btn-save-card').innerText = t.addBtn;
 
             document.getElementById('settings-title-main').innerText = t.setMain;
@@ -2738,7 +2751,7 @@
             openModal({
                 icon: 'fa-trash', iconBgClass: 'bg-rose-50', iconTextClass: 'text-rose-500',
                 title: '刪除課題？',
-                desc: `「${escapeHTML(topic.zh)}」及其中 ${topic.count} 張預設記憶卡將會永久刪除。學生的個人記憶卡不受影響。`,
+                desc: `「${escapeHTML(topic.zh)}」及其中 ${topic.count} 張預設記憶卡將會永久刪除。如有學生的個人記憶卡正在使用此課題，系統會保留資料並阻止刪除。`,
                 buttons: [
                     { text: '取消', styleClass: 'bg-slate-100 text-slate-600', onClick: null },
                     { text: '確認刪除', styleClass: 'bg-rose-500 text-white', onClick: () => deleteAdminTopic(topicId) }
@@ -2757,7 +2770,10 @@
                 await loadManagedContent({ force: true });
                 setAdminManagerStatus('課題及其中的預設記憶卡已刪除。', 'success');
             } catch (error) {
-                setAdminManagerStatus(authErrorMessage(error, '未能刪除課題。'), 'error');
+                const message = error?.code === '23503'
+                    ? '為保護學生的永久資料，此課題仍被個人記憶卡使用，因此不能刪除。可先保留課題或重新命名。'
+                    : authErrorMessage(error, '未能刪除課題。');
+                setAdminManagerStatus(message, 'error');
             }
         }
 
@@ -2845,9 +2861,20 @@
             removeWrap.classList.toggle('flex', Boolean(url));
         }
 
-        function openAdminCardEditor(cardId = null) {
+        function editCurrentFlashcard(event) {
+            event.stopPropagation();
+            const card = currentReviewList[currentIndex];
+            if (!hasAdminContentAccess() || !card?.isManaged) return;
+            openAdminCardEditor(card.id, 'review');
+        }
+
+        function openAdminCardEditor(cardId = null, returnView = 'admin') {
             if (!hasAdminContentAccess()) return;
             const card = cardId == null ? null : flashcards.find(item => item.isManaged && item.id === Number(cardId));
+            adminEditorReturnView = returnView === 'review' ? 'review' : 'admin';
+            adminEditorReviewContext = adminEditorReturnView === 'review'
+                ? { cardId: Number(cardId), index: currentIndex }
+                : null;
             adminEditingCard = card ? { ...card } : null;
             populateAdminTopicControls();
             document.getElementById('admin-card-id').value = card?.id || '';
@@ -2868,6 +2895,8 @@
             updateAdminSubtopicField(card?.subtopicId || null);
             document.getElementById('view-admin').classList.add('hidden');
             document.getElementById('view-admin').classList.remove('flex');
+            document.getElementById('view-flashcards').classList.add('hidden');
+            document.getElementById('view-flashcards').classList.remove('flex');
             document.getElementById('view-admin-card-editor').classList.remove('hidden');
             document.getElementById('view-admin-card-editor').classList.add('flex');
             updateGlobalBackButton();
@@ -2876,10 +2905,21 @@
         function closeAdminCardEditor() {
             document.getElementById('view-admin-card-editor').classList.add('hidden');
             document.getElementById('view-admin-card-editor').classList.remove('flex');
-            document.getElementById('view-admin').classList.remove('hidden');
-            document.getElementById('view-admin').classList.add('flex');
+            if (adminEditorReturnView === 'review' && adminEditorReviewContext) {
+                const refreshedCard = flashcards.find(item => item.isManaged && item.id === adminEditorReviewContext.cardId);
+                if (refreshedCard) currentReviewList[adminEditorReviewContext.index] = refreshedCard;
+                currentIndex = Math.min(adminEditorReviewContext.index, Math.max(0, currentReviewList.length - 1));
+                document.getElementById('view-flashcards').classList.remove('hidden');
+                document.getElementById('view-flashcards').classList.add('flex');
+                if (refreshedCard) updateCard();
+            } else {
+                document.getElementById('view-admin').classList.remove('hidden');
+                document.getElementById('view-admin').classList.add('flex');
+                renderAdminManager();
+            }
             adminEditingCard = null;
-            renderAdminManager();
+            adminEditorReturnView = 'admin';
+            adminEditorReviewContext = null;
             updateGlobalBackButton();
         }
 
@@ -2996,10 +3036,13 @@
                 if (adminEditingCard?.imagePath && adminEditingCard.imagePath !== questionPath) obsoletePaths.push(adminEditingCard.imagePath);
                 if (adminEditingCard?.answerImagePath && adminEditingCard.answerImagePath !== answerPath) obsoletePaths.push(adminEditingCard.answerImagePath);
                 if (obsoletePaths.length) await supabaseClient.storage.from(ADMIN_IMAGE_BUCKET).remove(obsoletePaths);
+                const shouldReturnToReview = adminEditorReturnView === 'review';
                 await loadManagedContent({ force: true });
                 closeAdminCardEditor();
-                switchAdminPanel('cards');
-                setAdminManagerStatus('預設記憶卡已儲存，所有學生將看到最新內容。', 'success');
+                if (!shouldReturnToReview) {
+                    switchAdminPanel('cards');
+                    setAdminManagerStatus('預設記憶卡已儲存，所有學生將看到最新內容。', 'success');
+                }
             } catch (error) {
                 if (newUploads.length) await supabaseClient.storage.from(ADMIN_IMAGE_BUCKET).remove(newUploads);
                 errorElement.className = 'rounded-xl bg-rose-50 text-rose-600 p-3 text-xs font-bold';
@@ -3465,8 +3508,9 @@
             document.getElementById('input-qtext').value = '';
             document.getElementById('input-atext').value = '';
             document.getElementById('input-qimg').value = '';
+            document.getElementById('input-aimg').value = '';
             document.getElementById('preview-img').classList.add('hidden');
-            currentImageBase64 = "";
+            document.getElementById('preview-answer-img').classList.add('hidden');
             updateGlobalBackButton();
         }
 
@@ -3478,12 +3522,11 @@
             updateGlobalBackButton();
         }
 
-        document.getElementById('input-qimg').addEventListener('change', function(e) {
+        function handlePersonalImageSelection(e, previewId) {
             const file = e.target.files[0];
             if (file) {
                 if (file.size > 1.5 * 1024 * 1024) {
                     e.target.value = '';
-                    currentImageBase64 = '';
                     openModal({
                         icon: 'fa-image', iconBgClass: 'bg-orange-50', iconTextClass: 'text-orange-500',
                         title: currentLang === 'en' ? 'Image too large' : '圖片太大', desc: uiTranslations[currentLang].imageLarge,
@@ -3493,23 +3536,24 @@
                 }
                 const reader = new FileReader();
                 reader.onload = function(event) {
-                    currentImageBase64 = event.target.result;
-                    const preview = document.getElementById('preview-img');
-                    preview.src = currentImageBase64;
+                    const preview = document.getElementById(previewId);
+                    preview.src = event.target.result;
                     preview.classList.remove('hidden');
                 };
                 reader.readAsDataURL(file);
             } else {
-                currentImageBase64 = "";
-                document.getElementById('preview-img').classList.add('hidden');
+                document.getElementById(previewId).classList.add('hidden');
             }
-        });
+        }
 
-        async function uploadPersonalCardImage(file) {
+        document.getElementById('input-qimg').addEventListener('change', event => handlePersonalImageSelection(event, 'preview-img'));
+        document.getElementById('input-aimg').addEventListener('change', event => handlePersonalImageSelection(event, 'preview-answer-img'));
+
+        async function uploadPersonalCardImage(file, side) {
             if (!file) return { path: null, url: null };
             const extension = ({ 'image/jpeg': 'jpg', 'image/png': 'png', 'image/webp': 'webp', 'image/gif': 'gif' })[file.type];
             if (!extension) throw new Error('Unsupported image type');
-            const path = `personal/${currentUser.id}/${Date.now()}-${crypto.randomUUID()}-question.${extension}`;
+            const path = `personal/${currentUser.id}/${Date.now()}-${crypto.randomUUID()}-${side}.${extension}`;
             const { error } = await supabaseClient.storage.from(ADMIN_IMAGE_BUCKET).upload(path, file, { contentType: file.type, cacheControl: '3600', upsert: false });
             if (error) throw error;
             const { data } = supabaseClient.storage.from(ADMIN_IMAGE_BUCKET).getPublicUrl(path);
@@ -3536,13 +3580,16 @@
 
             if (!currentUser || !initSupabaseClient()) return showLoginGate('請先登入才可儲存個人記憶卡。');
             const button = document.getElementById('btn-save-card');
-            const imageFile = document.getElementById('input-qimg').files[0] || null;
-            let uploadedPath = null;
+            const questionImageFile = document.getElementById('input-qimg').files[0] || null;
+            const answerImageFile = document.getElementById('input-aimg').files[0] || null;
+            const uploadedPaths = [];
             button.disabled = true;
             button.innerText = currentLang === 'en' ? 'Saving…' : '儲存中…';
             try {
-                const upload = await uploadPersonalCardImage(imageFile);
-                uploadedPath = upload.path;
+                const questionUpload = await uploadPersonalCardImage(questionImageFile, 'question');
+                const answerUpload = await uploadPersonalCardImage(answerImageFile, 'answer');
+                if (questionUpload.path) uploadedPaths.push(questionUpload.path);
+                if (answerUpload.path) uploadedPaths.push(answerUpload.path);
                 const { error } = await supabaseClient.from('chemistry_personal_flashcards').insert({
                     user_id: currentUser.id,
                     topic_id: topicId,
@@ -3550,15 +3597,17 @@
                     answer_zh: aText,
                     question_en: qText,
                     answer_en: aText,
-                    question_image_url: upload.url,
-                    question_image_path: upload.path,
+                    question_image_url: questionUpload.url,
+                    question_image_path: questionUpload.path,
+                    answer_image_url: answerUpload.url,
+                    answer_image_path: answerUpload.path,
                     is_starred: false,
                     sort_order: flashcards.filter(card => card.isPersonal).length
                 });
                 if (error) throw error;
                 await loadManagedContent({ force: true });
             } catch (error) {
-                if (uploadedPath) await supabaseClient.storage.from(ADMIN_IMAGE_BUCKET).remove([uploadedPath]);
+                if (uploadedPaths.length) await supabaseClient.storage.from(ADMIN_IMAGE_BUCKET).remove(uploadedPaths);
                 button.disabled = false;
                 button.innerText = uiTranslations[currentLang].addBtn;
                 openModal({
@@ -3661,6 +3710,12 @@
         function updateCard() {
             const card = currentReviewList[currentIndex];
             let qHTML = '', aHTML = '';
+
+            const canAdminEdit = hasAdminContentAccess() && Boolean(card?.isManaged);
+            document.querySelectorAll('.admin-review-edit').forEach(button => {
+                button.classList.toggle('hidden', !canAdminEdit);
+                button.classList.toggle('flex', canAdminEdit);
+            });
 
             if (currentLang === 'zh') {
                 qHTML = formatCardHTML(card.q_zh); aHTML = formatCardHTML(card.a_zh);
