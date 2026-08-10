@@ -1019,8 +1019,8 @@
         let authenticationReady = false;
         let authTransitionStartedAt = 0;
 
-        // iOS／App 內置瀏覽器有時會在軟鍵盤收起後保留鍵盤開啟時的高度。
-        // 記住未開鍵盤時的穩定高度，並在焦點離開輸入欄後分階段恢復。
+        // iOS／App 內置瀏覽器有時只有第一次會正確通知鍵盤高度已恢復。
+        // 輸入欄仍有焦點時絕不壓縮 App 外框，並持續監測多次鍵盤開關。
         let stableViewportHeight = Math.max(
             window.innerHeight || 0,
             document.documentElement.clientHeight || 0,
@@ -1041,28 +1041,28 @@
                 window.innerHeight || 0,
                 document.documentElement.clientHeight || 0
             );
-            const keyboardOpen = isTextEntryFocused()
-                && visualHeight > 0
-                && visualHeight < stableViewportHeight * 0.82;
 
             if (options.resetStable) stableViewportHeight = 0;
 
-            if (keyboardOpen) {
-                document.documentElement.style.setProperty('--app-viewport-height', `${Math.max(320, Math.round(visualHeight))}px`);
-                return;
-            }
-
-            const restoredHeight = Math.max(layoutHeight, visualHeight, stableViewportHeight);
+            const measuredHeight = Math.max(layoutHeight, visualHeight);
+            const preserveFullHeight = isTextEntryFocused() && stableViewportHeight > 0;
+            const restoredHeight = preserveFullHeight
+                ? Math.max(measuredHeight, stableViewportHeight)
+                : measuredHeight;
             if (restoredHeight > 0) {
                 stableViewportHeight = restoredHeight;
-                document.documentElement.style.setProperty('--app-viewport-height', `${Math.round(restoredHeight)}px`);
+                const nextHeight = `${Math.round(restoredHeight)}px`;
+                if (document.documentElement.style.getPropertyValue('--app-viewport-height') !== nextHeight) {
+                    document.documentElement.style.setProperty('--app-viewport-height', nextHeight);
+                }
             }
         }
 
         function scheduleViewportRestore(options = {}) {
             viewportRestoreTimers.forEach(clearTimeout);
-            viewportRestoreTimers = [0, 80, 240, 520, 900].map(delay => setTimeout(() => {
-                syncAppViewportHeight(options);
+            const resetStableOnce = Boolean(options.resetStable);
+            viewportRestoreTimers = [0, 80, 240, 520, 900].map((delay, index) => setTimeout(() => {
+                syncAppViewportHeight({ resetStable: resetStableOnce && index === 0 });
                 fitReviewCard();
             }, delay));
         }
@@ -1084,6 +1084,12 @@
         window.visualViewport?.addEventListener('resize', () => syncAppViewportHeight());
         window.visualViewport?.addEventListener('scroll', () => {
             if (!isTextEntryFocused()) syncAppViewportHeight();
+        });
+        window.setInterval(() => {
+            if (document.visibilityState === 'visible') syncAppViewportHeight();
+        }, 250);
+        document.addEventListener('visibilitychange', () => {
+            if (document.visibilityState === 'visible') scheduleViewportRestore();
         });
 
         const uiTranslations = {
