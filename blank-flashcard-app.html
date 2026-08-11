@@ -202,7 +202,7 @@
                 <div class="w-16 h-16 mx-auto rounded-2xl bg-emerald-500 text-white flex items-center justify-center text-3xl shadow-lg shadow-emerald-200 mb-4">
                     <i class="fa-solid fa-flask"></i>
                 </div>
-                <h1 class="text-2xl font-black text-center text-slate-900 mb-1">Science vocab flashcards</h1>
+                <h1 id="auth-app-title" class="text-2xl font-black text-center text-slate-900 mb-1">Science vocab flashcards</h1>
                 <p class="text-xs text-center text-slate-500 mb-4">Build your science vocabulary</p>
                 <h2 id="auth-mode-title" class="text-center text-sm font-black text-slate-700 mb-4">Sign in</h2>
 
@@ -241,7 +241,8 @@
                         </button>
                     </div>
                     <label id="register-name-label" for="register-name" class="block text-xs font-bold text-slate-600 mb-1.5">Student name</label>
-                    <input id="register-name" type="text" autocomplete="name" maxlength="80" class="w-full border-2 border-slate-200 rounded-xl py-3 px-3 text-sm font-semibold outline-none focus:border-emerald-400 mb-3" placeholder="Student name" required>
+                    <input id="register-name" type="text" autocomplete="name" maxlength="80" class="w-full border-2 border-slate-200 rounded-xl py-3 px-3 text-sm font-semibold outline-none focus:border-emerald-400" placeholder="Student name" required>
+                    <p class="text-[10px] text-slate-400 mt-1 mb-3">Every name must be unique within this app.</p>
                     <label for="register-email" class="block text-xs font-bold text-slate-600 mb-1.5">Email</label>
                     <input id="register-email" type="email" autocomplete="email" class="w-full border-2 border-slate-200 rounded-xl py-3 px-3 text-sm font-semibold outline-none focus:border-emerald-400 mb-3" placeholder="name@example.com" required>
                     <label for="register-password" class="block text-xs font-bold text-slate-600 mb-1.5">Password</label>
@@ -311,15 +312,20 @@
                 <i class="fa-solid fa-flask text-emerald-500 text-lg"></i>
                 <span class="font-black text-[15px] tracking-wide text-slate-900 truncate" id="header-title">Science Vocab Flashcards</span>
             </div>
-            <div class="relative flex items-center flex-shrink-0">
-                <label for="school-level-select" class="sr-only">School level</label>
-                <select id="school-level-select" onchange="changeSchoolLevel(this.value)" class="min-w-[76px] appearance-none rounded-xl border-2 border-emerald-100 bg-emerald-50 py-2 pl-3 pr-8 text-xs font-black tracking-wide text-emerald-700 outline-none focus:border-emerald-400" aria-label="School level">
-                    <option value="S1">S1</option>
-                    <option value="S2">S2</option>
-                    <option value="S3">S3</option>
-                    <option value="S4-6" selected>S4-6</option>
-                </select>
-                <i class="fa-solid fa-chevron-down pointer-events-none absolute right-3 text-[10px] text-emerald-600" aria-hidden="true"></i>
+            <div class="flex items-center gap-1.5 flex-shrink-0">
+                <div class="relative flex items-center">
+                    <label for="school-level-select" class="sr-only">School level</label>
+                    <select id="school-level-select" onchange="changeSchoolLevel(this.value)" class="min-w-[68px] appearance-none rounded-xl border-2 border-emerald-100 bg-emerald-50 py-2 pl-2.5 pr-7 text-xs font-black tracking-wide text-emerald-700 outline-none focus:border-emerald-400" aria-label="School level">
+                        <option value="S1">S1</option>
+                        <option value="S2">S2</option>
+                        <option value="S3">S3</option>
+                        <option value="S4-6" selected>S4-6</option>
+                    </select>
+                    <i class="fa-solid fa-chevron-down pointer-events-none absolute right-2.5 text-[9px] text-emerald-600" aria-hidden="true"></i>
+                </div>
+                <button id="school-level-default-btn" type="button" onclick="setDefaultSchoolLevel()" class="btn-silky min-h-[36px] rounded-xl border-2 border-emerald-100 bg-white px-2 text-[9px] font-black leading-tight text-emerald-700" aria-label="Set selected school level as default" title="Set selected school level as default">
+                    <i class="fa-regular fa-circle-check mr-1"></i><span id="school-level-default-text">Set default</span>
+                </button>
             </div>
         </header>
 
@@ -520,6 +526,33 @@
                     Changes made here apply to every student account. All create, edit and delete actions are protected by administrator permissions.
                 </div>
                 <p id="admin-manager-status" class="hidden rounded-xl px-3 py-2 mb-3 text-xs font-bold" role="status"></p>
+
+                <form id="admin-branding-form" onsubmit="saveAdminBranding(event)" class="rounded-2xl bg-white border border-slate-100 p-4 mb-4 space-y-3 shadow-sm">
+                    <div>
+                        <h3 class="font-black text-slate-800 text-sm"><i class="fa-solid fa-heading mr-2 text-indigo-500"></i>App names</h3>
+                        <p class="text-[10px] leading-relaxed text-slate-400 mt-1">Administrators can edit the top-left header name.</p>
+                    </div>
+                    <div>
+                        <label for="admin-header-title" class="block text-xs font-bold text-slate-600 mb-1.5">Top-left header name</label>
+                        <input id="admin-header-title" maxlength="80" required class="w-full border-2 border-slate-200 rounded-xl p-3 text-sm font-semibold outline-none focus:border-indigo-400">
+                    </div>
+                    <div id="admin-login-title-wrap" class="hidden">
+                        <label for="admin-login-title" class="block text-xs font-bold text-slate-600 mb-1.5">Sign-in page name · Super administrator only</label>
+                        <input id="admin-login-title" maxlength="80" class="w-full border-2 border-violet-200 rounded-xl p-3 text-sm font-semibold outline-none focus:border-violet-400">
+                    </div>
+                    <button id="admin-branding-save" type="submit" class="btn-silky w-full rounded-xl bg-slate-800 text-white py-3 font-black text-sm"><i class="fa-solid fa-floppy-disk mr-2"></i>Save app names</button>
+                </form>
+
+                <div class="relative mb-4">
+                    <label for="admin-level-filter" class="block text-xs font-black text-slate-600 mb-1.5">Manage content for</label>
+                    <select id="admin-level-filter" onchange="changeAdminSchoolLevel(this.value)" class="w-full appearance-none rounded-2xl border-2 border-indigo-100 bg-white p-3 pr-10 text-sm font-black text-indigo-700 outline-none focus:border-indigo-400">
+                        <option value="S1">S1</option>
+                        <option value="S2">S2</option>
+                        <option value="S3">S3</option>
+                        <option value="S4-6">S4-6</option>
+                    </select>
+                    <i class="fa-solid fa-chevron-down pointer-events-none absolute right-4 bottom-4 text-xs text-indigo-400"></i>
+                </div>
 
                 <div class="grid grid-cols-2 gap-2 bg-white rounded-2xl p-1.5 shadow-sm border border-slate-100 mb-4">
                     <button id="admin-tab-topics" type="button" onclick="switchAdminPanel('topics')" class="btn-silky py-2.5 rounded-xl bg-indigo-500 text-white font-black text-sm"><i class="fa-solid fa-folder-tree mr-1"></i>Topics</button>
@@ -865,6 +898,9 @@
         const APP_LANGUAGE = 'en';
         const SCHOOL_LEVELS = ['S1', 'S2', 'S3', 'S4-6'];
         let currentSchoolLevel = 'S4-6';
+        let defaultSchoolLevel = 'S4-6';
+        let adminSchoolLevel = 'S4-6';
+        let appSettings = { loginTitle: 'Science vocab flashcards', headerTitle: 'Flashcard Bank' };
         let currentLang = APP_LANGUAGE;
         let activeTab = 'home';
         let isLoggedOut = false; 
@@ -891,7 +927,7 @@
         const SUPABASE_PUBLISHABLE_KEY = 'sb_publishable_JjQAcXeAIN_66sgCK9Ifcw_tP_Jus8l';
         const AUTH_PRODUCTION_REDIRECT_URL = 'https://lamyeunglung20-tech.github.io/chemistry-flashcard-bank-hk/blank-flashcard-app.html';
         const AUTH_APPROVER_EMAIL = 'lamyeunglung20@gmail.com';
-        const AUTH_OAUTH_ROLE_KEY = 'science-vocab-flashcards-oauth-role-v1';
+        const AUTH_OAUTH_INTENT_KEY = 'science-vocab-flashcards-oauth-intent-v2';
         const AUTH_RECOVERY_KEY = 'science-vocab-flashcards-password-recovery-v1';
         const AUTH_RECOVERY_EMAIL_KEY = 'science-vocab-flashcards-password-recovery-email-v1';
         let supabaseClient = null;
@@ -1053,7 +1089,7 @@
 
         function saveState() {
             try {
-                localStorage.setItem(STORAGE_KEY, JSON.stringify({ currentLang, currentSchoolLevel, isLoggedOut }));
+                localStorage.setItem(STORAGE_KEY, JSON.stringify({ currentLang, isLoggedOut }));
             } catch (error) {
                 console.warn('Unable to save interface state locally:', error);
             }
@@ -1064,7 +1100,6 @@
                 const saved = JSON.parse(localStorage.getItem(STORAGE_KEY) || 'null');
                 currentLang = APP_LANGUAGE;
                 defaultLang = APP_LANGUAGE;
-                if (saved && SCHOOL_LEVELS.includes(saved.currentSchoolLevel)) currentSchoolLevel = saved.currentSchoolLevel;
                 if (saved && typeof saved.isLoggedOut === 'boolean') isLoggedOut = saved.isLoggedOut;
             } catch (error) {
                 console.warn('Unable to load saved interface state:', error);
@@ -1176,8 +1211,11 @@
             flashcards = [...managedCards, ...(personalResult.data || []).map(personalRowToCard)];
             defaultLang = APP_LANGUAGE;
             currentLang = APP_LANGUAGE;
-            currentSchoolLevel = SCHOOL_LEVELS.includes(preferenceResult.data?.school_level) ? preferenceResult.data.school_level : 'S4-6';
+            defaultSchoolLevel = SCHOOL_LEVELS.includes(preferenceResult.data?.school_level) ? preferenceResult.data.school_level : 'S4-6';
+            currentSchoolLevel = defaultSchoolLevel;
+            adminSchoolLevel = defaultSchoolLevel;
             document.getElementById('school-level-select').value = currentSchoolLevel;
+            updateSchoolLevelDefaultButton();
             managedContentLoaded = true;
             refreshContentControls();
             saveState();
@@ -1211,20 +1249,45 @@
             grid.innerHTML = html;
         }
 
-        async function changeSchoolLevel(level) {
+        function changeSchoolLevel(level) {
             if (!SCHOOL_LEVELS.includes(level)) return;
             currentSchoolLevel = level;
             document.getElementById('school-level-select').value = level;
-            saveState();
             refreshContentControls();
+            updateSchoolLevelDefaultButton();
+        }
+
+        function updateSchoolLevelDefaultButton() {
+            const button = document.getElementById('school-level-default-btn');
+            const text = document.getElementById('school-level-default-text');
+            if (!button || !text) return;
+            const isDefault = currentSchoolLevel === defaultSchoolLevel;
+            text.innerText = isDefault ? 'Default' : 'Set default';
+            button.className = `btn-silky min-h-[36px] rounded-xl border-2 px-2 text-[9px] font-black leading-tight ${isDefault ? 'border-emerald-300 bg-emerald-50 text-emerald-700' : 'border-emerald-100 bg-white text-emerald-700'}`;
+            button.querySelector('i').className = `${isDefault ? 'fa-solid' : 'fa-regular'} fa-circle-check mr-1`;
+        }
+
+        async function setDefaultSchoolLevel() {
             if (!currentUser || !initSupabaseClient()) return;
+            const button = document.getElementById('school-level-default-btn');
+            button.disabled = true;
             const { error } = await supabaseClient.from('chemistry_blank_user_preferences').upsert({
                 user_id: currentUser.id,
                 default_language: APP_LANGUAGE,
-                school_level: level,
+                school_level: currentSchoolLevel,
                 updated_at: new Date().toISOString()
             }, { onConflict: 'user_id' });
-            if (error) console.warn('Unable to save school level:', error);
+            button.disabled = false;
+            if (error) {
+                openModal({
+                    icon: 'fa-cloud-arrow-up', iconBgClass: 'bg-rose-50', iconTextClass: 'text-rose-500',
+                    title: 'Unable to save default', desc: authErrorMessage(error, 'Try again later.'),
+                    buttons: [{ text: 'OK', styleClass: 'bg-slate-800 text-white', onClick: null }]
+                });
+                return;
+            }
+            defaultSchoolLevel = currentSchoolLevel;
+            updateSchoolLevelDefaultButton();
         }
 
         function flattenedSubtopics(topicId = null) {
@@ -1310,9 +1373,9 @@
             defaultLang = APP_LANGUAGE;
             const t = uiTranslations.en;
             document.documentElement.lang = 'en';
-            document.title = 'Science vocab flashcards';
+            document.title = appSettings.loginTitle;
             
-            document.getElementById('header-title').innerText = t.header;
+            document.getElementById('header-title').innerText = appSettings.headerTitle;
             document.querySelectorAll('.back-btn-text').forEach(el => el.innerText = t.back);
             document.getElementById('hint-text').innerText = t.hint;
             document.getElementById('btn-prev').innerText = t.prev;
@@ -1476,11 +1539,42 @@
             return true;
         }
 
+        function applyAppSettings() {
+            const loginTitle = appSettings.loginTitle || 'Science vocab flashcards';
+            const headerTitle = appSettings.headerTitle || 'Flashcard Bank';
+            const loginHeading = document.getElementById('auth-app-title');
+            const headerHeading = document.getElementById('header-title');
+            if (loginHeading) loginHeading.innerText = loginTitle;
+            if (headerHeading) headerHeading.innerText = headerTitle;
+            document.title = loginTitle;
+        }
+
+        async function loadAppSettings() {
+            if (!initSupabaseClient()) return;
+            const { data, error } = await supabaseClient.from('science_vocab_app_settings')
+                .select('login_title,header_title')
+                .eq('singleton', true)
+                .maybeSingle();
+            if (error) {
+                console.warn('Unable to load app names:', error);
+                applyAppSettings();
+                return;
+            }
+            if (data) {
+                appSettings = {
+                    loginTitle: data.login_title || appSettings.loginTitle,
+                    headerTitle: data.header_title || appSettings.headerTitle
+                };
+            }
+            applyAppSettings();
+        }
+
         function authErrorMessage(error, fallback) {
             const message = String(error?.message || '').toLowerCase();
             if (message.includes('invalid login credentials')) return 'Invalid email or password.';
             if (message.includes('email not confirmed')) return 'Please verify your email first.';
             if (message.includes('user already registered')) return 'This email is already registered. Sign in or use Forgot password.';
+            if (message.includes('name is already registered') || message.includes('duplicate key')) return 'This name is already used. Choose a different name.';
             if (message.includes('rate limit') || message.includes('too many')) return 'Too many attempts. Please try again later.';
             if (message.includes('token') || message.includes('otp')) return 'Invalid or expired code. Request a new code.';
             return fallback || error?.message || 'Unable to complete the request. Please try again later.';
@@ -1589,7 +1683,7 @@
         async function fetchCurrentProfile(userId) {
             const { data, error } = await supabaseClient
                 .from('chemistry_profiles')
-                .select('id,email,display_name,role,requested_role,admin_status')
+                .select('id,email,display_name,role,requested_role,admin_status,app_registered')
                 .eq('id', userId)
                 .maybeSingle();
             if (error) throw error;
@@ -1622,16 +1716,33 @@
                 return false;
             }
 
-            const oauthRole = sessionStorage.getItem(AUTH_OAUTH_ROLE_KEY);
-            if (oauthRole === 'admin') {
-                const { error: requestError } = await supabaseClient.rpc('request_chemistry_admin_access');
-                sessionStorage.removeItem(AUTH_OAUTH_ROLE_KEY);
-                if (requestError) throw requestError;
-            } else if (oauthRole) {
-                sessionStorage.removeItem(AUTH_OAUTH_ROLE_KEY);
+            let oauthIntent = null;
+            try {
+                oauthIntent = JSON.parse(sessionStorage.getItem(AUTH_OAUTH_INTENT_KEY) || 'null');
+            } catch {}
+            if (oauthIntent?.mode === 'register') {
+                const { error: registrationError } = await supabaseClient.rpc('register_science_vocab_account', {
+                    candidate_name: String(oauthIntent.name || '').trim(),
+                    requested_account_role: oauthIntent.role === 'admin' ? 'admin' : 'student'
+                });
+                sessionStorage.removeItem(AUTH_OAUTH_INTENT_KEY);
+                if (registrationError) {
+                    await supabaseClient.auth.signOut({ scope: 'local' });
+                    currentUser = null;
+                    showLoginGate(authErrorMessage(registrationError, 'Google registration failed. Choose a unique name and try again.'));
+                    return false;
+                }
+            } else {
+                sessionStorage.removeItem(AUTH_OAUTH_INTENT_KEY);
             }
 
             const profile = await fetchCurrentProfile(user.id);
+            if (!profile.app_registered) {
+                await supabaseClient.auth.signOut({ scope: 'local' });
+                currentUser = null;
+                showLoginGate('This Google account is not registered in Science Vocab. Select Register now to create a separate Vocab account first.');
+                return false;
+            }
             const requestedAdmin = profile.requested_role === 'admin'
                 && profile.role !== 'admin'
                 && profile.admin_status !== 'rejected';
@@ -1730,7 +1841,7 @@
                     email, password,
                     options: {
                         emailRedirectTo: authRedirectUrl(),
-                        data: { display_name: name, requested_role: loginRole }
+                        data: { display_name: name, requested_role: loginRole, science_vocab_registered: true }
                     }
                 });
                 if (error) throw error;
@@ -1746,9 +1857,12 @@
                 if (isExistingAccountResponse) {
                     const { data: existingAccount, error: existingAccountError } = await supabaseClient.auth.signInWithPassword({ email, password });
                     if (!existingAccountError && existingAccount.user) {
+                        const { error: registrationError } = await supabaseClient.rpc('register_science_vocab_account', {
+                            candidate_name: name,
+                            requested_account_role: loginRole
+                        });
+                        if (registrationError) throw registrationError;
                         if (loginRole === 'admin') {
-                            const { error: requestError } = await supabaseClient.rpc('request_chemistry_admin_access');
-                            if (requestError) throw requestError;
                             await supabaseClient.auth.signOut({ scope: 'local' });
                             message.className = message.className.replace('text-rose-500', 'text-emerald-600');
                             message.innerText = `Email verified. The administrator request is pending approval from ${AUTH_APPROVER_EMAIL}.`;
@@ -1793,8 +1907,16 @@
             const target = authMode === 'register' ? document.getElementById('register-error') : document.getElementById('login-error');
             target.innerText = '';
             try {
-                if (authMode === 'register') sessionStorage.setItem(AUTH_OAUTH_ROLE_KEY, loginRole);
-                else sessionStorage.removeItem(AUTH_OAUTH_ROLE_KEY);
+                if (authMode === 'register') {
+                    const name = document.getElementById('register-name').value.trim();
+                    if (!name) {
+                        target.innerText = 'Enter a unique name before registering with Google.';
+                        return;
+                    }
+                    sessionStorage.setItem(AUTH_OAUTH_INTENT_KEY, JSON.stringify({ mode: 'register', role: loginRole, name }));
+                } else {
+                    sessionStorage.setItem(AUTH_OAUTH_INTENT_KEY, JSON.stringify({ mode: 'login' }));
+                }
                 const { error } = await supabaseClient.auth.signInWithOAuth({
                     provider: 'google',
                     options: {
@@ -1804,7 +1926,7 @@
                 });
                 if (error) throw error;
             } catch (googleError) {
-                sessionStorage.removeItem(AUTH_OAUTH_ROLE_KEY);
+                sessionStorage.removeItem(AUTH_OAUTH_INTENT_KEY);
                 target.innerText = authErrorMessage(googleError, 'Google sign-in is not enabled or is not fully configured. Contact the administrator.');
             }
         }
@@ -1888,6 +2010,7 @@
                 updateLoginUI();
                 return;
             }
+            await loadAppSettings();
             supabaseClient.auth.onAuthStateChange((event, session) => {
                 if (event === 'PASSWORD_RECOVERY') {
                     sessionStorage.setItem(AUTH_RECOVERY_KEY, '1');
@@ -1926,6 +2049,11 @@
         async function logoutUser() {
             if (initSupabaseClient()) await supabaseClient.auth.signOut({ scope: 'local' });
             currentUser = null;
+            currentSchoolLevel = 'S4-6';
+            defaultSchoolLevel = 'S4-6';
+            adminSchoolLevel = 'S4-6';
+            document.getElementById('school-level-select').value = currentSchoolLevel;
+            updateSchoolLevelDefaultButton();
             isLoggedOut = true;
             switchTab('home');
             updateLoginUI();
@@ -2230,7 +2358,8 @@
             panel.classList.remove('hidden');
             list.innerHTML = '<p class="text-xs text-slate-400"><i class="fa-solid fa-spinner fa-spin mr-1"></i>Loading…</p>';
             const { data, error } = await supabaseClient.from('chemistry_profiles')
-                .select('id,email,display_name,role,admin_status,created_at')
+                .select('id,email,display_name,role,admin_status,app_registered,created_at')
+                .eq('app_registered', true)
                 .order('role', { ascending: true })
                 .order('created_at', { ascending: true });
             if (error) {
@@ -2338,6 +2467,53 @@
             return currentUser?.role === 'admin';
         }
 
+        function isSuperAdministrator() {
+            return currentUser?.email?.toLowerCase() === AUTH_APPROVER_EMAIL;
+        }
+
+        function populateAdminBrandingForm() {
+            document.getElementById('admin-header-title').value = appSettings.headerTitle;
+            document.getElementById('admin-login-title').value = appSettings.loginTitle;
+            document.getElementById('admin-login-title-wrap').classList.toggle('hidden', !isSuperAdministrator());
+            document.getElementById('admin-level-filter').value = adminSchoolLevel;
+        }
+
+        async function saveAdminBranding(event) {
+            event.preventDefault();
+            if (!hasAdminContentAccess() || !initSupabaseClient()) return;
+            const headerTitle = document.getElementById('admin-header-title').value.trim();
+            const loginTitle = document.getElementById('admin-login-title').value.trim();
+            const button = document.getElementById('admin-branding-save');
+            if (!headerTitle) return setAdminManagerStatus('Enter the top-left header name.', 'error');
+            button.disabled = true;
+            button.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-2"></i>Saving…';
+            try {
+                const { error: headerError } = await supabaseClient.rpc('update_science_vocab_header_title', { new_title: headerTitle });
+                if (headerError) throw headerError;
+                if (isSuperAdministrator()) {
+                    if (!loginTitle) throw new Error('Enter the sign-in page name.');
+                    const { error: loginError } = await supabaseClient.rpc('update_science_vocab_login_title', { new_title: loginTitle });
+                    if (loginError) throw loginError;
+                }
+                await loadAppSettings();
+                populateAdminBrandingForm();
+                setAdminManagerStatus('App names saved.', 'success');
+            } catch (error) {
+                setAdminManagerStatus(authErrorMessage(error, 'Unable to save the app names.'), 'error');
+            } finally {
+                button.disabled = false;
+                button.innerHTML = '<i class="fa-solid fa-floppy-disk mr-2"></i>Save app names';
+            }
+        }
+
+        function changeAdminSchoolLevel(level) {
+            if (!SCHOOL_LEVELS.includes(level)) return;
+            adminSchoolLevel = level;
+            closeAdminTopicForm();
+            closeAdminSubtopicForm();
+            renderAdminManager();
+        }
+
         function setAdminManagerStatus(message, kind = 'info') {
             const status = document.getElementById('admin-manager-status');
             if (!message) {
@@ -2361,6 +2537,8 @@
             document.getElementById('view-admin').classList.remove('hidden');
             document.getElementById('view-admin').classList.add('flex');
             document.getElementById('bottom-nav').classList.add('translate-y-24');
+            adminSchoolLevel = currentSchoolLevel;
+            populateAdminBrandingForm();
             switchAdminPanel('topics');
             setAdminManagerStatus('Syncing the latest content…');
             try {
@@ -2413,6 +2591,7 @@
 
         function renderAdminManager() {
             if (!hasAdminContentAccess()) return;
+            populateAdminBrandingForm();
             renderAdminTopics();
             populateAdminTopicControls();
             renderAdminCards();
@@ -2420,9 +2599,9 @@
 
         function renderAdminTopics() {
             const list = document.getElementById('admin-topic-list');
-            const topics = chapters.filter(chapter => !chapter.isAction);
+            const topics = chapters.filter(chapter => !chapter.isAction && chapter.schoolLevel === adminSchoolLevel);
             if (!topics.length) {
-                list.innerHTML = '<div class="rounded-2xl bg-white border border-slate-100 p-8 text-center text-sm text-slate-400">No topics yet. Add your first topic.</div>';
+                list.innerHTML = `<div class="rounded-2xl bg-white border border-slate-100 p-8 text-center text-sm text-slate-400">No ${escapeHTML(adminSchoolLevel)} topics yet. Add the first one.</div>`;
                 return;
             }
             list.innerHTML = topics.map(topic => {
@@ -2495,7 +2674,7 @@
             document.getElementById('admin-topic-edit-id').value = topicId || '';
             document.getElementById('admin-topic-en').value = topic?.en || '';
             document.getElementById('admin-topic-zh').value = topic?.en || '';
-            document.getElementById('admin-topic-level').value = topic?.schoolLevel || currentSchoolLevel;
+            document.getElementById('admin-topic-level').value = topic?.schoolLevel || adminSchoolLevel;
             document.getElementById('admin-topic-color').value = topic?.color || 'bg-sky-500';
             updateAdminTopicColorPreview();
             document.getElementById('admin-topic-form-title').innerText = topic ? 'Edit topic' : 'Add topic';
@@ -2686,7 +2865,7 @@
         }
 
         function populateAdminTopicControls() {
-            const topics = chapters.filter(chapter => !chapter.isAction);
+            const topics = chapters.filter(chapter => !chapter.isAction && chapter.schoolLevel === adminSchoolLevel);
             const options = topics.map(topic => `<option value="${topic.id}">${escapeHTML(topic.en)}</option>`).join('');
             const filter = document.getElementById('admin-card-topic-filter');
             const previousFilter = filter.value || 'all';
@@ -2717,7 +2896,8 @@
             const search = document.getElementById('admin-card-search').value.trim().toLowerCase();
             const topicId = document.getElementById('admin-card-topic-filter').value || 'all';
             const subtopicId = document.getElementById('admin-card-subtopic-filter').value || 'all';
-            let cards = flashcards.filter(card => card.isManaged);
+            const levelTopicIds = new Set(chapters.filter(chapter => !chapter.isAction && chapter.schoolLevel === adminSchoolLevel).map(chapter => chapter.id));
+            let cards = flashcards.filter(card => card.isManaged && levelTopicIds.has(card.chapter));
             if (topicId !== 'all') cards = cards.filter(card => card.chapter === topicId);
             if (subtopicId === 'none') cards = cards.filter(card => !card.subtopicId);
             else if (subtopicId !== 'all') cards = cards.filter(card => card.subtopicId === Number(subtopicId));
