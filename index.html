@@ -202,7 +202,7 @@
                 <div class="w-16 h-16 mx-auto rounded-2xl bg-emerald-500 text-white flex items-center justify-center text-3xl shadow-lg shadow-emerald-200 mb-4">
                     <i class="fa-solid fa-flask"></i>
                 </div>
-                <h1 class="text-2xl font-black text-center text-slate-900 mb-1">化學記憶卡</h1>
+                <h1 id="login-app-title" class="text-2xl font-black text-center text-slate-900 mb-1">化學記憶卡</h1>
                 <p class="text-xs text-center text-slate-500 mb-4">Chemistry Flashcard Bank</p>
                 <h2 id="auth-mode-title" class="text-center text-sm font-black text-slate-700 mb-4">登入 / Sign in</h2>
 
@@ -228,6 +228,21 @@
                         <i class="fa-brands fa-google text-red-500 mr-2"></i>使用 Google 帳戶登入
                     </button>
                     <p class="text-center text-xs text-slate-500 mt-4">未有帳戶？ <button type="button" onclick="setAuthMode('register')" class="font-black text-emerald-600 hover:underline">立即註冊</button></p>
+                </form>
+
+                <form id="auth-google-register-form" onsubmit="completeGoogleRegistration(event)" class="hidden" novalidate>
+                    <p class="text-xs leading-relaxed text-slate-500 mb-4">已驗證 Google 帳戶。首次使用仍須建立本 APP 的用戶名稱及密碼，完成後才可登入。 / Google verified. Create an app username and password before your first sign-in.</p>
+                    <label for="google-register-email" class="block text-xs font-bold text-slate-600 mb-1.5">Google 電郵 / Google email</label>
+                    <input id="google-register-email" type="email" readonly class="w-full border-2 border-slate-200 rounded-xl py-3 px-3 text-sm font-semibold bg-slate-50 text-slate-500 mb-3">
+                    <label for="google-register-name" class="block text-xs font-bold text-slate-600 mb-1.5">用戶名稱 / Username</label>
+                    <input id="google-register-name" type="text" autocomplete="username" maxlength="80" class="w-full border-2 border-slate-200 rounded-xl py-3 px-3 text-sm font-semibold outline-none focus:border-emerald-400 mb-3" placeholder="輸入獨一無二的用戶名稱" required>
+                    <label for="google-register-password" class="block text-xs font-bold text-slate-600 mb-1.5">APP 密碼 / App password</label>
+                    <input id="google-register-password" type="password" autocomplete="new-password" minlength="8" class="w-full border-2 border-slate-200 rounded-xl py-3 px-3 text-sm font-semibold outline-none focus:border-emerald-400 mb-3" placeholder="最少 8 個字元" required>
+                    <label for="google-register-confirm" class="block text-xs font-bold text-slate-600 mb-1.5">確認密碼 / Confirm</label>
+                    <input id="google-register-confirm" type="password" autocomplete="new-password" minlength="8" class="w-full border-2 border-slate-200 rounded-xl py-3 px-3 text-sm font-semibold outline-none focus:border-emerald-400" required>
+                    <p id="google-register-error" class="min-h-[20px] text-xs font-bold text-rose-500 my-2" role="alert"></p>
+                    <button id="google-register-submit" type="submit" class="btn-silky w-full bg-emerald-500 hover:bg-emerald-600 text-white font-black py-3.5 rounded-xl">完成 Google 註冊 / Complete registration</button>
+                    <button type="button" onclick="cancelGoogleRegistration()" class="w-full text-xs font-bold text-slate-500 mt-4 hover:underline"><i class="fa-solid fa-chevron-left mr-1"></i>取消並返回登入 / Cancel</button>
                 </form>
 
                 <form id="auth-register-form" onsubmit="handleRegistration(event)" class="hidden" novalidate>
@@ -318,9 +333,9 @@
                 </button>
                 <div class="relative">
                     <select id="lang-selector" onchange="changeLanguage()" class="btn-silky border border-slate-300 bg-slate-50 pl-2.5 pr-7 py-1.5 rounded-md text-xs font-semibold text-slate-700 hover:bg-slate-100 outline-none cursor-pointer">
-                        <option value="zh">中文</option>
-                        <option value="en">English</option>
-                        <option value="bi">中英對照</option>
+                        <option id="lang-option-zh" value="zh">中文</option>
+                        <option id="lang-option-en" value="en">English</option>
+                        <option id="lang-option-bi" value="bi">中英對照</option>
                     </select>
                     <i class="fa-solid fa-chevron-down absolute right-2 top-2 text-slate-400 text-xs pointer-events-none"></i>
                 </div>
@@ -445,6 +460,14 @@
                     <div class="w-20"></div>
                 </div>
                 
+                <section class="bg-white rounded-2xl shadow-sm border border-emerald-100 p-5 flex-shrink-0 mb-5">
+                    <h3 class="font-black text-emerald-700 text-sm mb-1">用戶名稱 / Username</h3>
+                    <p class="text-[11px] leading-relaxed text-slate-500 mb-3">每個用戶名稱均為獨一無二，其他帳號不能重用相同名稱。</p>
+                    <input id="account-display-name" type="text" autocomplete="username" maxlength="80" class="w-full border-2 border-slate-200 rounded-xl p-3 text-sm font-semibold outline-none focus:border-emerald-400" placeholder="用戶名稱">
+                    <p id="account-name-status" class="hidden rounded-xl p-3 mt-3 text-xs font-bold" role="status"></p>
+                    <button id="account-name-save" type="button" onclick="saveAccountDisplayName()" class="btn-silky w-full mt-3 rounded-xl bg-emerald-500 text-white py-3 font-black">儲存用戶名稱 / Save username</button>
+                </section>
+
                 <div class="bg-white rounded-2xl shadow-sm border border-slate-100 p-5 space-y-5 flex-shrink-0">
                     <h3 class="font-bold text-slate-800 text-md border-b pb-2 mb-4" id="label-change-pwd">修改密碼</h3>
                     <div>
@@ -525,9 +548,10 @@
                 </div>
                 <p id="admin-manager-status" class="hidden rounded-xl px-3 py-2 mb-3 text-xs font-bold" role="status"></p>
 
-                <div class="grid grid-cols-2 gap-2 bg-white rounded-2xl p-1.5 shadow-sm border border-slate-100 mb-4">
+                <div class="grid grid-cols-3 gap-2 bg-white rounded-2xl p-1.5 shadow-sm border border-slate-100 mb-4">
                     <button id="admin-tab-topics" type="button" onclick="switchAdminPanel('topics')" class="btn-silky py-2.5 rounded-xl bg-indigo-500 text-white font-black text-sm"><i class="fa-solid fa-folder-tree mr-1"></i>課題</button>
                     <button id="admin-tab-cards" type="button" onclick="switchAdminPanel('cards')" class="btn-silky py-2.5 rounded-xl text-slate-500 font-black text-sm"><i class="fa-solid fa-clone mr-1"></i>記憶卡</button>
+                    <button id="admin-tab-interface" type="button" onclick="switchAdminPanel('interface')" class="btn-silky py-2.5 rounded-xl text-slate-500 font-black text-sm"><i class="fa-solid fa-sliders mr-1"></i>介面</button>
                 </div>
 
                 <section id="admin-topics-panel" class="flex flex-col gap-3 pb-12">
@@ -589,6 +613,27 @@
                     </div>
                     <p id="admin-card-count" class="text-[11px] text-slate-500 font-bold px-1"></p>
                     <div id="admin-card-list" class="space-y-3"><p class="text-xs text-slate-400 text-center py-8">載入中…</p></div>
+                </section>
+
+                <section id="admin-interface-panel" class="hidden flex-col gap-4 pb-12">
+                    <div id="super-admin-login-title-panel" class="hidden bg-white rounded-2xl border border-violet-100 shadow-sm p-4">
+                        <h3 class="font-black text-violet-700 text-sm">登入介面名稱 / Login page name</h3>
+                        <p class="text-[11px] text-slate-500 mt-1 mb-3">此項只可由總管理員修改。</p>
+                        <input id="admin-login-title" type="text" maxlength="80" class="w-full border-2 border-slate-200 rounded-xl p-3 text-sm font-semibold outline-none focus:border-violet-400">
+                        <button type="button" onclick="saveLoginTitleSetting()" class="btn-silky w-full mt-3 rounded-xl bg-violet-500 text-white py-3 font-black">儲存登入名稱 / Save</button>
+                    </div>
+                    <form onsubmit="saveLanguageMenuSettings(event)" class="bg-white rounded-2xl border border-indigo-100 shadow-sm p-4 space-y-3">
+                        <div><h3 class="font-black text-indigo-700 text-sm">語言選單 / Language menu</h3><p class="text-[11px] text-slate-500 mt-1">管理圖一「預設」按鈕及語言選單的顯示文字。</p></div>
+                        <div class="grid grid-cols-2 gap-2">
+                            <div><label for="setting-default-zh" class="block text-[11px] font-bold text-slate-600 mb-1">中文預設鍵</label><input id="setting-default-zh" maxlength="30" required class="w-full border-2 border-slate-200 rounded-xl p-2.5 text-xs font-semibold"></div>
+                            <div><label for="setting-language-zh" class="block text-[11px] font-bold text-slate-600 mb-1">中文選項</label><input id="setting-language-zh" maxlength="30" required class="w-full border-2 border-slate-200 rounded-xl p-2.5 text-xs font-semibold"></div>
+                            <div><label for="setting-default-en" class="block text-[11px] font-bold text-slate-600 mb-1">English default key</label><input id="setting-default-en" maxlength="30" required class="w-full border-2 border-slate-200 rounded-xl p-2.5 text-xs font-semibold"></div>
+                            <div><label for="setting-language-en" class="block text-[11px] font-bold text-slate-600 mb-1">English option</label><input id="setting-language-en" maxlength="30" required class="w-full border-2 border-slate-200 rounded-xl p-2.5 text-xs font-semibold"></div>
+                            <div><label for="setting-default-bi" class="block text-[11px] font-bold text-slate-600 mb-1">中英預設鍵</label><input id="setting-default-bi" maxlength="30" required class="w-full border-2 border-slate-200 rounded-xl p-2.5 text-xs font-semibold"></div>
+                            <div><label for="setting-language-bi" class="block text-[11px] font-bold text-slate-600 mb-1">中英選項</label><input id="setting-language-bi" maxlength="30" required class="w-full border-2 border-slate-200 rounded-xl p-2.5 text-xs font-semibold"></div>
+                        </div>
+                        <button type="submit" class="btn-silky w-full rounded-xl bg-indigo-500 text-white py-3 font-black">儲存語言選單 / Save menu</button>
+                    </form>
                 </section>
             </div>
 
@@ -1031,8 +1076,15 @@
         const AUTH_PRODUCTION_REDIRECT_URL = 'https://chemistry-flashcard-bank-hk.stapes-scrips-4o4vxq.chatgpt.site/chemistry/';
         const AUTH_APPROVER_EMAIL = 'lamyeunglung20@gmail.com';
         const AUTH_OAUTH_ROLE_KEY = 'chemistry-flashcards-oauth-role-v1';
+        const AUTH_OAUTH_INTENT_KEY = 'chemistry-flashcards-oauth-intent-v1';
         const AUTH_RECOVERY_KEY = 'chemistry-flashcards-password-recovery-v1';
         const AUTH_RECOVERY_EMAIL_KEY = 'chemistry-flashcards-password-recovery-email-v1';
+        const DEFAULT_APP_SETTINGS = Object.freeze({
+            login_title: '化學記憶卡',
+            default_label_zh: '預設', default_label_en: 'Default', default_label_bi: '預設',
+            language_label_zh: '中文', language_label_en: 'English', language_label_bi: '中英對照'
+        });
+        let appSettings = { ...DEFAULT_APP_SETTINGS };
         let supabaseClient = null;
         let authMode = 'login';
         let authenticationReady = false;
@@ -1455,12 +1507,40 @@
             saveState();
         }
 
+        function applyAppSettings() {
+            const loginTitle = document.getElementById('login-app-title');
+            if (loginTitle) loginTitle.innerText = appSettings.login_title || DEFAULT_APP_SETTINGS.login_title;
+            ['zh', 'en', 'bi'].forEach(code => {
+                const option = document.getElementById(`lang-option-${code}`);
+                if (option) option.innerText = appSettings[`language_label_${code}`] || DEFAULT_APP_SETTINGS[`language_label_${code}`];
+            });
+            updateDefaultLanguageButton();
+            populateAdminInterfaceSettings();
+        }
+
+        async function loadAppSettings() {
+            if (!initSupabaseClient()) return;
+            try {
+                const { data, error } = await supabaseClient.from('chemistry_app_settings').select('*').eq('singleton', true).maybeSingle();
+                if (error) throw error;
+                appSettings = { ...DEFAULT_APP_SETTINGS, ...(data || {}) };
+            } catch (error) {
+                console.warn('Unable to load chemistry app settings; using defaults.', error);
+                appSettings = { ...DEFAULT_APP_SETTINGS };
+            }
+            applyAppSettings();
+        }
+
         function updateDefaultLanguageButton() {
             const button = document.getElementById('default-lang-btn');
             const label = document.getElementById('default-lang-text');
             const icon = document.getElementById('default-lang-icon');
             if (!button || !label || !icon) return;
-            const labels = { zh: '預設', en: 'Default', bi: '預設' };
+            const labels = {
+                zh: appSettings.default_label_zh || DEFAULT_APP_SETTINGS.default_label_zh,
+                en: appSettings.default_label_en || DEFAULT_APP_SETTINGS.default_label_en,
+                bi: appSettings.default_label_bi || DEFAULT_APP_SETTINGS.default_label_bi
+            };
             const languageNames = {
                 zh: { zh: '中文', en: 'Chinese', bi: '中文 Chinese' },
                 en: { zh: '英文', en: 'English', bi: '英文 English' },
@@ -1567,7 +1647,7 @@
         }
 
         function clearAuthMessages() {
-            ['login-error', 'register-error', 'recovery-error', 'otp-error', 'reset-error'].forEach(id => {
+            ['login-error', 'register-error', 'google-register-error', 'recovery-error', 'otp-error', 'reset-error'].forEach(id => {
                 const element = document.getElementById(id);
                 if (element) {
                     element.innerText = '';
@@ -1577,15 +1657,15 @@
         }
 
         function setAuthMode(mode, message = '') {
-            authMode = ['login', 'register', 'forgot', 'otp', 'reset'].includes(mode) ? mode : 'login';
+            authMode = ['login', 'register', 'google-register', 'forgot', 'otp', 'reset'].includes(mode) ? mode : 'login';
             document.getElementById('login-gate').classList.toggle('auth-login-fixed', authMode === 'login');
             const formIds = {
-                login: 'auth-login-form', register: 'auth-register-form', forgot: 'auth-forgot-form',
+                login: 'auth-login-form', register: 'auth-register-form', 'google-register': 'auth-google-register-form', forgot: 'auth-forgot-form',
                 otp: 'auth-otp-form', reset: 'auth-reset-form'
             };
             Object.entries(formIds).forEach(([name, id]) => document.getElementById(id).classList.toggle('hidden', name !== authMode));
             document.getElementById('auth-mode-title').innerText = ({
-                login: '登入 / Sign in', register: '註冊 / Register', forgot: '忘記密碼 / Forgot password',
+                login: '登入 / Sign in', register: '註冊 / Register', 'google-register': '完成 Google 註冊 / Complete Google registration', forgot: '忘記密碼 / Forgot password',
                 otp: '輸入驗證碼 / Verification code', reset: '重設密碼 / Reset password'
             })[authMode];
             clearAuthMessages();
@@ -1595,11 +1675,11 @@
                 if (loginEmail && !document.getElementById('recovery-email').value) document.getElementById('recovery-email').value = loginEmail;
             }
             if (message) {
-                const targetId = authMode === 'login' ? 'login-error' : authMode === 'register' ? 'register-error' : `${authMode === 'forgot' ? 'recovery' : authMode}-error`;
+                const targetId = authMode === 'login' ? 'login-error' : authMode === 'register' ? 'register-error' : authMode === 'google-register' ? 'google-register-error' : `${authMode === 'forgot' ? 'recovery' : authMode}-error`;
                 const target = document.getElementById(targetId);
                 if (target) target.innerText = message;
             }
-            const focusId = ({login:'login-email', register:'register-name', forgot:'recovery-email', otp:'recovery-code', reset:'recovery-new-password'})[authMode];
+            const focusId = ({login:'login-email', register:'register-name', 'google-register':'google-register-name', forgot:'recovery-email', otp:'recovery-code', reset:'recovery-new-password'})[authMode];
             if (window.matchMedia('(pointer: fine)').matches) {
                 setTimeout(() => document.getElementById(focusId)?.focus({ preventScroll: true }), 50);
             }
@@ -1629,6 +1709,8 @@
             if (message.includes('invalid login credentials')) return '電郵或密碼不正確。 / Invalid email or password.';
             if (message.includes('email not confirmed')) return '請先按註冊電郵內的連結完成驗證。 / Please verify your email first.';
             if (message.includes('user already registered')) return '此電郵已註冊，請直接登入或使用忘記密碼。';
+            if (message.includes('already registered') || message.includes('duplicate key')) return '這個名稱已被其他用戶註冊，請使用另一個名稱。 / This username is already registered.';
+            if (message.includes('not registered')) return '用戶尚未註冊。請先註冊帳號。 / User is not registered. Please register first.';
             if (message.includes('rate limit') || message.includes('too many')) return '嘗試次數太多，請稍後再試。 / Please try again later.';
             if (message.includes('token') || message.includes('otp')) return '驗證碼不正確或已過期，請重新取得。 / Invalid or expired code.';
             return fallback || error?.message || '暫時無法完成，請稍後再試。';
@@ -1735,7 +1817,7 @@
         async function fetchCurrentProfile(userId) {
             const { data, error } = await supabaseClient
                 .from('chemistry_profiles')
-                .select('id,email,display_name,role,requested_role,admin_status')
+                .select('id,email,display_name,role,requested_role,admin_status,chemistry_registered')
                 .eq('id', userId)
                 .maybeSingle();
             if (error) throw error;
@@ -1752,16 +1834,26 @@
                 return false;
             }
 
-            const oauthRole = sessionStorage.getItem(AUTH_OAUTH_ROLE_KEY);
-            if (oauthRole === 'admin') {
-                const { error: requestError } = await supabaseClient.rpc('request_chemistry_admin_access');
-                sessionStorage.removeItem(AUTH_OAUTH_ROLE_KEY);
-                if (requestError) throw requestError;
-            } else if (oauthRole) {
-                sessionStorage.removeItem(AUTH_OAUTH_ROLE_KEY);
-            }
-
+            const oauthIntent = sessionStorage.getItem(AUTH_OAUTH_INTENT_KEY);
             const profile = await fetchCurrentProfile(user.id);
+            if (!profile.chemistry_registered) {
+                if (oauthIntent === 'register') {
+                    currentUser = null;
+                    showLoginGate();
+                    setAuthMode('google-register');
+                    document.getElementById('google-register-email').value = user.email || profile.email || '';
+                    document.getElementById('google-register-name').value = document.getElementById('register-name').value.trim();
+                    return false;
+                }
+                await supabaseClient.auth.signOut({ scope: 'local' });
+                sessionStorage.removeItem(AUTH_OAUTH_INTENT_KEY);
+                sessionStorage.removeItem(AUTH_OAUTH_ROLE_KEY);
+                currentUser = null;
+                showLoginGate('用戶尚未註冊。請先註冊帳號。 / User is not registered. Please register first.');
+                return false;
+            }
+            sessionStorage.removeItem(AUTH_OAUTH_INTENT_KEY);
+            sessionStorage.removeItem(AUTH_OAUTH_ROLE_KEY);
             const requestedAdmin = profile.requested_role === 'admin'
                 && profile.role !== 'admin'
                 && profile.admin_status !== 'rejected';
@@ -1814,6 +1906,12 @@
             try {
                 setAuthButtonBusy('login-submit', true, '登入中…');
                 error.innerText = '';
+                const { data: registered, error: registrationCheckError } = await supabaseClient.rpc('is_chemistry_identifier_registered', { candidate_identifier: identifier });
+                if (registrationCheckError) throw registrationCheckError;
+                if (!registered) {
+                    error.innerText = '用戶尚未註冊。請先註冊帳號。 / User is not registered. Please register first.';
+                    return;
+                }
                 const { data: loginData, error: loginError } = await supabaseClient.functions.invoke('login-chemistry-account', {
                     body: { identifier, password }
                 });
@@ -1856,11 +1954,30 @@
                 setAuthButtonBusy('register-submit', true, '註冊中…');
                 message.className = message.className.replace('text-emerald-600', 'text-rose-500');
                 message.innerText = '';
+                const { data: nameAvailable, error: nameCheckError } = await supabaseClient.rpc('is_chemistry_name_available', { candidate_name: name });
+                if (nameCheckError) throw nameCheckError;
+                if (!nameAvailable) {
+                    const { data: existingLogin } = await supabaseClient.auth.signInWithPassword({ email, password });
+                    if (!existingLogin?.user) {
+                        message.innerText = '這個名稱已被其他用戶註冊，請使用另一個名稱。 / This username is already registered.';
+                        return;
+                    }
+                    const { error: reuseError } = await supabaseClient.rpc('register_chemistry_account', { candidate_name: name, requested_account_role: loginRole });
+                    if (reuseError) throw reuseError;
+                    if (loginRole === 'admin') {
+                        await supabaseClient.auth.signOut({ scope: 'local' });
+                        message.className = message.className.replace('text-rose-500', 'text-emerald-600');
+                        message.innerText = `管理員申請已提交，現正等待 ${AUTH_APPROVER_EMAIL} 批准。 / Administrator approval is pending.`;
+                    } else {
+                        await completeSupabaseLogin(existingLogin.user);
+                    }
+                    return;
+                }
                 const { data, error } = await supabaseClient.auth.signUp({
                     email, password,
                     options: {
                         emailRedirectTo: authRedirectUrl(),
-                        data: { display_name: name, requested_role: loginRole }
+                        data: { display_name: name, requested_role: loginRole, chemistry_registered: true }
                     }
                 });
                 if (error) throw error;
@@ -1877,7 +1994,7 @@
                     const { data: existingAccount, error: existingAccountError } = await supabaseClient.auth.signInWithPassword({ email, password });
                     if (!existingAccountError && existingAccount.user) {
                         if (loginRole === 'admin') {
-                            const { error: requestError } = await supabaseClient.rpc('request_chemistry_admin_access');
+                            const { error: requestError } = await supabaseClient.rpc('register_chemistry_account', { candidate_name: name, requested_account_role: 'admin' });
                             if (requestError) throw requestError;
                             await supabaseClient.auth.signOut({ scope: 'local' });
                             message.className = message.className.replace('text-rose-500', 'text-emerald-600');
@@ -1923,7 +2040,9 @@
             const target = authMode === 'register' ? document.getElementById('register-error') : document.getElementById('login-error');
             target.innerText = '';
             try {
-                if (authMode === 'register') sessionStorage.setItem(AUTH_OAUTH_ROLE_KEY, loginRole);
+                const intent = authMode === 'register' ? 'register' : 'login';
+                sessionStorage.setItem(AUTH_OAUTH_INTENT_KEY, intent);
+                if (intent === 'register') sessionStorage.setItem(AUTH_OAUTH_ROLE_KEY, loginRole);
                 else sessionStorage.removeItem(AUTH_OAUTH_ROLE_KEY);
                 const { error } = await supabaseClient.auth.signInWithOAuth({
                     provider: 'google',
@@ -1934,9 +2053,61 @@
                 });
                 if (error) throw error;
             } catch (googleError) {
+                sessionStorage.removeItem(AUTH_OAUTH_INTENT_KEY);
                 sessionStorage.removeItem(AUTH_OAUTH_ROLE_KEY);
                 target.innerText = authErrorMessage(googleError, 'Google 登入尚未啟用或設定不完整，請聯絡管理員。');
             }
+        }
+
+        async function completeGoogleRegistration(event) {
+            event.preventDefault();
+            if (!initSupabaseClient()) return;
+            const name = document.getElementById('google-register-name').value.trim();
+            const password = document.getElementById('google-register-password').value;
+            const confirmPassword = document.getElementById('google-register-confirm').value;
+            const message = document.getElementById('google-register-error');
+            const requestedRole = sessionStorage.getItem(AUTH_OAUTH_ROLE_KEY) === 'admin' ? 'admin' : 'student';
+            if (!name || !password || !confirmPassword) return void (message.innerText = '請填寫所有欄位。 / Complete all fields.');
+            if (password.length < 8) return void (message.innerText = '密碼最少需要 8 個字元。 / Use at least 8 characters.');
+            if (password !== confirmPassword) return void (message.innerText = '兩次輸入的密碼不一致。 / Passwords do not match.');
+            try {
+                setAuthButtonBusy('google-register-submit', true, '註冊中…');
+                const { data: available, error: nameError } = await supabaseClient.rpc('is_chemistry_name_available', { candidate_name: name });
+                if (nameError) throw nameError;
+                if (!available) {
+                    message.innerText = '這個名稱已被其他用戶註冊，請使用另一個名稱。 / This username is already registered.';
+                    return;
+                }
+                const { data: updated, error: updateError } = await supabaseClient.auth.updateUser({
+                    password,
+                    data: { display_name: name, requested_role: requestedRole, chemistry_registered: true }
+                });
+                if (updateError) throw updateError;
+                const { error: registerError } = await supabaseClient.rpc('register_chemistry_account', {
+                    candidate_name: name,
+                    requested_account_role: requestedRole
+                });
+                if (registerError) throw registerError;
+                sessionStorage.removeItem(AUTH_OAUTH_INTENT_KEY);
+                sessionStorage.removeItem(AUTH_OAUTH_ROLE_KEY);
+                if (requestedRole === 'admin') {
+                    await supabaseClient.auth.signOut({ scope: 'local' });
+                    showLoginGate(`管理員註冊完成，現正等待 ${AUTH_APPROVER_EMAIL} 批准。 / Administrator approval is pending.`);
+                    return;
+                }
+                await completeSupabaseLogin(updated.user);
+            } catch (error) {
+                message.innerText = authErrorMessage(error, '未能完成 Google 註冊，請稍後再試。');
+            } finally {
+                setAuthButtonBusy('google-register-submit', false);
+            }
+        }
+
+        async function cancelGoogleRegistration() {
+            if (initSupabaseClient()) await supabaseClient.auth.signOut({ scope: 'local' });
+            sessionStorage.removeItem(AUTH_OAUTH_INTENT_KEY);
+            sessionStorage.removeItem(AUTH_OAUTH_ROLE_KEY);
+            setAuthMode('login');
         }
 
         async function sendPasswordResetCode(event) {
@@ -2031,6 +2202,7 @@
                 }
             });
             try {
+                await loadAppSettings();
                 const resumeAuthentication = isAuthenticationCallback();
                 const { data, error } = await supabaseClient.auth.getSession();
                 if (error) throw error;
@@ -2209,6 +2381,8 @@
             document.getElementById('input-old-pwd').value = '';
             document.getElementById('input-new-pwd').value = '';
             document.getElementById('input-confirm-pwd').value = '';
+            document.getElementById('account-display-name').value = currentUser?.displayName || '';
+            setAccountNameStatus('');
             document.getElementById('account-deletion-email').value = currentUser?.email || '';
             document.getElementById('account-deletion-password').value = '';
             setAccountDeletionStatus('');
@@ -2220,6 +2394,38 @@
             accountsPanel.classList.toggle('hidden', !canApprove);
             if (canApprove) loadManagedAccounts();
             updateGlobalBackButton();
+        }
+
+        function setAccountNameStatus(message, kind = 'info') {
+            const status = document.getElementById('account-name-status');
+            if (!message) {
+                status.classList.add('hidden');
+                status.innerText = '';
+                return;
+            }
+            const style = kind === 'success' ? 'bg-emerald-50 text-emerald-700' : kind === 'error' ? 'bg-rose-50 text-rose-600' : 'bg-blue-50 text-blue-700';
+            status.className = `rounded-xl p-3 mt-3 text-xs font-bold ${style}`;
+            status.innerText = message;
+        }
+
+        async function saveAccountDisplayName() {
+            if (!currentUser || !initSupabaseClient()) return;
+            const name = document.getElementById('account-display-name').value.trim();
+            const button = document.getElementById('account-name-save');
+            if (!name) return setAccountNameStatus('請輸入用戶名稱。 / Enter a username.', 'error');
+            button.disabled = true;
+            setAccountNameStatus('正在檢查及儲存…');
+            try {
+                const { error } = await supabaseClient.rpc('update_chemistry_display_name', { candidate_name: name });
+                if (error) throw error;
+                currentUser.displayName = name;
+                updateLoginUI();
+                setAccountNameStatus('用戶名稱已儲存。 / Username saved.', 'success');
+            } catch (error) {
+                setAccountNameStatus(authErrorMessage(error, '未能儲存用戶名稱。 / Unable to save username.'), 'error');
+            } finally {
+                button.disabled = false;
+            }
         }
 
         function closeAccountView() {
@@ -2361,6 +2567,7 @@
             list.innerHTML = '<p class="text-xs text-slate-400"><i class="fa-solid fa-spinner fa-spin mr-1"></i>載入中…</p>';
             const { data, error } = await supabaseClient.from('chemistry_profiles')
                 .select('id,email,display_name,role,admin_status,created_at')
+                .eq('chemistry_registered', true)
                 .order('role', { ascending: true })
                 .order('created_at', { ascending: true });
             if (error) {
@@ -2468,6 +2675,56 @@
             return currentUser?.role === 'admin';
         }
 
+        function populateAdminInterfaceSettings() {
+            const mapping = {
+                'admin-login-title': 'login_title',
+                'setting-default-zh': 'default_label_zh', 'setting-default-en': 'default_label_en', 'setting-default-bi': 'default_label_bi',
+                'setting-language-zh': 'language_label_zh', 'setting-language-en': 'language_label_en', 'setting-language-bi': 'language_label_bi'
+            };
+            Object.entries(mapping).forEach(([id, key]) => {
+                const field = document.getElementById(id);
+                if (field && document.activeElement !== field) field.value = appSettings[key] || DEFAULT_APP_SETTINGS[key];
+            });
+            const titlePanel = document.getElementById('super-admin-login-title-panel');
+            if (titlePanel) titlePanel.classList.toggle('hidden', currentUser?.email?.toLowerCase() !== AUTH_APPROVER_EMAIL);
+        }
+
+        async function saveLoginTitleSetting() {
+            if (currentUser?.email?.toLowerCase() !== AUTH_APPROVER_EMAIL || !initSupabaseClient()) return;
+            const title = document.getElementById('admin-login-title').value.trim();
+            if (!title) return setAdminManagerStatus('登入介面名稱不能留空。', 'error');
+            try {
+                const { error } = await supabaseClient.rpc('update_chemistry_login_title', { new_title: title });
+                if (error) throw error;
+                await loadAppSettings();
+                setAdminManagerStatus('登入介面名稱已更新。', 'success');
+            } catch (error) {
+                setAdminManagerStatus(authErrorMessage(error, '未能更新登入介面名稱。'), 'error');
+            }
+        }
+
+        async function saveLanguageMenuSettings(event) {
+            event.preventDefault();
+            if (!hasAdminContentAccess() || !initSupabaseClient()) return;
+            const payload = {
+                new_default_label_zh: document.getElementById('setting-default-zh').value.trim(),
+                new_default_label_en: document.getElementById('setting-default-en').value.trim(),
+                new_default_label_bi: document.getElementById('setting-default-bi').value.trim(),
+                new_language_label_zh: document.getElementById('setting-language-zh').value.trim(),
+                new_language_label_en: document.getElementById('setting-language-en').value.trim(),
+                new_language_label_bi: document.getElementById('setting-language-bi').value.trim()
+            };
+            if (Object.values(payload).some(value => !value)) return setAdminManagerStatus('所有語言選單文字均不能留空。', 'error');
+            try {
+                const { error } = await supabaseClient.rpc('update_chemistry_language_menu', payload);
+                if (error) throw error;
+                await loadAppSettings();
+                setAdminManagerStatus('語言選單已更新。', 'success');
+            } catch (error) {
+                setAdminManagerStatus(authErrorMessage(error, '未能更新語言選單。'), 'error');
+            }
+        }
+
         function setAdminManagerStatus(message, kind = 'info') {
             const status = document.getElementById('admin-manager-status');
             if (!message) {
@@ -2494,7 +2751,7 @@
             switchAdminPanel('topics');
             setAdminManagerStatus('正在同步最新內容…');
             try {
-                await loadManagedContent({ force: true });
+                await Promise.all([loadManagedContent({ force: true }), loadAppSettings()]);
                 setAdminManagerStatus('內容已同步。', 'success');
                 setTimeout(() => setAdminManagerStatus(''), 1800);
             } catch (error) {
@@ -2527,17 +2784,22 @@
         }
 
         function switchAdminPanel(panel) {
-            adminPanel = panel === 'cards' ? 'cards' : 'topics';
+            adminPanel = ['topics', 'cards', 'interface'].includes(panel) ? panel : 'topics';
             const topicPanel = document.getElementById('admin-topics-panel');
             const cardPanel = document.getElementById('admin-cards-panel');
+            const interfacePanel = document.getElementById('admin-interface-panel');
             const topicTab = document.getElementById('admin-tab-topics');
             const cardTab = document.getElementById('admin-tab-cards');
+            const interfaceTab = document.getElementById('admin-tab-interface');
             topicPanel.classList.toggle('hidden', adminPanel !== 'topics');
             topicPanel.classList.toggle('flex', adminPanel === 'topics');
             cardPanel.classList.toggle('hidden', adminPanel !== 'cards');
             cardPanel.classList.toggle('flex', adminPanel === 'cards');
+            interfacePanel.classList.toggle('hidden', adminPanel !== 'interface');
+            interfacePanel.classList.toggle('flex', adminPanel === 'interface');
             topicTab.className = `btn-silky py-2.5 rounded-xl font-black text-sm ${adminPanel === 'topics' ? 'bg-indigo-500 text-white' : 'text-slate-500'}`;
             cardTab.className = `btn-silky py-2.5 rounded-xl font-black text-sm ${adminPanel === 'cards' ? 'bg-indigo-500 text-white' : 'text-slate-500'}`;
+            interfaceTab.className = `btn-silky py-2.5 rounded-xl font-black text-sm ${adminPanel === 'interface' ? 'bg-indigo-500 text-white' : 'text-slate-500'}`;
             renderAdminManager();
         }
 
@@ -2546,6 +2808,7 @@
             renderAdminTopics();
             populateAdminTopicControls();
             renderAdminCards();
+            populateAdminInterfaceSettings();
         }
 
         function renderAdminTopics() {
