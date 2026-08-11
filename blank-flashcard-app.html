@@ -251,6 +251,7 @@
                     <input id="register-confirm" type="password" autocomplete="new-password" minlength="8" class="w-full border-2 border-slate-200 rounded-xl py-3 px-3 text-sm font-semibold outline-none focus:border-emerald-400" placeholder="Enter the password again" required>
                     <p id="register-role-note" class="text-[11px] leading-relaxed text-slate-500 mt-3"></p>
                     <p id="register-error" class="min-h-[20px] text-xs font-bold text-rose-500 my-2" role="alert"></p>
+                    <button id="register-resend" type="button" onclick="resendRegistrationVerification()" class="hidden btn-silky w-full mb-3 border-2 border-emerald-100 bg-emerald-50 text-emerald-700 font-black py-2.5 rounded-xl text-xs"><i class="fa-solid fa-envelope-circle-check mr-2"></i>Resend verification email</button>
                     <button id="register-submit" type="submit" class="btn-silky w-full bg-emerald-500 hover:bg-emerald-600 text-white font-black py-3.5 rounded-xl">Register</button>
                     <button type="button" onclick="signInWithGoogle()" class="btn-silky w-full mt-3 border-2 border-slate-200 bg-white hover:bg-slate-50 text-slate-700 font-black py-3 rounded-xl"><i class="fa-brands fa-google text-red-500 mr-2"></i>Register with Google</button>
                     <p class="text-center text-xs text-slate-500 mt-4">Already have an account? <button type="button" onclick="setAuthMode('login')" class="font-black text-emerald-600 hover:underline">Back to sign in</button></p>
@@ -1578,6 +1579,9 @@
             if (message.includes('email not confirmed')) return 'Please verify your email first.';
             if (message.includes('user already registered')) return 'This email is already registered. Sign in or use Forgot password.';
             if (message.includes('name is already registered') || message.includes('duplicate key')) return 'This name is already used. Choose a different name.';
+            if (message.includes('over_email_send_rate_limit') || message.includes('can only request this after')) {
+                return 'A verification email was just requested. Wait at least 60 seconds before sending another one.';
+            }
             if (message.includes('rate limit') || message.includes('too many')) return 'Too many attempts. Please try again later.';
             if (message.includes('token') || message.includes('otp')) return 'Invalid or expired code. Request a new code.';
             return fallback || error?.message || 'Unable to complete the request. Please try again later.';
@@ -1590,6 +1594,10 @@
             button.disabled = busy;
             button.classList.toggle('opacity-60', busy);
             button.innerHTML = busy ? `<i class="fa-solid fa-spinner fa-spin mr-2"></i>${busyLabel}` : button.dataset.originalLabel;
+        }
+
+        function setRegistrationResendVisible(visible) {
+            document.getElementById('register-resend')?.classList.toggle('hidden', !visible);
         }
 
         function authRedirectUrl() {
@@ -1674,7 +1682,8 @@
             const hash = new URLSearchParams(window.location.hash.replace(/^#/, ''));
             return query.has('code') || query.has('token_hash') || query.has('error')
                 || hash.has('access_token') || hash.has('refresh_token')
-                || Boolean(sessionStorage.getItem(AUTH_RECOVERY_KEY));
+                || Boolean(sessionStorage.getItem(AUTH_RECOVERY_KEY))
+                || Boolean(sessionStorage.getItem(AUTH_OAUTH_INTENT_KEY));
         }
 
         function clearAuthenticationCallbackUrl() {
@@ -1846,6 +1855,7 @@
             if (password !== confirmPassword) return void (message.innerText = 'Passwords do not match.');
             try {
                 setAuthButtonBusy('register-submit', true, 'Registering…');
+                setRegistrationResendVisible(false);
                 message.className = message.className.replace('text-emerald-600', 'text-rose-500');
                 message.innerText = '';
                 const { data, error } = await supabaseClient.auth.signUp({
@@ -1891,6 +1901,7 @@
                         if (resendError) throw resendError;
                         message.className = message.className.replace('text-rose-500', 'text-emerald-600');
                         message.innerText = 'Verification email resent. Please also check your Spam folder.';
+                        setRegistrationResendVisible(true);
                         return;
                     }
                     if (email === AUTH_APPROVER_EMAIL) {
@@ -1910,10 +1921,43 @@
                 message.innerText = loginRole === 'admin'
                     ? `Registration successful. Verify your email, then wait for approval from ${AUTH_APPROVER_EMAIL}.`
                     : 'Registration successful. Check your email to verify the account, then sign in.';
+                setRegistrationResendVisible(true);
             } catch (registerError) {
                 message.innerText = authErrorMessage(registerError, 'Registration failed. Please try again later.');
+                const failureText = String(registerError?.message || '').toLowerCase();
+                setRegistrationResendVisible(
+                    failureText.includes('over_email_send_rate_limit')
+                    || failureText.includes('can only request this after')
+                    || failureText.includes('email not confirmed')
+                );
             } finally {
                 setAuthButtonBusy('register-submit', false);
+            }
+        }
+
+        async function resendRegistrationVerification() {
+            if (!initSupabaseClient()) return;
+            const email = document.getElementById('register-email').value.trim().toLowerCase();
+            const message = document.getElementById('register-error');
+            if (!email) {
+                message.innerText = 'Enter the email used for registration first.';
+                return;
+            }
+            try {
+                setAuthButtonBusy('register-resend', true, 'Sending…');
+                const { error } = await supabaseClient.auth.resend({
+                    type: 'signup',
+                    email,
+                    options: { emailRedirectTo: authRedirectUrl() }
+                });
+                if (error) throw error;
+                message.className = message.className.replace('text-rose-500', 'text-emerald-600');
+                message.innerText = 'Verification email sent again. Check Inbox, Spam and Promotions. Wait at least 60 seconds before trying again.';
+            } catch (resendError) {
+                message.className = message.className.replace('text-emerald-600', 'text-rose-500');
+                message.innerText = authErrorMessage(resendError, 'Unable to resend the verification email. Please try again later.');
+            } finally {
+                setAuthButtonBusy('register-resend', false);
             }
         }
 
