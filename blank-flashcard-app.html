@@ -449,6 +449,17 @@
                     <div class="w-20"></div>
                 </div>
                 
+                <section class="bg-white rounded-2xl shadow-sm border border-emerald-100 p-5 mb-5 flex-shrink-0">
+                    <div class="mb-4">
+                        <h3 class="font-black text-emerald-700 text-sm">Change user name</h3>
+                        <p class="text-[11px] text-slate-500 leading-relaxed mt-1">Your user name is shown in Settings and can also be used to sign in. Every name must remain unique within this app.</p>
+                    </div>
+                    <label for="account-display-name" class="block text-xs font-bold text-slate-600 mb-1.5">User name</label>
+                    <input id="account-display-name" type="text" autocomplete="name" maxlength="80" class="w-full border-2 border-slate-200 rounded-xl p-3 text-sm font-semibold outline-none focus:border-emerald-400">
+                    <p id="account-display-name-status" class="hidden rounded-xl p-3 mt-3 text-xs font-bold" role="status"></p>
+                    <button id="account-display-name-button" type="button" onclick="changeDisplayName()" class="btn-silky w-full mt-3 rounded-xl bg-emerald-500 text-white py-3.5 font-black"><i class="fa-solid fa-user-pen mr-2"></i>Update user name</button>
+                </section>
+
                 <div class="bg-white rounded-2xl shadow-sm border border-slate-100 p-5 space-y-5 flex-shrink-0">
                     <h3 class="font-bold text-slate-800 text-md border-b pb-2 mb-4" id="label-change-pwd">Change password</h3>
                     <div>
@@ -1942,7 +1953,12 @@
                         password,
                         data: { display_name: name, requested_role: requestedRole, science_vocab_registered: true }
                     });
-                    if (passwordError) throw passwordError;
+                    const passwordWasAlreadySet = passwordError
+                        && (
+                            String(passwordError.code || '').toLowerCase() === 'same_password'
+                            || String(passwordError.message || '').toLowerCase().includes('new password should be different from the old password')
+                        );
+                    if (passwordError && !passwordWasAlreadySet) throw passwordError;
                     const { error: registrationError } = await supabaseClient.rpc('register_science_vocab_account', {
                         candidate_name: name,
                         requested_account_role: requestedRole
@@ -2363,6 +2379,8 @@
             document.getElementById('input-old-pwd').value = '';
             document.getElementById('input-new-pwd').value = '';
             document.getElementById('input-confirm-pwd').value = '';
+            document.getElementById('account-display-name').value = currentUser?.displayName || '';
+            setDisplayNameStatus('');
             document.getElementById('account-deletion-email').value = currentUser?.email || '';
             document.getElementById('account-deletion-password').value = '';
             setAccountDeletionStatus('');
@@ -2383,6 +2401,60 @@
             document.getElementById('view-settings').classList.add('flex');
             document.getElementById('bottom-nav').classList.remove('translate-y-24');
             updateGlobalBackButton();
+        }
+
+        function setDisplayNameStatus(message, kind = 'info') {
+            const status = document.getElementById('account-display-name-status');
+            if (!message) {
+                status.classList.add('hidden');
+                status.innerText = '';
+                return;
+            }
+            const styles = {
+                info: 'bg-blue-50 text-blue-700',
+                success: 'bg-emerald-50 text-emerald-700',
+                error: 'bg-rose-50 text-rose-700'
+            };
+            status.className = `rounded-xl p-3 mt-3 text-xs font-bold ${styles[kind] || styles.info}`;
+            status.innerText = message;
+        }
+
+        async function changeDisplayName() {
+            if (!currentUser || !initSupabaseClient()) return;
+            const input = document.getElementById('account-display-name');
+            const button = document.getElementById('account-display-name-button');
+            const name = input.value.trim();
+            if (!name) return setDisplayNameStatus('Enter a user name.', 'error');
+            if (name.length > 80) return setDisplayNameStatus('Use no more than 80 characters.', 'error');
+            if (name.toLocaleLowerCase() === String(currentUser.displayName || '').trim().toLocaleLowerCase()) {
+                input.value = currentUser.displayName;
+                return setDisplayNameStatus('This is already your current user name.', 'info');
+            }
+            button.disabled = true;
+            button.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-2"></i>Updating…';
+            setDisplayNameStatus('Checking name availability…', 'info');
+            try {
+                const messageProxy = { innerText: '' };
+                if (!await isScienceVocabNameAvailable(name, messageProxy)) {
+                    setDisplayNameStatus(messageProxy.innerText, 'error');
+                    return;
+                }
+                const { error } = await supabaseClient.rpc('update_science_vocab_display_name', {
+                    candidate_name: name
+                });
+                if (error) throw error;
+                currentUser.username = name;
+                currentUser.displayName = name;
+                input.value = name;
+                updateLoginUI();
+                saveState();
+                setDisplayNameStatus('User name updated successfully.', 'success');
+            } catch (error) {
+                setDisplayNameStatus(authErrorMessage(error, 'Unable to update the user name. Please try again later.'), 'error');
+            } finally {
+                button.disabled = false;
+                button.innerHTML = '<i class="fa-solid fa-user-pen mr-2"></i>Update user name';
+            }
         }
 
         async function changePassword() {
