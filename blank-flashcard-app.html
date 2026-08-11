@@ -311,6 +311,7 @@
                     <p class="text-[10px] text-slate-400 mt-1 mb-3">Every name must be unique within this app.</p>
                     <label for="register-email" class="block text-xs font-bold text-slate-600 mb-1.5">Email</label>
                     <input id="register-email" type="email" autocomplete="email" class="w-full border-2 border-slate-200 rounded-xl py-3 px-3 text-sm font-semibold outline-none focus:border-emerald-400 mb-3" placeholder="name@example.com" required>
+                    <p class="-mt-2 mb-3 text-[10px] leading-relaxed text-slate-400">If this email already has a secure sign-in identity, enter its current password below. Science Vocab registration will then be completed separately.</p>
                     <label for="register-password" class="block text-xs font-bold text-slate-600 mb-1.5">Password</label>
                     <input id="register-password" type="password" autocomplete="new-password" minlength="8" class="w-full border-2 border-slate-200 rounded-xl py-3 px-3 text-sm font-semibold outline-none focus:border-emerald-400 mb-3" placeholder="At least 8 characters" required>
                     <label for="register-confirm" class="block text-xs font-bold text-slate-600 mb-1.5">Confirm password</label>
@@ -675,7 +676,7 @@
                     <div class="flex items-center justify-between gap-3 mb-3">
                         <div>
                             <h3 class="font-black text-violet-700 text-sm">Account management</h3>
-                            <p class="text-[11px] text-slate-500 mt-1">Only the super administrator can view and manage student and administrator accounts. Deletions from this list take effect immediately without a confirmation email.</p>
+                            <p class="text-[11px] text-slate-500 mt-1">Only completed Science Vocab registrations appear here. The super administrator can manage student and administrator accounts; deletions take effect immediately without a confirmation email.</p>
                         </div>
                         <button type="button" onclick="loadManagedAccounts()" class="btn-silky w-9 h-9 rounded-full bg-violet-50 text-violet-600" aria-label="Reload all accounts"><i class="fa-solid fa-rotate"></i></button>
                     </div>
@@ -1873,6 +1874,14 @@
             return fallback || error?.message || 'Unable to complete the request. Please try again later.';
         }
 
+        function isExistingAuthIdentityError(error) {
+            const detail = `${error?.code || ''} ${error?.message || ''}`.toLowerCase();
+            return detail.includes('user already registered')
+                || detail.includes('user_already_exists')
+                || detail.includes('email already registered')
+                || detail.includes('email_exists');
+        }
+
         function setAuthButtonBusy(id, busy, busyLabel = 'Working…') {
             const button = document.getElementById(id);
             if (!button) return;
@@ -2193,6 +2202,52 @@
             }
         }
 
+        async function completeExistingEmailVocabRegistration({ email, password, name, requestedRole, message }) {
+            const { data: alreadyRegistered, error: registrationCheckError } = await supabaseClient.rpc(
+                'is_science_vocab_identifier_registered',
+                { candidate_identifier: email }
+            );
+            if (!registrationCheckError && alreadyRegistered) {
+                message.innerText = 'This email is already registered for Science Vocab. Return to Sign in or use Forgot password.';
+                return;
+            }
+
+            const { data: existingAccount, error: existingAccountError } = await supabaseClient.auth.signInWithPassword({ email, password });
+            if (existingAccountError || !existingAccount.user) {
+                const errorText = String(existingAccountError?.message || '').toLowerCase();
+                if (errorText.includes('email not confirmed')) {
+                    const { error: resendError } = await supabaseClient.auth.resend({
+                        type: 'signup',
+                        email,
+                        options: { emailRedirectTo: authRedirectUrl() }
+                    });
+                    if (resendError) throw resendError;
+                    message.className = message.className.replace('text-rose-500', 'text-emerald-600');
+                    message.innerText = 'Verification email resent. Please also check your Spam folder.';
+                    setRegistrationResendVisible(true);
+                    return;
+                }
+                message.innerText = 'This email already has a secure sign-in identity, but its Science Vocab registration is incomplete. Enter that identity\'s current password, choose Verify Google account, or reset the password and register again.';
+                return;
+            }
+
+            const { error: registrationError } = await supabaseClient.rpc('register_science_vocab_account', {
+                candidate_name: name,
+                requested_account_role: requestedRole
+            });
+            if (registrationError) {
+                await supabaseClient.auth.signOut({ scope: 'local' });
+                throw registrationError;
+            }
+            if (requestedRole === 'admin') {
+                await supabaseClient.auth.signOut({ scope: 'local' });
+                message.className = message.className.replace('text-rose-500', 'text-emerald-600');
+                message.innerText = `Science Vocab registration completed. The administrator request is pending approval from ${AUTH_APPROVER_EMAIL}.`;
+                return;
+            }
+            await completeSupabaseLogin(existingAccount.user);
+        }
+
         async function handleRegistration(event) {
             event.preventDefault();
             if (!initSupabaseClient()) return;
@@ -2247,7 +2302,13 @@
                         data: { display_name: name, requested_role: loginRole, science_vocab_registered: true }
                     }
                 });
-                if (error) throw error;
+                if (error) {
+                    if (isExistingAuthIdentityError(error)) {
+                        await completeExistingEmailVocabRegistration({ email, password, name, requestedRole: loginRole, message });
+                        return;
+                    }
+                    throw error;
+                }
 
                 // With email confirmation enabled, Supabase deliberately returns an
                 // obfuscated successful response for an address that already exists.
@@ -2258,39 +2319,7 @@
                     && Array.isArray(data.user.identities)
                     && data.user.identities.length === 0;
                 if (isExistingAccountResponse) {
-                    const { data: existingAccount, error: existingAccountError } = await supabaseClient.auth.signInWithPassword({ email, password });
-                    if (!existingAccountError && existingAccount.user) {
-                        const { error: registrationError } = await supabaseClient.rpc('register_science_vocab_account', {
-                            candidate_name: name,
-                            requested_account_role: loginRole
-                        });
-                        if (registrationError) throw registrationError;
-                        if (loginRole === 'admin') {
-                            await supabaseClient.auth.signOut({ scope: 'local' });
-                            message.className = message.className.replace('text-rose-500', 'text-emerald-600');
-                            message.innerText = `Email verified. The administrator request is pending approval from ${AUTH_APPROVER_EMAIL}.`;
-                            return;
-                        }
-                        await completeSupabaseLogin(existingAccount.user);
-                        return;
-                    }
-                    if (String(existingAccountError?.message || '').toLowerCase().includes('email not confirmed')) {
-                        const { error: resendError } = await supabaseClient.auth.resend({
-                            type: 'signup',
-                            email,
-                            options: { emailRedirectTo: authRedirectUrl() }
-                        });
-                        if (resendError) throw resendError;
-                        message.className = message.className.replace('text-rose-500', 'text-emerald-600');
-                        message.innerText = 'Verification email resent. Please also check your Spam folder.';
-                        setRegistrationResendVisible(true);
-                        return;
-                    }
-                    if (email === AUTH_APPROVER_EMAIL) {
-                        message.innerText = `This super administrator account already exists as a Google account. Return to Sign in and choose Continue with Google using ${AUTH_APPROVER_EMAIL}.`;
-                        return;
-                    }
-                    message.innerText = 'If this email already has an account, sign in or reset the password. Otherwise check Spam and try again later.';
+                    await completeExistingEmailVocabRegistration({ email, password, name, requestedRole: loginRole, message });
                     return;
                 }
 
