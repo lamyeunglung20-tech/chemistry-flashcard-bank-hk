@@ -676,7 +676,7 @@
                     <div class="flex items-center justify-between gap-3 mb-3">
                         <div>
                             <h3 class="font-black text-violet-700 text-sm">Account management</h3>
-                            <p class="text-[11px] text-slate-500 mt-1">Only completed Science Vocab registrations appear here. The super administrator can manage student and administrator accounts; deletions take effect immediately without a confirmation email.</p>
+                            <p class="text-[11px] text-slate-500 mt-1">Only accounts from the independent Science Vocab system appear here. Incomplete registrations are shown and labelled; Chemistry App accounts are never included. Deletions take effect immediately without a confirmation email.</p>
                         </div>
                         <button type="button" onclick="loadManagedAccounts()" class="btn-silky w-9 h-9 rounded-full bg-violet-50 text-violet-600" aria-label="Reload all accounts"><i class="fa-solid fa-rotate"></i></button>
                     </div>
@@ -3519,7 +3519,6 @@
             list.innerHTML = '<p class="text-xs text-slate-400"><i class="fa-solid fa-spinner fa-spin mr-1"></i>Loading…</p>';
             const { data, error } = await supabaseClient.from('chemistry_profiles')
                 .select('id,email,display_name,role,admin_status,app_registered,created_at')
-                .eq('app_registered', true)
                 .order('role', { ascending: true })
                 .order('created_at', { ascending: true });
             if (error) {
@@ -3530,10 +3529,12 @@
             list.innerHTML = managedAccounts.map(account => {
                 const isSuper = account.email.toLowerCase() === AUTH_APPROVER_EMAIL;
                 const isStudent = account.role === 'student';
+                const isComplete = account.app_registered === true && Boolean(String(account.display_name || '').trim());
+                const accountName = isComplete ? account.display_name : 'Registration incomplete';
                 return `<article class="rounded-xl border ${isSuper ? 'border-violet-200 bg-violet-50' : 'border-slate-100 bg-slate-50'} p-3">
                     <div class="flex items-start gap-3">
-                        <div class="w-9 h-9 rounded-full ${isSuper ? 'bg-violet-500' : isStudent ? 'bg-emerald-500' : 'bg-indigo-500'} text-white flex items-center justify-center flex-shrink-0"><i class="fa-solid ${isStudent ? 'fa-user-graduate' : 'fa-user-shield'} text-sm"></i></div>
-                        <div class="flex-1 min-w-0"><p class="text-sm font-black text-slate-700 break-words">${escapeHTML(account.display_name || account.email)}</p><p class="text-[11px] text-slate-500 break-all mt-0.5">${escapeHTML(account.email)}</p><span class="inline-block mt-1 rounded-full bg-white px-2 py-1 text-[9px] font-black ${isSuper ? 'text-violet-700' : isStudent ? 'text-emerald-700' : 'text-indigo-700'}">${isSuper ? 'Super administrator' : isStudent ? 'Student' : 'Administrator'}</span></div>
+                        <div class="w-9 h-9 rounded-full ${!isComplete ? 'bg-amber-500' : isSuper ? 'bg-violet-500' : isStudent ? 'bg-emerald-500' : 'bg-indigo-500'} text-white flex items-center justify-center flex-shrink-0"><i class="fa-solid ${!isComplete ? 'fa-user-clock' : isStudent ? 'fa-user-graduate' : 'fa-user-shield'} text-sm"></i></div>
+                        <div class="flex-1 min-w-0"><p class="text-sm font-black ${isComplete ? 'text-slate-700' : 'text-amber-700'} break-words">${escapeHTML(accountName)}</p><p class="text-[11px] text-slate-500 break-all mt-0.5">${escapeHTML(account.email)}</p><span class="inline-block mt-1 rounded-full bg-white px-2 py-1 text-[9px] font-black ${!isComplete ? 'text-amber-700' : isSuper ? 'text-violet-700' : isStudent ? 'text-emerald-700' : 'text-indigo-700'}">${!isComplete ? 'Vocab registration incomplete' : isSuper ? 'Super administrator' : isStudent ? 'Student' : 'Administrator'}</span></div>
                     </div>
                     ${isSuper ? '' : `<button id="managed-delete-${account.id}" type="button" onclick="confirmManagedAccountDeletion('${account.id}')" class="btn-silky w-full min-h-[42px] mt-3 rounded-lg bg-rose-50 text-rose-600 px-3 py-2 text-xs leading-relaxed font-black disabled:opacity-60"><i class="fa-solid fa-user-xmark mr-1"></i>Delete this ${isStudent ? 'student' : 'administrator'} account</button>`}
                 </article>`;
