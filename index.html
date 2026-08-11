@@ -2202,8 +2202,13 @@
                 }
             });
             try {
+                // Capture the OAuth callback before any awaited Supabase request.
+                // The auth client can consume and clear the URL hash while another
+                // request is pending, which previously caused a valid Google session
+                // to be mistaken for an old session and immediately signed out.
+                const resumeAuthentication = isAuthenticationCallback()
+                    || Boolean(sessionStorage.getItem(AUTH_OAUTH_INTENT_KEY));
                 await loadAppSettings();
-                const resumeAuthentication = isAuthenticationCallback();
                 const { data, error } = await supabaseClient.auth.getSession();
                 if (error) throw error;
                 if (data.session?.user && resumeAuthentication) {
