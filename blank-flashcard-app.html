@@ -2218,7 +2218,9 @@
                     { candidate_identifier: identifier }
                 );
                 if (!registrationCheckError && !identifierIsRegistered) {
-                    error.innerText = 'User is not registered. Select Register to create an account first.';
+                    error.innerText = identifier.includes('@')
+                        ? 'User is not registered. Select Register to create an account first.'
+                        : 'Incorrect name or password. User names are case-sensitive.';
                     return;
                 }
                 const { data: loginData, error: loginError } = await supabaseClient.functions.invoke('login-science-vocab-account', {
