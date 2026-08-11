@@ -423,6 +423,20 @@
                         <p class="mt-3 text-xs leading-relaxed text-slate-500">Flashcard question side = Chinese meaning · answer side = English word.</p>
                     </div>
 
+                    <div class="bg-white rounded-2xl border border-slate-100 shadow-sm p-4 space-y-3">
+                        <div>
+                            <label for="game-topic-filter" class="block text-xs font-black uppercase tracking-wider text-slate-500 mb-2">Topic</label>
+                            <select id="game-topic-filter" onchange="updateGameSubtopicFilter(); updateGameScopeDefaultButton()" class="w-full min-h-[48px] rounded-xl border-2 border-slate-200 bg-slate-50 px-4 text-sm font-black text-slate-700 outline-none focus:border-indigo-400"></select>
+                        </div>
+                        <div>
+                            <label for="game-subtopic-filter" class="block text-xs font-black uppercase tracking-wider text-slate-500 mb-2">Subtopic</label>
+                            <select id="game-subtopic-filter" onchange="updateGameScopeDefaultButton()" class="w-full min-h-[48px] rounded-xl border-2 border-slate-200 bg-slate-50 px-4 text-sm font-black text-slate-700 outline-none focus:border-indigo-400"></select>
+                        </div>
+                        <button id="game-scope-default-btn" type="button" onclick="setDefaultGameScope()" class="btn-silky w-full min-h-[44px] rounded-xl border-2 border-indigo-100 bg-indigo-50 px-3 text-xs font-black text-indigo-700">
+                            <i class="fa-regular fa-circle-check mr-2"></i><span id="game-scope-default-text">Set topic and subtopic as default</span>
+                        </button>
+                    </div>
+
                     <button type="button" onclick="startVocabGame('mc')" class="btn-silky text-left bg-gradient-to-br from-indigo-500 to-violet-600 text-white rounded-3xl p-5 shadow-[0_10px_25px_rgba(99,102,241,.24)]">
                         <div class="flex items-center gap-4">
                             <span class="w-14 h-14 rounded-2xl bg-white/20 flex items-center justify-center text-2xl"><i class="fa-solid fa-list-check"></i></span>
@@ -462,8 +476,12 @@
                 <section id="game-result" class="hidden flex-col items-center text-center bg-white rounded-3xl border border-slate-100 shadow-sm p-6">
                     <div class="w-20 h-20 rounded-full bg-amber-50 text-amber-500 flex items-center justify-center text-4xl mb-4"><i class="fa-solid fa-trophy"></i></div>
                     <p class="text-xs font-black uppercase tracking-[.2em] text-indigo-500">Session complete</p>
-                    <h3 class="text-3xl font-black text-slate-900 mt-2" id="game-result-score">0 / 0</h3>
-                    <p class="text-sm font-bold text-slate-500 mt-2" id="game-result-details"></p>
+                    <p class="text-sm font-black text-slate-600 mt-2" id="game-result-details">MC Quiz</p>
+                    <div class="w-full mt-5 overflow-hidden rounded-2xl border border-slate-100 bg-slate-50 text-left">
+                        <div class="flex items-center justify-between gap-3 border-b border-slate-100 px-4 py-3"><span class="text-sm font-bold text-slate-500">Score</span><strong id="game-result-score" class="text-lg font-black text-indigo-600">0 / 0 (0%)</strong></div>
+                        <div class="flex items-center justify-between gap-3 border-b border-slate-100 px-4 py-3"><span class="text-sm font-bold text-slate-500">Time used</span><strong id="game-result-time" class="text-base font-black text-slate-800">00:00</strong></div>
+                        <div class="flex items-start justify-between gap-3 px-4 py-3"><span class="text-sm font-bold text-slate-500">Date</span><strong id="game-result-date" class="text-right text-sm font-black text-slate-800">—</strong></div>
+                    </div>
                     <div class="grid grid-cols-2 gap-3 w-full mt-6">
                         <button type="button" onclick="playAgain()" class="btn-silky rounded-2xl bg-indigo-500 text-white py-3.5 font-black">Play again</button>
                         <button type="button" onclick="switchTab('progress')" class="btn-silky rounded-2xl border-2 border-indigo-100 bg-indigo-50 text-indigo-600 py-3.5 font-black">View progress</button>
@@ -670,7 +688,7 @@
                     <button id="admin-branding-save" type="submit" class="btn-silky w-full rounded-xl bg-slate-800 text-white py-3 font-black text-sm"><i class="fa-solid fa-floppy-disk mr-2"></i>Save app names</button>
                 </form>
 
-                <div class="relative mb-4">
+                <div class="relative mb-2">
                     <label for="admin-level-filter" class="block text-xs font-black text-slate-600 mb-1.5">Manage content for</label>
                     <select id="admin-level-filter" onchange="changeAdminSchoolLevel(this.value)" class="w-full appearance-none rounded-2xl border-2 border-indigo-100 bg-white p-3 pr-10 text-sm font-black text-indigo-700 outline-none focus:border-indigo-400">
                         <option value="S1">S1</option>
@@ -680,6 +698,9 @@
                     </select>
                     <i class="fa-solid fa-chevron-down pointer-events-none absolute right-4 bottom-4 text-xs text-indigo-400"></i>
                 </div>
+                <button id="admin-level-default-btn" type="button" onclick="setAdminDefaultSchoolLevel()" class="btn-silky w-full min-h-[42px] rounded-xl border-2 border-indigo-100 bg-indigo-50 px-3 text-xs font-black text-indigo-700 mb-4">
+                    <i class="fa-regular fa-circle-check mr-2"></i><span id="admin-level-default-text">Set this level as default</span>
+                </button>
 
                 <div class="grid grid-cols-2 gap-2 bg-white rounded-2xl p-1.5 shadow-sm border border-slate-100 mb-4">
                     <button id="admin-tab-topics" type="button" onclick="switchAdminPanel('topics')" class="btn-silky py-2.5 rounded-xl bg-indigo-500 text-white font-black text-sm"><i class="fa-solid fa-folder-tree mr-1"></i>Topics</button>
@@ -796,13 +817,16 @@
                     <input id="admin-card-id" type="hidden">
                     <div>
                         <label for="admin-card-topic" class="block text-xs font-bold text-slate-600 mb-1.5">Topic</label>
-                        <select id="admin-card-topic" onchange="updateAdminSubtopicField()" required class="w-full border-2 border-slate-200 rounded-xl p-3 text-sm font-bold outline-none focus:border-indigo-400"></select>
+                        <select id="admin-card-topic" onchange="updateAdminSubtopicField(); updateAdminCardDefaultButton()" required class="w-full border-2 border-slate-200 rounded-xl p-3 text-sm font-bold outline-none focus:border-indigo-400"></select>
                     </div>
                     <div id="admin-card-subtopic-wrap">
                         <label for="admin-card-subtopic" class="block text-xs font-bold text-slate-600 mb-1.5">Subtopic</label>
-                        <select id="admin-card-subtopic" class="w-full border-2 border-slate-200 rounded-xl p-3 text-sm font-bold outline-none focus:border-violet-400"></select>
+                        <select id="admin-card-subtopic" onchange="updateAdminCardDefaultButton()" class="w-full border-2 border-slate-200 rounded-xl p-3 text-sm font-bold outline-none focus:border-violet-400"></select>
                         <p id="admin-card-subtopic-help" class="text-[10px] text-slate-400 mt-1.5">Select a topic, then choose a subtopic.</p>
                     </div>
+                    <button id="admin-card-default-btn" type="button" onclick="setDefaultAdminCardScope()" class="btn-silky w-full min-h-[44px] rounded-xl border-2 border-violet-100 bg-violet-50 px-3 text-xs font-black text-violet-700">
+                        <i class="fa-regular fa-circle-check mr-2"></i><span id="admin-card-default-text">Set topic and subtopic as default</span>
+                    </button>
                     <div class="hidden" aria-hidden="true">
                         <label for="admin-card-q-zh" class="block text-xs font-bold text-slate-600 mb-1.5">中文題目</label>
                         <textarea id="admin-card-q-zh" rows="4" maxlength="5000"></textarea>
@@ -812,12 +836,13 @@
                         <textarea id="admin-card-a-zh" rows="5" maxlength="8000"></textarea>
                     </div>
                     <div>
-                        <label for="admin-card-q-en" class="block text-xs font-bold text-slate-600 mb-1.5">English question</label>
-                        <textarea id="admin-card-q-en" rows="4" maxlength="5000" required class="w-full border-2 border-slate-200 rounded-xl p-3 text-sm leading-relaxed outline-none focus:border-indigo-400"></textarea>
+                        <label for="admin-card-q-en" class="block text-xs font-bold text-slate-600 mb-1.5">Chinese meaning</label>
+                        <textarea id="admin-card-q-en" rows="4" maxlength="5000" required class="w-full border-2 border-slate-200 rounded-xl p-3 text-sm leading-relaxed outline-none focus:border-indigo-400" placeholder="Enter the Chinese meaning…"></textarea>
                     </div>
                     <div>
-                        <label for="admin-card-a-en" class="block text-xs font-bold text-slate-600 mb-1.5">English answer</label>
-                        <textarea id="admin-card-a-en" rows="5" maxlength="8000" required class="w-full border-2 border-slate-200 rounded-xl p-3 text-sm leading-relaxed outline-none focus:border-emerald-400"></textarea>
+                        <label for="admin-card-a-en" class="block text-xs font-bold text-slate-600 mb-1.5">English vocab word</label>
+                        <textarea id="admin-card-a-en" rows="5" maxlength="8000" required class="w-full border-2 border-slate-200 rounded-xl p-3 text-sm leading-relaxed outline-none focus:border-emerald-400" placeholder="Enter the English vocab word…"></textarea>
+                        <button type="button" onclick="speakVocabText(document.getElementById('admin-card-a-en').value)" class="btn-silky mt-2 min-h-[40px] rounded-xl bg-sky-50 px-4 text-xs font-black text-sky-700"><i class="fa-solid fa-volume-high mr-2"></i>Preview pronunciation</button>
                     </div>
 
                     <div class="rounded-2xl bg-blue-50/70 border border-blue-100 p-4">
@@ -859,8 +884,8 @@
                         </div>
                     </div>
                     <div>
-                        <label class="block text-sm font-bold text-slate-700 mb-2" id="label-qtext">Question</label>
-                        <textarea id="input-qtext" rows="3" class="w-full border border-slate-200 rounded-xl p-3 bg-slate-50 text-slate-700 outline-none focus:border-blue-500 transition-colors duration-300 placeholder:text-slate-400" placeholder="Enter the question…"></textarea>
+                        <label class="block text-sm font-bold text-slate-700 mb-2" id="label-qtext">Chinese meaning</label>
+                        <textarea id="input-qtext" rows="3" class="w-full border border-slate-200 rounded-xl p-3 bg-slate-50 text-slate-700 outline-none focus:border-blue-500 transition-colors duration-300 placeholder:text-slate-400" placeholder="Enter the Chinese meaning…"></textarea>
                     </div>
                     <div>
                         <label class="block text-sm font-bold text-slate-700 mb-2" id="label-qimg">Question Image (Optional)</label>
@@ -868,8 +893,8 @@
                         <img id="preview-img" src="" class="mt-3 max-h-40 hidden rounded-xl border border-slate-200 object-contain w-full bg-slate-50 transition-opacity duration-300">
                     </div>
                     <div>
-                        <label class="block text-sm font-bold text-slate-700 mb-2" id="label-atext">Answer</label>
-                        <textarea id="input-atext" rows="3" class="w-full border border-slate-200 rounded-xl p-3 bg-slate-50 text-slate-700 outline-none focus:border-emerald-500 transition-colors duration-300 placeholder:text-slate-400" placeholder="Enter the answer…"></textarea>
+                        <label class="block text-sm font-bold text-slate-700 mb-2" id="label-atext">English vocab word</label>
+                        <textarea id="input-atext" rows="3" class="w-full border border-slate-200 rounded-xl p-3 bg-slate-50 text-slate-700 outline-none focus:border-emerald-500 transition-colors duration-300 placeholder:text-slate-400" placeholder="Enter the English vocab word…"></textarea>
                     </div>
                     <div>
                         <label class="block text-sm font-bold text-slate-700 mb-2" id="label-aimg">Answer Image (Optional)</label>
@@ -903,6 +928,9 @@
                             <button type="button" onclick="editCurrentFlashcard(event)" class="admin-review-edit hidden absolute top-4 right-4 w-10 h-10 rounded-full bg-indigo-50 text-indigo-600 items-center justify-center shadow-sm border border-indigo-100 btn-silky z-30" aria-label="Edit this shared flashcard" title="Edit this shared flashcard">
                                 <i class="fa-solid fa-pen"></i>
                             </button>
+                            <button type="button" onclick="speakCurrentVocab(event)" class="absolute top-16 right-4 w-10 h-10 rounded-full bg-sky-50 text-sky-600 flex items-center justify-center shadow-sm border border-sky-100 btn-silky z-30" aria-label="Pronounce the English vocab word" title="Pronounce the English vocab word">
+                                <i class="fa-solid fa-volume-high"></i>
+                            </button>
                             <span class="review-label w-full text-center text-blue-500 text-sm font-bold uppercase tracking-widest" id="label-q">Question</span>
                             <div class="review-content flex flex-col justify-center items-center w-full">
                                 <div id="question-text" class="review-copy text-[22px] font-bold text-center text-slate-800 leading-snug w-full transition-opacity duration-300">Loading…</div>
@@ -919,6 +947,9 @@
                             </button>
                             <button type="button" onclick="editCurrentFlashcard(event)" class="admin-review-edit hidden absolute top-4 right-4 w-10 h-10 rounded-full bg-white text-indigo-600 items-center justify-center shadow-sm border border-indigo-100 btn-silky z-30" aria-label="Edit this shared flashcard" title="Edit this shared flashcard">
                                 <i class="fa-solid fa-pen"></i>
+                            </button>
+                            <button type="button" onclick="speakCurrentVocab(event)" class="absolute top-16 right-4 w-10 h-10 rounded-full bg-white text-emerald-700 flex items-center justify-center shadow-sm border border-emerald-100 btn-silky z-30" aria-label="Pronounce the English vocab word" title="Pronounce the English vocab word">
+                                <i class="fa-solid fa-volume-high"></i>
                             </button>
                             <span class="review-label w-full text-center text-emerald-600 text-sm font-bold uppercase tracking-widest" id="label-a">Answer</span>
                             <div class="review-content flex flex-col justify-center items-center w-full">
@@ -1056,7 +1087,11 @@
         let gameSession = null;
         let gameTimerId = null;
         let gameResults = [];
-        let lastGameConfig = { mode: 'mc', direction: 'zh-en' };
+        let lastGameConfig = { mode: 'mc', direction: 'zh-en', topicId: 'all', subtopicId: 'all' };
+        let defaultGameTopicId = 'all';
+        let defaultGameSubtopicId = 'all';
+        let defaultAdminCardTopicId = '';
+        let defaultAdminCardSubtopicId = '';
         const expandedAdminTopics = new Set();
         const managedCardIds = new Set();
         const sourceCardIds = new Set(sourceFlashcards.map(card => card.id));
@@ -1319,6 +1354,9 @@
         async function loadManagedContent(options = {}) {
             if (!currentUser || !initSupabaseClient()) return false;
             if (managedContentLoaded && !options.force) return true;
+            const wasAlreadyLoaded = managedContentLoaded;
+            const preservedSchoolLevel = currentSchoolLevel;
+            const preservedAdminLevel = adminSchoolLevel;
 
             const [topicResult, subtopicResult, cardResult, starResult, personalResult, preferenceResult] = await Promise.all([
                 supabaseClient.from('chemistry_blank_topics').select('id,name_zh,name_en,icon,color,school_level,sort_order,layout').order('sort_order', { ascending: true }).order('id', { ascending: true }),
@@ -1326,7 +1364,7 @@
                 supabaseClient.from('chemistry_blank_flashcards').select('id,topic_id,subtopic_id,section,question_zh,answer_zh,question_en,answer_en,question_image_url,question_image_path,answer_image_url,answer_image_path,sort_order').order('sort_order', { ascending: true }).order('id', { ascending: true }),
                 supabaseClient.from('chemistry_blank_user_flashcard_state').select('flashcard_id,is_starred').eq('user_id', currentUser.id),
                 supabaseClient.from('chemistry_blank_personal_flashcards').select('id,topic_id,question_zh,answer_zh,question_en,answer_en,question_image_url,question_image_path,answer_image_url,answer_image_path,is_starred,sort_order').eq('user_id', currentUser.id).order('sort_order', { ascending: true }).order('id', { ascending: true }),
-                supabaseClient.from('chemistry_blank_user_preferences').select('school_level').eq('user_id', currentUser.id).maybeSingle()
+                supabaseClient.from('chemistry_blank_user_preferences').select('school_level,shared_topic_id,shared_subtopic_id,game_topic_id,game_subtopic_id').eq('user_id', currentUser.id).maybeSingle()
             ]);
             if (topicResult.error) throw topicResult.error;
             if (subtopicResult.error) throw subtopicResult.error;
@@ -1353,8 +1391,12 @@
             defaultLang = APP_LANGUAGE;
             currentLang = APP_LANGUAGE;
             defaultSchoolLevel = SCHOOL_LEVELS.includes(preferenceResult.data?.school_level) ? preferenceResult.data.school_level : 'S4-6';
-            currentSchoolLevel = defaultSchoolLevel;
-            adminSchoolLevel = defaultSchoolLevel;
+            currentSchoolLevel = wasAlreadyLoaded && SCHOOL_LEVELS.includes(preservedSchoolLevel) ? preservedSchoolLevel : defaultSchoolLevel;
+            adminSchoolLevel = wasAlreadyLoaded && SCHOOL_LEVELS.includes(preservedAdminLevel) ? preservedAdminLevel : currentSchoolLevel;
+            defaultAdminCardTopicId = preferenceResult.data?.shared_topic_id || '';
+            defaultAdminCardSubtopicId = preferenceResult.data?.shared_subtopic_id == null ? '' : String(preferenceResult.data.shared_subtopic_id);
+            defaultGameTopicId = preferenceResult.data?.game_topic_id || 'all';
+            defaultGameSubtopicId = preferenceResult.data?.game_subtopic_id == null ? 'all' : String(preferenceResult.data.game_subtopic_id);
             document.getElementById('school-level-select').value = currentSchoolLevel;
             updateSchoolLevelDefaultButton();
             managedContentLoaded = true;
@@ -1414,12 +1456,7 @@
             if (!currentUser || !initSupabaseClient()) return;
             const button = document.getElementById('school-level-default-btn');
             button.disabled = true;
-            const { error } = await supabaseClient.from('chemistry_blank_user_preferences').upsert({
-                user_id: currentUser.id,
-                default_language: APP_LANGUAGE,
-                school_level: currentSchoolLevel,
-                updated_at: new Date().toISOString()
-            }, { onConflict: 'user_id' });
+            const { error } = await persistPreferenceFields({ school_level: currentSchoolLevel });
             button.disabled = false;
             if (error) {
                 openModal({
@@ -1431,6 +1468,37 @@
             }
             defaultSchoolLevel = currentSchoolLevel;
             updateSchoolLevelDefaultButton();
+            updateAdminLevelDefaultButton();
+        }
+
+        async function persistPreferenceFields(fields) {
+            if (!currentUser || !initSupabaseClient()) return { error: new Error('Sign in is required.') };
+            return supabaseClient.from('chemistry_blank_user_preferences').upsert({
+                user_id: currentUser.id,
+                default_language: APP_LANGUAGE,
+                ...fields,
+                updated_at: new Date().toISOString()
+            }, { onConflict: 'user_id' });
+        }
+
+        function updateAdminLevelDefaultButton() {
+            const button = document.getElementById('admin-level-default-btn');
+            const text = document.getElementById('admin-level-default-text');
+            if (!button || !text) return;
+            const isDefault = adminSchoolLevel === defaultSchoolLevel;
+            text.innerText = isDefault ? 'Default level' : 'Set this level as default';
+            button.className = `btn-silky w-full min-h-[42px] rounded-xl border-2 px-3 text-xs font-black mb-4 ${isDefault ? 'border-indigo-300 bg-indigo-100 text-indigo-800' : 'border-indigo-100 bg-indigo-50 text-indigo-700'}`;
+            button.querySelector('i').className = `${isDefault ? 'fa-solid' : 'fa-regular'} fa-circle-check mr-2`;
+        }
+
+        async function setAdminDefaultSchoolLevel() {
+            if (!SCHOOL_LEVELS.includes(adminSchoolLevel)) return;
+            const previousLevel = currentSchoolLevel;
+            currentSchoolLevel = adminSchoolLevel;
+            document.getElementById('school-level-select').value = currentSchoolLevel;
+            await setDefaultSchoolLevel();
+            if (previousLevel !== currentSchoolLevel) refreshContentControls();
+            updateAdminLevelDefaultButton();
         }
 
         function flattenedSubtopics(topicId = null) {
@@ -2457,6 +2525,39 @@
             return (node.textContent || '').replace(/\s+/g, ' ').trim();
         }
 
+        function speakVocabText(value) {
+            const text = plainGameText(value);
+            if (!text) return;
+            if (!('speechSynthesis' in window) || typeof SpeechSynthesisUtterance === 'undefined') {
+                openModal({
+                    icon: 'fa-volume-xmark', iconBgClass: 'bg-slate-100', iconTextClass: 'text-slate-500',
+                    title: 'Pronunciation unavailable', desc: 'This browser does not support spoken pronunciation. Try Safari, Chrome or Edge.',
+                    buttons: [{ text: 'OK', styleClass: 'bg-slate-800 text-white', onClick: null }]
+                });
+                return;
+            }
+            window.speechSynthesis.cancel();
+            const utterance = new SpeechSynthesisUtterance(text);
+            utterance.lang = 'en-GB';
+            utterance.rate = 0.86;
+            utterance.pitch = 1;
+            const voices = window.speechSynthesis.getVoices();
+            utterance.voice = voices.find(voice => /^en-GB/i.test(voice.lang)) || voices.find(voice => /^en/i.test(voice.lang)) || null;
+            window.speechSynthesis.speak(utterance);
+        }
+
+        function speakCurrentVocab(event) {
+            event?.stopPropagation();
+            const card = currentReviewList[currentIndex];
+            if (card) speakVocabText(card.a_en || card.a_zh);
+        }
+
+        function speakVocabCard(event, cardId) {
+            event?.stopPropagation();
+            const card = flashcards.find(item => Number(item.id) === Number(cardId));
+            if (card) speakVocabText(card.a_en || card.a_zh);
+        }
+
         function shuffled(items) {
             const copy = [...items];
             for (let index = copy.length - 1; index > 0; index--) {
@@ -2466,20 +2567,83 @@
             return copy;
         }
 
+        function populateGameScopeControls() {
+            const topicSelect = document.getElementById('game-topic-filter');
+            const previousTopic = topicSelect.value || defaultGameTopicId || 'all';
+            const topics = chapters.filter(chapter => !chapter.isAction && chapter.schoolLevel === currentSchoolLevel);
+            topicSelect.innerHTML = `<option value="all">All topics</option>${topics.map(topic => `<option value="${escapeHTML(topic.id)}">${escapeHTML(topic.en)}</option>`).join('')}`;
+            topicSelect.value = [...topicSelect.options].some(option => option.value === previousTopic) ? previousTopic : 'all';
+            const preferredSubtopic = topicSelect.value === defaultGameTopicId ? defaultGameSubtopicId : 'all';
+            updateGameSubtopicFilter(preferredSubtopic);
+            updateGameScopeDefaultButton();
+        }
+
+        function updateGameSubtopicFilter(preferredId = null) {
+            const topicId = document.getElementById('game-topic-filter')?.value || 'all';
+            const select = document.getElementById('game-subtopic-filter');
+            if (!select) return;
+            const previous = preferredId == null ? (select.value || 'all') : String(preferredId || 'all');
+            const choices = topicId === 'all' ? [] : flattenedSubtopics(topicId);
+            select.innerHTML = `<option value="all">All subtopics</option>${choices.map(item => `<option value="${item.id}">${escapeHTML(item.path)}</option>`).join('')}`;
+            select.disabled = topicId === 'all';
+            select.value = [...select.options].some(option => option.value === previous) ? previous : 'all';
+            updateGameScopeDefaultButton();
+        }
+
+        function updateGameScopeDefaultButton() {
+            const button = document.getElementById('game-scope-default-btn');
+            const text = document.getElementById('game-scope-default-text');
+            if (!button || !text) return;
+            const topicId = document.getElementById('game-topic-filter')?.value || 'all';
+            const subtopicId = document.getElementById('game-subtopic-filter')?.value || 'all';
+            const isDefault = topicId === defaultGameTopicId && subtopicId === defaultGameSubtopicId;
+            text.innerText = isDefault ? 'Default game scope' : 'Set topic and subtopic as default';
+            button.className = `btn-silky w-full min-h-[44px] rounded-xl border-2 px-3 text-xs font-black ${isDefault ? 'border-indigo-300 bg-indigo-100 text-indigo-800' : 'border-indigo-100 bg-indigo-50 text-indigo-700'}`;
+            button.querySelector('i').className = `${isDefault ? 'fa-solid' : 'fa-regular'} fa-circle-check mr-2`;
+        }
+
+        async function setDefaultGameScope() {
+            if (!currentUser) return;
+            const topicId = document.getElementById('game-topic-filter').value || 'all';
+            const subtopicId = document.getElementById('game-subtopic-filter').value || 'all';
+            const button = document.getElementById('game-scope-default-btn');
+            button.disabled = true;
+            const { error } = await persistPreferenceFields({
+                game_topic_id: topicId === 'all' ? null : topicId,
+                game_subtopic_id: ['all', 'none'].includes(subtopicId) ? null : Number(subtopicId)
+            });
+            button.disabled = false;
+            if (error) {
+                showGameMessage(authErrorMessage(error, 'Unable to save the game default.'));
+                return;
+            }
+            defaultGameTopicId = topicId;
+            defaultGameSubtopicId = subtopicId;
+            updateGameScopeDefaultButton();
+        }
+
         function eligibleGamePairs() {
+            const selectedTopicId = document.getElementById('game-topic-filter')?.value || 'all';
+            const selectedSubtopicId = document.getElementById('game-subtopic-filter')?.value || 'all';
+            const selectedSubtopicIds = !['all', 'none'].includes(selectedSubtopicId)
+                ? new Set(subtopicDescendantIds(Number(selectedSubtopicId)).map(String))
+                : null;
             const topicIds = new Set(chapters
                 .filter(chapter => !chapter.isAction && chapter.schoolLevel === currentSchoolLevel)
                 .map(chapter => String(chapter.id)));
             const seen = new Set();
             return flashcards.reduce((pairs, card) => {
                 if (!topicIds.has(String(card.chapter))) return pairs;
+                if (selectedTopicId !== 'all' && String(card.chapter) !== selectedTopicId) return pairs;
+                if (selectedSubtopicId === 'none' && card.subtopicId != null) return pairs;
+                if (selectedSubtopicIds && !selectedSubtopicIds.has(String(card.subtopicId))) return pairs;
                 const zh = plainGameText(card.q_en || card.q_zh);
                 const en = plainGameText(card.a_en || card.a_zh);
                 if (!zh || !en) return pairs;
                 const key = `${zh.toLocaleLowerCase()}\u0000${en.toLocaleLowerCase()}`;
                 if (seen.has(key)) return pairs;
                 seen.add(key);
-                pairs.push({ id: card.id, topicId: String(card.chapter), zh, en });
+                pairs.push({ id: card.id, topicId: String(card.chapter), subtopicId: card.subtopicId == null ? null : Number(card.subtopicId), zh, en });
                 return pairs;
             }, []);
         }
@@ -2494,6 +2658,7 @@
             stopGameTimer();
             gameSession = null;
             document.getElementById('game-level-badge').textContent = currentSchoolLevel;
+            populateGameScopeControls();
             document.getElementById('game-menu-message').classList.add('hidden');
             document.getElementById('game-menu').classList.remove('hidden');
             document.getElementById('game-menu').classList.add('flex');
@@ -2530,7 +2695,12 @@
                 selectedRight: null,
                 currentOptions: null
             };
-            lastGameConfig = { mode, direction };
+            lastGameConfig = {
+                mode,
+                direction,
+                topicId: document.getElementById('game-topic-filter').value || 'all',
+                subtopicId: document.getElementById('game-subtopic-filter').value || 'all'
+            };
             document.getElementById('game-menu').classList.add('hidden');
             document.getElementById('game-menu').classList.remove('flex');
             document.getElementById('game-result').classList.add('hidden');
@@ -2732,6 +2902,8 @@
             const total = finished.mode === 'matching' ? Math.max(finished.attempts, finished.score) : finished.cards.length;
             const score = finished.score;
             const percentage = Math.round((score / Math.max(1, total)) * 100);
+            const selectedTopicId = document.getElementById('game-topic-filter')?.value || 'all';
+            const selectedSubtopicId = document.getElementById('game-subtopic-filter')?.value || 'all';
             const result = {
                 mode: finished.mode,
                 direction: finished.direction,
@@ -2739,14 +2911,18 @@
                 total,
                 duration_seconds: durationSeconds,
                 school_level: currentSchoolLevel,
+                topic_id: selectedTopicId === 'all' ? null : selectedTopicId,
+                subtopic_id: ['all', 'none'].includes(selectedSubtopicId) ? null : Number(selectedSubtopicId),
                 completed_at: new Date().toISOString()
             };
             document.getElementById('game-session').classList.add('hidden');
             document.getElementById('game-session').classList.remove('flex');
             document.getElementById('game-result').classList.remove('hidden');
             document.getElementById('game-result').classList.add('flex');
-            document.getElementById('game-result-score').textContent = `${score} / ${total} · ${percentage}%`;
-            document.getElementById('game-result-details').textContent = `${gameModeLabel(finished.mode)} · ${formatDuration(durationSeconds)} · ${formatResultDate(result.completed_at)}`;
+            document.getElementById('game-result-details').textContent = gameModeLabel(finished.mode);
+            document.getElementById('game-result-score').textContent = `${score} / ${total} (${percentage}%)`;
+            document.getElementById('game-result-time').textContent = formatDuration(durationSeconds);
+            document.getElementById('game-result-date').textContent = formatResultDate(result.completed_at);
             gameSession = null;
             try {
                 await saveGameResult(result);
@@ -2779,7 +2955,7 @@
             const { data, error } = await supabaseClient.from('chemistry_blank_game_results').insert({
                 user_id: currentUser.id,
                 ...result
-            }).select('id,mode,direction,score,total,duration_seconds,school_level,completed_at').single();
+            }).select('id,mode,direction,score,total,duration_seconds,school_level,topic_id,subtopic_id,completed_at').single();
             if (error) throw error;
             gameResults.unshift(data);
             return data;
@@ -2798,7 +2974,7 @@
             }
             history.innerHTML = '<div class="rounded-2xl bg-white p-5 text-center text-sm font-bold text-slate-400"><i class="fa-solid fa-spinner fa-spin mr-2"></i>Loading progress…</div>';
             const { data, error } = await supabaseClient.from('chemistry_blank_game_results')
-                .select('id,mode,direction,score,total,duration_seconds,school_level,completed_at')
+                .select('id,mode,direction,score,total,duration_seconds,school_level,topic_id,subtopic_id,completed_at')
                 .eq('user_id', currentUser.id)
                 .order('completed_at', { ascending: false })
                 .limit(100);
@@ -2844,12 +3020,15 @@
             history.innerHTML = gameResults.map((item, index) => {
                 const percentage = Math.round((Number(item.score) / Math.max(1, Number(item.total))) * 100);
                 const palette = item.mode === 'mc' ? ['bg-indigo-50', 'text-indigo-600', 'fa-list-check'] : item.mode === 'matching' ? ['bg-sky-50', 'text-sky-600', 'fa-table-cells-large'] : ['bg-emerald-50', 'text-emerald-600', 'fa-spell-check'];
+                const topic = chapters.find(chapter => chapter.id === item.topic_id);
+                const subtopic = subtopics.find(entry => entry.id === Number(item.subtopic_id));
+                const scope = [topic?.en, subtopic?.en].filter(Boolean).join(' › ') || 'All topics';
                 return `
                     <article class="rounded-2xl bg-white border border-slate-100 shadow-sm p-4 flex items-center gap-3">
                         <div class="w-12 h-12 rounded-2xl ${palette[0]} ${palette[1]} flex items-center justify-center text-lg flex-shrink-0"><i class="fa-solid ${palette[2]}"></i></div>
                         <div class="min-w-0 flex-1">
                             <div class="flex items-center justify-between gap-2"><h4 class="font-black text-slate-800">${escapeHTML(gameModeLabel(item.mode))}</h4><strong class="${palette[1]}">${percentage}%</strong></div>
-                            <p class="text-[11px] font-bold text-slate-500 mt-1 truncate">${escapeHTML(gameDirectionLabel(item.direction, item.mode))} · ${escapeHTML(item.school_level)}</p>
+                            <p class="text-[11px] font-bold text-slate-500 mt-1 truncate">${escapeHTML(gameDirectionLabel(item.direction, item.mode))} · ${escapeHTML(item.school_level)} · ${escapeHTML(scope)}</p>
                             <p class="text-[10px] text-slate-400 mt-1">${item.score}/${item.total} · ${formatDuration(item.duration_seconds)} · ${escapeHTML(formatResultDate(item.completed_at))}</p>
                         </div>
                     </article>`;
@@ -2863,7 +3042,9 @@
         function playAgain() {
             resetGameMenu();
             document.getElementById('game-direction').value = lastGameConfig.direction;
-            startGame(lastGameConfig.mode);
+            document.getElementById('game-topic-filter').value = [...document.getElementById('game-topic-filter').options].some(option => option.value === lastGameConfig.topicId) ? lastGameConfig.topicId : 'all';
+            updateGameSubtopicFilter(lastGameConfig.subtopicId);
+            startVocabGame(lastGameConfig.mode);
         }
 
         function handleFeedback() {
@@ -3257,6 +3438,7 @@
             document.getElementById('admin-login-title').value = appSettings.loginTitle;
             document.getElementById('admin-login-title-wrap').classList.toggle('hidden', !isSuperAdministrator());
             document.getElementById('admin-level-filter').value = adminSchoolLevel;
+            updateAdminLevelDefaultButton();
         }
 
         async function saveAdminBranding(event) {
@@ -3292,6 +3474,7 @@
             adminSchoolLevel = level;
             closeAdminTopicForm();
             closeAdminSubtopicForm();
+            updateAdminLevelDefaultButton();
             renderAdminManager();
         }
 
@@ -3721,6 +3904,37 @@
             select.required = choices.length > 0;
             if (choices.some(item => String(item.id) === previous)) select.value = previous;
             help.innerText = choices.length ? 'Choose the subtopic for this flashcard.' : 'This topic has no subtopics yet. Add one from the Topics tab first.';
+            updateAdminCardDefaultButton();
+        }
+
+        function updateAdminCardDefaultButton() {
+            const button = document.getElementById('admin-card-default-btn');
+            const text = document.getElementById('admin-card-default-text');
+            if (!button || !text) return;
+            const topicId = document.getElementById('admin-card-topic')?.value || '';
+            const subtopicId = document.getElementById('admin-card-subtopic')?.value || '';
+            const isDefault = topicId === defaultAdminCardTopicId && subtopicId === defaultAdminCardSubtopicId;
+            text.innerText = isDefault ? 'Default topic and subtopic' : 'Set topic and subtopic as default';
+            button.className = `btn-silky w-full min-h-[44px] rounded-xl border-2 px-3 text-xs font-black ${isDefault ? 'border-violet-300 bg-violet-100 text-violet-800' : 'border-violet-100 bg-violet-50 text-violet-700'}`;
+            button.querySelector('i').className = `${isDefault ? 'fa-solid' : 'fa-regular'} fa-circle-check mr-2`;
+        }
+
+        async function setDefaultAdminCardScope() {
+            if (!currentUser || !hasAdminContentAccess()) return;
+            const topicId = document.getElementById('admin-card-topic').value || '';
+            const subtopicId = document.getElementById('admin-card-subtopic').value || '';
+            if (!topicId) return;
+            const button = document.getElementById('admin-card-default-btn');
+            button.disabled = true;
+            const { error } = await persistPreferenceFields({
+                shared_topic_id: topicId,
+                shared_subtopic_id: subtopicId ? Number(subtopicId) : null
+            });
+            button.disabled = false;
+            if (error) return setAdminManagerStatus(authErrorMessage(error, 'Unable to save the shared-flashcard default.'), 'error');
+            defaultAdminCardTopicId = topicId;
+            defaultAdminCardSubtopicId = subtopicId;
+            updateAdminCardDefaultButton();
         }
 
         function setAdminImagePreview(side, url) {
@@ -3751,8 +3965,11 @@
             populateAdminTopicControls();
             document.getElementById('admin-card-id').value = card?.id || '';
             document.getElementById('admin-card-editor-title').innerText = card ? 'Edit shared flashcard' : 'Add shared flashcard';
-            document.getElementById('admin-card-topic').value = card?.chapter || chapters.find(chapter => !chapter.isAction)?.id || '';
-            updateAdminSubtopicField(card?.subtopicId || null);
+            const levelTopics = chapters.filter(chapter => !chapter.isAction && chapter.schoolLevel === adminSchoolLevel);
+            const preferredTopic = card?.chapter || (levelTopics.some(topic => topic.id === defaultAdminCardTopicId) ? defaultAdminCardTopicId : levelTopics[0]?.id) || '';
+            document.getElementById('admin-card-topic').value = preferredTopic;
+            const preferredSubtopic = card?.subtopicId || (preferredTopic === defaultAdminCardTopicId ? defaultAdminCardSubtopicId : null);
+            updateAdminSubtopicField(preferredSubtopic);
             document.getElementById('admin-card-q-zh').value = card?.q_zh || '';
             document.getElementById('admin-card-a-zh').value = card?.a_zh || '';
             document.getElementById('admin-card-q-en').value = card?.q_en || '';
@@ -3764,7 +3981,7 @@
             document.getElementById('admin-card-form-error').classList.add('hidden');
             setAdminImagePreview('question', card?.img || '');
             setAdminImagePreview('answer', card?.answerImg || '');
-            updateAdminSubtopicField(card?.subtopicId || null);
+            updateAdminSubtopicField(preferredSubtopic);
             document.getElementById('view-admin').classList.add('hidden');
             document.getElementById('view-admin').classList.remove('flex');
             document.getElementById('view-flashcards').classList.add('hidden');
@@ -4011,7 +4228,10 @@
                         <button onclick="removeStar(${card.id})" class="btn-silky absolute top-5 right-5 text-yellow-400 hover:text-slate-300 text-xl z-10">
                             <i class="fa-solid fa-star"></i>
                         </button>
-                        <div class="text-[10px] text-slate-400 font-medium mb-3">${chapterName}</div>
+                        <div class="flex items-center justify-between gap-2 pr-8 mb-3">
+                            <span class="text-[10px] text-slate-400 font-medium">${chapterName}</span>
+                            <button type="button" onclick="speakVocabCard(event, ${card.id})" class="btn-silky min-h-[34px] min-w-[34px] rounded-full bg-sky-50 text-sky-600" aria-label="Pronounce ${escapeHTML(card.a_en || card.a_zh)}" title="Pronounce English vocab"><i class="fa-solid fa-volume-high"></i></button>
+                        </div>
                         <div class="mb-3">
                             <span class="text-[10px] bg-emerald-50 text-emerald-600 font-bold px-2 py-1 rounded uppercase tracking-wider mb-1 inline-block">Q</span>
                             <p class="font-bold text-slate-800 leading-snug">${qText} ${imgIcon}</p>
@@ -4577,6 +4797,7 @@
         }
 
         function updateCard() {
+            if ('speechSynthesis' in window) window.speechSynthesis.cancel();
             const card = currentReviewList[currentIndex];
             let qHTML = '', aHTML = '';
 
