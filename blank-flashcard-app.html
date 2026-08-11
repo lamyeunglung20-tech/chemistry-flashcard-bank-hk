@@ -311,8 +311,15 @@
                 <i class="fa-solid fa-flask text-emerald-500 text-lg"></i>
                 <span class="font-black text-[15px] tracking-wide text-slate-900 truncate" id="header-title">Science Vocab Flashcards</span>
             </div>
-            <div class="flex items-center flex-shrink-0" aria-label="English interface">
-                <span class="rounded-full bg-emerald-50 px-2.5 py-1 text-[10px] font-black tracking-wide text-emerald-700">ENGLISH</span>
+            <div class="relative flex items-center flex-shrink-0">
+                <label for="school-level-select" class="sr-only">School level</label>
+                <select id="school-level-select" onchange="changeSchoolLevel(this.value)" class="min-w-[76px] appearance-none rounded-xl border-2 border-emerald-100 bg-emerald-50 py-2 pl-3 pr-8 text-xs font-black tracking-wide text-emerald-700 outline-none focus:border-emerald-400" aria-label="School level">
+                    <option value="S1">S1</option>
+                    <option value="S2">S2</option>
+                    <option value="S3">S3</option>
+                    <option value="S4-6" selected>S4-6</option>
+                </select>
+                <i class="fa-solid fa-chevron-down pointer-events-none absolute right-3 text-[10px] text-emerald-600" aria-hidden="true"></i>
             </div>
         </header>
 
@@ -535,11 +542,48 @@
                             <label for="admin-topic-en" class="block text-xs font-bold text-slate-600 mb-1.5">English topic name</label>
                             <input id="admin-topic-en" maxlength="140" required class="w-full border-2 border-slate-200 rounded-xl p-3 text-sm font-semibold outline-none focus:border-indigo-400">
                         </div>
+                        <div class="grid grid-cols-2 gap-3">
+                            <div>
+                                <label for="admin-topic-level" class="block text-xs font-bold text-slate-600 mb-1.5">School level</label>
+                                <select id="admin-topic-level" required class="w-full border-2 border-slate-200 rounded-xl p-3 text-sm font-semibold outline-none focus:border-indigo-400">
+                                    <option value="S1">S1</option>
+                                    <option value="S2">S2</option>
+                                    <option value="S3">S3</option>
+                                    <option value="S4-6">S4-6</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label for="admin-topic-color" class="block text-xs font-bold text-slate-600 mb-1.5">Card colour</label>
+                                <select id="admin-topic-color" required onchange="updateAdminTopicColorPreview()" class="w-full border-2 border-slate-200 rounded-xl p-3 text-sm font-semibold outline-none focus:border-indigo-400">
+                                    <option value="bg-blue-500">Blue</option>
+                                    <option value="bg-sky-500">Sky</option>
+                                    <option value="bg-cyan-500">Cyan</option>
+                                    <option value="bg-teal-500">Teal</option>
+                                    <option value="bg-emerald-500">Emerald</option>
+                                    <option value="bg-green-500">Green</option>
+                                    <option value="bg-lime-500">Lime</option>
+                                    <option value="bg-amber-500">Amber</option>
+                                    <option value="bg-orange-500">Orange</option>
+                                    <option value="bg-red-500">Red</option>
+                                    <option value="bg-rose-500">Rose</option>
+                                    <option value="bg-pink-500">Pink</option>
+                                    <option value="bg-fuchsia-500">Fuchsia</option>
+                                    <option value="bg-purple-500">Purple</option>
+                                    <option value="bg-violet-500">Violet</option>
+                                    <option value="bg-indigo-500">Indigo</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-2 rounded-xl bg-slate-50 px-3 py-2 text-xs font-bold text-slate-500">
+                            <span id="admin-topic-color-preview" class="h-6 w-6 rounded-lg bg-sky-500 shadow-sm" aria-hidden="true"></span>
+                            Topic card colour preview
+                        </div>
                         <button id="admin-topic-save" type="submit" class="btn-silky w-full rounded-xl bg-emerald-500 text-white py-3 font-black">Save topic</button>
                     </form>
                     <form id="admin-subtopic-form" onsubmit="saveAdminSubtopic(event)" class="hidden bg-white rounded-2xl border border-violet-100 shadow-sm p-4 space-y-3">
                         <input id="admin-subtopic-topic-id" type="hidden">
                         <input id="admin-subtopic-edit-id" type="hidden">
+                        <input id="admin-subtopic-parent-id" type="hidden">
                         <div class="flex items-center justify-between">
                             <div>
                                 <h3 id="admin-subtopic-form-title" class="font-black text-slate-800">Add subtopic</h3>
@@ -805,7 +849,7 @@
             { id: 'industrial', zh: '工業化學', en: 'Industrial Chemistry', icon: 'fa-industry', color: 'bg-amber-600', count: 0 },
             { id: 'analytical', zh: '分析化學', en: 'Analytical Chemistry', icon: 'fa-magnifying-glass-chart', color: 'bg-emerald-600', count: 0 }
         ];
-        let chapters = [addCardChapter, ...defaultChapters.map(chapter => ({ ...chapter }))];
+        let chapters = [addCardChapter, ...defaultChapters.map(chapter => ({ ...chapter, schoolLevel: 'S4-6' }))];
 
         let micro1Sections = [
             { id: 'Ch.5', zh: '章節5：原子結構', en: 'Chapter 5: Atomic Structure', icon: 'fa-atom', color: 'bg-orange-500' },
@@ -819,6 +863,8 @@
         let currentIndex = 0;
         let isFlipped = false;
         const APP_LANGUAGE = 'en';
+        const SCHOOL_LEVELS = ['S1', 'S2', 'S3', 'S4-6'];
+        let currentSchoolLevel = 'S4-6';
         let currentLang = APP_LANGUAGE;
         let activeTab = 'home';
         let isLoggedOut = false; 
@@ -1007,7 +1053,7 @@
 
         function saveState() {
             try {
-                localStorage.setItem(STORAGE_KEY, JSON.stringify({ currentLang, isLoggedOut }));
+                localStorage.setItem(STORAGE_KEY, JSON.stringify({ currentLang, currentSchoolLevel, isLoggedOut }));
             } catch (error) {
                 console.warn('Unable to save interface state locally:', error);
             }
@@ -1018,6 +1064,7 @@
                 const saved = JSON.parse(localStorage.getItem(STORAGE_KEY) || 'null');
                 currentLang = APP_LANGUAGE;
                 defaultLang = APP_LANGUAGE;
+                if (saved && SCHOOL_LEVELS.includes(saved.currentSchoolLevel)) currentSchoolLevel = saved.currentSchoolLevel;
                 if (saved && typeof saved.isLoggedOut === 'boolean') isLoggedOut = saved.isLoggedOut;
             } catch (error) {
                 console.warn('Unable to load saved interface state:', error);
@@ -1035,6 +1082,7 @@
                 icon: topic.icon || 'fa-book',
                 color: topic.color || 'bg-sky-500',
                 layout: topic.layout || 'regular',
+                schoolLevel: SCHOOL_LEVELS.includes(topic.school_level) ? topic.school_level : 'S4-6',
                 count: 0,
                 sortOrder: topic.sort_order || 0
             };
@@ -1096,18 +1144,20 @@
             if (!currentUser || !initSupabaseClient()) return false;
             if (managedContentLoaded && !options.force) return true;
 
-            const [topicResult, subtopicResult, cardResult, starResult, personalResult] = await Promise.all([
-                supabaseClient.from('chemistry_blank_topics').select('id,name_zh,name_en,icon,color,sort_order,layout').order('sort_order', { ascending: true }).order('id', { ascending: true }),
-                supabaseClient.from('chemistry_blank_subtopics').select('id,topic_id,legacy_section,name_zh,name_en,icon,color,sort_order').order('sort_order', { ascending: true }).order('id', { ascending: true }),
+            const [topicResult, subtopicResult, cardResult, starResult, personalResult, preferenceResult] = await Promise.all([
+                supabaseClient.from('chemistry_blank_topics').select('id,name_zh,name_en,icon,color,school_level,sort_order,layout').order('sort_order', { ascending: true }).order('id', { ascending: true }),
+                supabaseClient.from('chemistry_blank_subtopics').select('id,topic_id,parent_subtopic_id,legacy_section,name_zh,name_en,icon,color,sort_order').order('sort_order', { ascending: true }).order('id', { ascending: true }),
                 supabaseClient.from('chemistry_blank_flashcards').select('id,topic_id,subtopic_id,section,question_zh,answer_zh,question_en,answer_en,question_image_url,question_image_path,answer_image_url,answer_image_path,sort_order').order('sort_order', { ascending: true }).order('id', { ascending: true }),
                 supabaseClient.from('chemistry_blank_user_flashcard_state').select('flashcard_id,is_starred').eq('user_id', currentUser.id),
-                supabaseClient.from('chemistry_blank_personal_flashcards').select('id,topic_id,question_zh,answer_zh,question_en,answer_en,question_image_url,question_image_path,answer_image_url,answer_image_path,is_starred,sort_order').eq('user_id', currentUser.id).order('sort_order', { ascending: true }).order('id', { ascending: true })
+                supabaseClient.from('chemistry_blank_personal_flashcards').select('id,topic_id,question_zh,answer_zh,question_en,answer_en,question_image_url,question_image_path,answer_image_url,answer_image_path,is_starred,sort_order').eq('user_id', currentUser.id).order('sort_order', { ascending: true }).order('id', { ascending: true }),
+                supabaseClient.from('chemistry_blank_user_preferences').select('school_level').eq('user_id', currentUser.id).maybeSingle()
             ]);
             if (topicResult.error) throw topicResult.error;
             if (subtopicResult.error) throw subtopicResult.error;
             if (cardResult.error) throw cardResult.error;
             if (starResult.error) throw starResult.error;
             if (personalResult.error) throw personalResult.error;
+            if (preferenceResult.error) throw preferenceResult.error;
 
             const starredById = new Map((starResult.data || []).map(item => [Number(item.flashcard_id), Boolean(item.is_starred)]));
             managedCardIds.clear();
@@ -1118,13 +1168,16 @@
             chapters = [addCardChapter, ...topicResult.data.map(managedTopicToChapter)];
             subtopics = subtopicResult.data.map(item => ({
                 id: Number(item.id), topicId: item.topic_id, legacySection: item.legacy_section || null,
+                parentSubtopicId: item.parent_subtopic_id == null ? null : Number(item.parent_subtopic_id),
                 zh: item.name_zh, en: item.name_en, icon: item.icon || 'fa-book-open',
                 color: item.color || 'bg-indigo-500', sortOrder: item.sort_order || 0
             }));
-            micro1Sections = subtopics.filter(item => item.topicId === 'micro1').map(item => ({ ...item, id: String(item.id) }));
+            micro1Sections = subtopics.filter(item => item.topicId === 'micro1' && item.parentSubtopicId == null).map(item => ({ ...item, id: String(item.id) }));
             flashcards = [...managedCards, ...(personalResult.data || []).map(personalRowToCard)];
             defaultLang = APP_LANGUAGE;
             currentLang = APP_LANGUAGE;
+            currentSchoolLevel = SCHOOL_LEVELS.includes(preferenceResult.data?.school_level) ? preferenceResult.data.school_level : 'S4-6';
+            document.getElementById('school-level-select').value = currentSchoolLevel;
             managedContentLoaded = true;
             refreshContentControls();
             saveState();
@@ -1135,7 +1188,7 @@
             const grid = document.getElementById('chapter-grid');
             let html = '';
             
-            chapters.forEach(ch => {
+            chapters.filter(ch => ch.isAction || ch.schoolLevel === currentSchoolLevel).forEach(ch => {
                 if (ch.isAction) {
                     html += `
                         <button type="button" onclick="openAddCard()" class="btn-silky ${ch.color} text-white p-4 rounded-[20px] shadow-[0_4px_14px_0_rgba(59,130,246,0.39)] flex flex-col items-center justify-center text-center cursor-pointer hover:bg-blue-600 hover:shadow-lg aspect-[4/5] relative">
@@ -1158,13 +1211,61 @@
             grid.innerHTML = html;
         }
 
+        async function changeSchoolLevel(level) {
+            if (!SCHOOL_LEVELS.includes(level)) return;
+            currentSchoolLevel = level;
+            document.getElementById('school-level-select').value = level;
+            saveState();
+            refreshContentControls();
+            if (!currentUser || !initSupabaseClient()) return;
+            const { error } = await supabaseClient.from('chemistry_blank_user_preferences').upsert({
+                user_id: currentUser.id,
+                default_language: APP_LANGUAGE,
+                school_level: level,
+                updated_at: new Date().toISOString()
+            }, { onConflict: 'user_id' });
+            if (error) console.warn('Unable to save school level:', error);
+        }
+
+        function flattenedSubtopics(topicId = null) {
+            const result = [];
+            const visit = (parentId, depth, parentPath) => {
+                subtopics
+                    .filter(item => (topicId == null || item.topicId === topicId) && item.parentSubtopicId === parentId)
+                    .sort((a, b) => (a.sortOrder - b.sortOrder) || (a.id - b.id))
+                    .forEach(item => {
+                        const path = parentPath ? `${parentPath} › ${item.en}` : item.en;
+                        result.push({ ...item, depth, path });
+                        visit(item.id, depth + 1, path);
+                    });
+            };
+            visit(null, 0, '');
+            return result;
+        }
+
+        function subtopicDescendantIds(subtopicId) {
+            const ids = new Set([Number(subtopicId)]);
+            let changed = true;
+            while (changed) {
+                changed = false;
+                subtopics.forEach(item => {
+                    if (item.parentSubtopicId != null && ids.has(item.parentSubtopicId) && !ids.has(item.id)) {
+                        ids.add(item.id);
+                        changed = true;
+                    }
+                });
+            }
+            return [...ids];
+        }
+
         function renderMicro1Sections() {
             const grid = document.getElementById('micro1-chapter-grid');
             const title = document.getElementById('micro1-chapter-title');
             const microTopic = chapters.find(chapter => chapter.layout === 'micro1') || { zh: '微觀世界I', en: 'Microscopic World I' };
             title.innerText = microTopic.en;
             grid.innerHTML = micro1Sections.map(section => {
-                const count = flashcards.filter(card => card.chapter === 'micro1' && (card.subtopicId === Number(section.id) || (!card.subtopicId && card.section === section.legacySection))).length;
+                const sectionIds = subtopicDescendantIds(Number(section.id));
+                const count = flashcards.filter(card => card.chapter === 'micro1' && (sectionIds.includes(card.subtopicId) || (!card.subtopicId && card.section === section.legacySection))).length;
                 const countText = `${count} Cards`;
                 return `
                     <button type="button" onclick="startMicro1Section('${section.id}')" class="btn-silky ${section.color} text-white p-4 rounded-[20px] shadow-sm flex flex-col items-center justify-center text-center cursor-pointer hover:shadow-md aspect-[4/5] relative">
@@ -1197,7 +1298,8 @@
 
         function startMicro1Section(sectionId) {
             const selected = micro1Sections.find(section => String(section.id) === String(sectionId));
-            currentReviewList = flashcards.filter(card => card.chapter === 'micro1' && (card.subtopicId === Number(sectionId) || (!card.subtopicId && selected?.legacySection && card.section === selected.legacySection)));
+            const sectionIds = subtopicDescendantIds(Number(sectionId));
+            currentReviewList = flashcards.filter(card => card.chapter === 'micro1' && (sectionIds.includes(card.subtopicId) || (!card.subtopicId && selected?.legacySection && card.section === selected.legacySection)));
             if (currentReviewList.length === 0) return;
             reviewReturnView = 'micro1-chapters';
             openReview();
@@ -2326,32 +2428,22 @@
             list.innerHTML = topics.map(topic => {
                 const topicSubtopics = subtopics.filter(item => item.topicId === topic.id);
                 const expanded = expandedAdminTopics.has(topic.id);
-                const subtopicMarkup = topicSubtopics.length ? topicSubtopics.map(subtopic => {
-                    const cardCount = flashcards.filter(card => card.isManaged && card.subtopicId === subtopic.id).length;
-                    return `<article class="rounded-xl border border-violet-100 bg-violet-50/40 p-3">
-                        <div class="flex items-start gap-2">
-                            <div class="w-8 h-8 rounded-lg ${subtopic.color} text-white flex items-center justify-center flex-shrink-0"><i class="fa-solid ${subtopic.icon} text-xs"></i></div>
-                            <div class="flex-1 min-w-0"><p class="text-xs font-black text-slate-700 break-words">${escapeHTML(subtopic.en)}</p><p class="text-[10px] font-bold text-violet-600 mt-1">${cardCount} shared flashcards</p></div>
-                        </div>
-                        <div class="grid grid-cols-2 gap-2 mt-2">
-                            <button type="button" onclick="confirmDeleteAdminSubtopic(${subtopic.id})" class="btn-silky py-2 rounded-lg bg-rose-50 text-rose-600 text-[11px] font-black"><i class="fa-solid fa-trash mr-1"></i>Delete</button>
-                            <button type="button" onclick="openAdminSubtopicForm('${topic.id}', ${subtopic.id})" class="btn-silky py-2 rounded-lg bg-white text-violet-600 text-[11px] font-black border border-violet-100"><i class="fa-solid fa-pen mr-1"></i>Edit name</button>
-                        </div>
-                    </article>`;
-                }).join('') : '<p class="rounded-xl bg-slate-50 p-4 text-center text-xs text-slate-400">This topic has no subtopics yet.</p>';
+                const subtopicMarkup = topicSubtopics.length
+                    ? renderAdminSubtopicTree(topic.id)
+                    : '<p class="rounded-xl bg-slate-50 p-4 text-center text-xs text-slate-400">This topic has no subtopics yet.</p>';
                 return `
                 <article class="bg-white rounded-2xl border border-slate-100 shadow-sm p-4">
                     <button type="button" onclick="toggleAdminTopicSubtopics('${topic.id}')" class="w-full flex items-start gap-3 text-left">
                         <div class="w-11 h-11 rounded-xl ${topic.color} text-white flex items-center justify-center flex-shrink-0"><i class="fa-solid ${topic.icon}"></i></div>
                         <div class="flex-1 min-w-0">
                             <h3 class="font-black text-slate-800 break-words">${escapeHTML(topic.en)}</h3>
-                            <p class="text-[10px] font-bold text-indigo-500 mt-1">${topicSubtopics.length} subtopics · ${topic.count} shared flashcards</p>
+                            <p class="text-[10px] font-bold text-indigo-500 mt-1">${escapeHTML(topic.schoolLevel)} · ${topicSubtopics.length} subtopics · ${topic.count} shared flashcards</p>
                         </div>
                         <i class="fa-solid fa-chevron-${expanded ? 'up' : 'down'} text-slate-400 mt-3"></i>
                     </button>
                     <div class="grid grid-cols-2 gap-2 mt-3">
                         <button type="button" onclick="confirmDeleteAdminTopic('${topic.id}')" class="btn-silky py-2.5 rounded-xl bg-rose-50 text-rose-600 text-xs font-black"><i class="fa-solid fa-trash mr-1"></i>Delete</button>
-                        <button type="button" onclick="editAdminTopic('${topic.id}')" class="btn-silky py-2.5 rounded-xl bg-indigo-50 text-indigo-600 text-xs font-black"><i class="fa-solid fa-pen mr-1"></i>Edit name</button>
+                        <button type="button" onclick="editAdminTopic('${topic.id}')" class="btn-silky py-2.5 rounded-xl bg-indigo-50 text-indigo-600 text-xs font-black"><i class="fa-solid fa-palette mr-1"></i>Edit topic</button>
                     </div>
                     <div class="${expanded ? 'block' : 'hidden'} mt-3 pt-3 border-t border-slate-100 space-y-2">
                         <button type="button" onclick="openAdminSubtopicForm('${topic.id}')" class="btn-silky w-full rounded-xl bg-violet-500 text-white py-2.5 text-xs font-black"><i class="fa-solid fa-plus mr-1"></i>Add subtopic</button>
@@ -2359,6 +2451,35 @@
                     </div>
                 </article>`;
             }).join('');
+        }
+
+        function renderAdminSubtopicTree(topicId, parentId = null, depth = 0) {
+            return subtopics
+                .filter(item => item.topicId === topicId && item.parentSubtopicId === parentId)
+                .sort((a, b) => (a.sortOrder - b.sortOrder) || (a.id - b.id))
+                .map(subtopic => {
+                    const descendantIds = subtopicDescendantIds(subtopic.id);
+                    const directCardCount = flashcards.filter(card => card.isManaged && card.subtopicId === subtopic.id).length;
+                    const childCount = descendantIds.length - 1;
+                    const children = renderAdminSubtopicTree(topicId, subtopic.id, depth + 1);
+                    return `<div class="space-y-2" style="margin-left:${Math.min(depth, 4) * 12}px">
+                        <article class="rounded-xl border border-violet-100 bg-violet-50/40 p-3">
+                            <div class="flex items-start gap-2">
+                                <div class="w-8 h-8 rounded-lg ${subtopic.color} text-white flex items-center justify-center flex-shrink-0"><i class="fa-solid ${subtopic.icon} text-xs"></i></div>
+                                <div class="flex-1 min-w-0">
+                                    <p class="text-xs font-black text-slate-700 break-words">${escapeHTML(subtopic.en)}</p>
+                                    <p class="text-[10px] font-bold text-violet-600 mt-1">${directCardCount} shared flashcards${childCount ? ` · ${childCount} nested` : ''}</p>
+                                </div>
+                            </div>
+                            <div class="grid grid-cols-3 gap-1.5 mt-2">
+                                <button type="button" onclick="openAdminSubtopicForm('${topicId}', null, ${subtopic.id})" class="btn-silky min-w-0 py-2 rounded-lg bg-violet-500 text-white text-[10px] font-black"><i class="fa-solid fa-plus mr-1"></i>Add</button>
+                                <button type="button" onclick="confirmDeleteAdminSubtopic(${subtopic.id})" class="btn-silky min-w-0 py-2 rounded-lg bg-rose-50 text-rose-600 text-[10px] font-black"><i class="fa-solid fa-trash mr-1"></i>Delete</button>
+                                <button type="button" onclick="openAdminSubtopicForm('${topicId}', ${subtopic.id})" class="btn-silky min-w-0 py-2 rounded-lg bg-white text-violet-600 text-[10px] font-black border border-violet-100"><i class="fa-solid fa-pen mr-1"></i>Edit</button>
+                            </div>
+                        </article>
+                        ${children}
+                    </div>`;
+                }).join('');
         }
 
         function toggleAdminTopicSubtopics(topicId) {
@@ -2374,6 +2495,9 @@
             document.getElementById('admin-topic-edit-id').value = topicId || '';
             document.getElementById('admin-topic-en').value = topic?.en || '';
             document.getElementById('admin-topic-zh').value = topic?.en || '';
+            document.getElementById('admin-topic-level').value = topic?.schoolLevel || currentSchoolLevel;
+            document.getElementById('admin-topic-color').value = topic?.color || 'bg-sky-500';
+            updateAdminTopicColorPreview();
             document.getElementById('admin-topic-form-title').innerText = topic ? 'Edit topic' : 'Add topic';
             document.getElementById('admin-topic-form').classList.remove('hidden');
             document.getElementById('admin-topic-en').focus();
@@ -2383,25 +2507,37 @@
             openAdminTopicForm(topicId);
         }
 
+        function updateAdminTopicColorPreview() {
+            const preview = document.getElementById('admin-topic-color-preview');
+            const color = document.getElementById('admin-topic-color')?.value || 'bg-sky-500';
+            if (!preview) return;
+            preview.className = `h-6 w-6 rounded-lg ${color} shadow-sm`;
+        }
+
         function closeAdminTopicForm() {
             adminEditingTopicId = null;
             const form = document.getElementById('admin-topic-form');
             if (form) form.classList.add('hidden');
         }
 
-        function openAdminSubtopicForm(topicId, subtopicId = null) {
+        function openAdminSubtopicForm(topicId, subtopicId = null, parentSubtopicId = null) {
             if (!hasAdminContentAccess()) return;
             const topic = chapters.find(item => item.id === topicId);
             const subtopic = subtopicId == null ? null : subtopics.find(item => item.id === Number(subtopicId));
-            if (!topic || (subtopic && subtopic.topicId !== topicId)) return;
+            const parent = subtopic
+                ? subtopics.find(item => item.id === subtopic.parentSubtopicId)
+                : (parentSubtopicId == null ? null : subtopics.find(item => item.id === Number(parentSubtopicId)));
+            if (!topic || (subtopic && subtopic.topicId !== topicId) || (parent && parent.topicId !== topicId)) return;
             adminEditingSubtopicId = subtopic?.id || null;
             expandedAdminTopics.add(topicId);
             document.getElementById('admin-subtopic-topic-id').value = topicId;
             document.getElementById('admin-subtopic-edit-id').value = subtopic?.id || '';
+            document.getElementById('admin-subtopic-parent-id').value = parent?.id || '';
             document.getElementById('admin-subtopic-en').value = subtopic?.en || '';
             document.getElementById('admin-subtopic-zh').value = subtopic?.en || '';
             document.getElementById('admin-subtopic-form-title').innerText = subtopic ? 'Edit subtopic' : 'Add subtopic';
-            document.getElementById('admin-subtopic-parent-name').innerText = topic.en;
+            const parentPath = parent ? flattenedSubtopics(topicId).find(item => item.id === parent.id)?.path : '';
+            document.getElementById('admin-subtopic-parent-name').innerText = parentPath ? `${topic.en} › ${parentPath}` : topic.en;
             document.getElementById('admin-subtopic-form').classList.remove('hidden');
             document.getElementById('admin-subtopic-en').focus();
         }
@@ -2416,6 +2552,7 @@
             event.preventDefault();
             if (!hasAdminContentAccess() || !initSupabaseClient()) return;
             const topicId = document.getElementById('admin-subtopic-topic-id').value;
+            const parentSubtopicId = Number(document.getElementById('admin-subtopic-parent-id').value) || null;
             const nameEn = document.getElementById('admin-subtopic-en').value.trim();
             const nameZh = nameEn;
             const button = document.getElementById('admin-subtopic-save');
@@ -2425,10 +2562,10 @@
             try {
                 let result;
                 if (adminEditingSubtopicId) {
-                    result = await supabaseClient.from('chemistry_blank_subtopics').update({ name_zh: nameZh, name_en: nameEn, updated_by: currentUser.id, updated_at: new Date().toISOString() }).eq('id', adminEditingSubtopicId).eq('topic_id', topicId).select('id').single();
+                    result = await supabaseClient.from('chemistry_blank_subtopics').update({ name_zh: nameZh, name_en: nameEn, parent_subtopic_id: parentSubtopicId, updated_by: currentUser.id, updated_at: new Date().toISOString() }).eq('id', adminEditingSubtopicId).eq('topic_id', topicId).select('id').single();
                 } else {
-                    const sortOrder = Math.max(-1, ...subtopics.filter(item => item.topicId === topicId).map(item => item.sortOrder || 0)) + 1;
-                    result = await supabaseClient.from('chemistry_blank_subtopics').insert({ topic_id: topicId, name_zh: nameZh, name_en: nameEn, icon: 'fa-book-open', color: 'bg-violet-500', sort_order: sortOrder, created_by: currentUser.id, updated_by: currentUser.id }).select('id').single();
+                    const sortOrder = Math.max(-1, ...subtopics.filter(item => item.topicId === topicId && item.parentSubtopicId === parentSubtopicId).map(item => item.sortOrder || 0)) + 1;
+                    result = await supabaseClient.from('chemistry_blank_subtopics').insert({ topic_id: topicId, parent_subtopic_id: parentSubtopicId, name_zh: nameZh, name_en: nameEn, icon: 'fa-book-open', color: 'bg-violet-500', sort_order: sortOrder, created_by: currentUser.id, updated_by: currentUser.id }).select('id').single();
                 }
                 if (result.error) throw result.error;
                 closeAdminSubtopicForm();
@@ -2447,11 +2584,12 @@
         function confirmDeleteAdminSubtopic(subtopicId) {
             const subtopic = subtopics.find(item => item.id === Number(subtopicId));
             if (!subtopic) return;
-            const count = flashcards.filter(card => card.isManaged && card.subtopicId === subtopic.id).length;
+            const descendantIds = subtopicDescendantIds(subtopic.id);
+            const count = flashcards.filter(card => card.isManaged && descendantIds.includes(card.subtopicId)).length;
             openModal({
                 icon: 'fa-trash', iconBgClass: 'bg-rose-50', iconTextClass: 'text-rose-500',
                 title: 'Delete subtopic?',
-                desc: `「${escapeHTML(subtopic.zh)}」and its ${count} shared flashcards will be permanently deleted.`,
+                desc: `“${escapeHTML(subtopic.en)}”, ${descendantIds.length - 1} nested subtopics and ${count} shared flashcards will be permanently deleted.`,
                 buttons: [
                     { text: 'Cancel', styleClass: 'bg-slate-100 text-slate-600', onClick: null },
                     { text: 'Delete permanently', styleClass: 'bg-rose-500 text-white', onClick: () => deleteAdminSubtopic(subtopic.id) }
@@ -2465,7 +2603,8 @@
             if (!subtopic) return;
             setAdminManagerStatus('Deleting subtopic…');
             try {
-                const cards = flashcards.filter(card => card.isManaged && card.subtopicId === subtopic.id);
+                const descendantIds = subtopicDescendantIds(subtopic.id);
+                const cards = flashcards.filter(card => card.isManaged && descendantIds.includes(card.subtopicId));
                 const imagePaths = cards.flatMap(card => [card.imagePath, card.answerImagePath]).filter(Boolean);
                 const { error } = await supabaseClient.from('chemistry_blank_subtopics').delete().eq('id', subtopic.id);
                 if (error) throw error;
@@ -2488,22 +2627,24 @@
             if (!hasAdminContentAccess() || !initSupabaseClient()) return;
             const nameEn = document.getElementById('admin-topic-en').value.trim();
             const nameZh = nameEn;
+            const schoolLevel = document.getElementById('admin-topic-level').value;
+            const color = document.getElementById('admin-topic-color').value;
             const button = document.getElementById('admin-topic-save');
-            if (!nameEn) return setAdminManagerStatus('Enter a topic name.', 'error');
+            if (!nameEn || !SCHOOL_LEVELS.includes(schoolLevel)) return setAdminManagerStatus('Enter a topic name and choose a school level.', 'error');
             button.disabled = true;
             button.innerText = 'Saving…';
             try {
                 let result;
                 if (adminEditingTopicId) {
-                    result = await supabaseClient.from('chemistry_blank_topics').update({ name_zh: nameZh, name_en: nameEn, updated_by: currentUser.id, updated_at: new Date().toISOString() }).eq('id', adminEditingTopicId).select('id').single();
+                    result = await supabaseClient.from('chemistry_blank_topics').update({ name_zh: nameZh, name_en: nameEn, school_level: schoolLevel, color, updated_by: currentUser.id, updated_at: new Date().toISOString() }).eq('id', adminEditingTopicId).select('id').single();
                 } else {
                     const sortOrder = Math.max(-1, ...chapters.filter(chapter => !chapter.isAction).map(chapter => chapter.sortOrder || 0)) + 1;
-                    result = await supabaseClient.from('chemistry_blank_topics').insert({ id: makeTopicId(), name_zh: nameZh, name_en: nameEn, icon: 'fa-book-open', color: 'bg-sky-500', sort_order: sortOrder, layout: 'regular', created_by: currentUser.id, updated_by: currentUser.id }).select('id').single();
+                    result = await supabaseClient.from('chemistry_blank_topics').insert({ id: makeTopicId(), name_zh: nameZh, name_en: nameEn, icon: 'fa-book-open', color, school_level: schoolLevel, sort_order: sortOrder, layout: 'regular', created_by: currentUser.id, updated_by: currentUser.id }).select('id').single();
                 }
                 if (result.error) throw result.error;
                 closeAdminTopicForm();
                 await loadManagedContent({ force: true });
-                setAdminManagerStatus('Topic saved. All students will see the latest name.', 'success');
+                setAdminManagerStatus('Topic name, school level and colour saved.', 'success');
             } catch (error) {
                 setAdminManagerStatus(authErrorMessage(error, 'Unable to save the topic.'), 'error');
             } finally {
@@ -2563,8 +2704,10 @@
             const topicId = document.getElementById('admin-card-topic-filter').value || 'all';
             const select = document.getElementById('admin-card-subtopic-filter');
             const previous = select.value || 'all';
-            const options = (topicId === 'all' ? subtopics : subtopics.filter(item => item.topicId === topicId))
-                .map(item => `<option value="${item.id}">${escapeHTML(item.zh)} / ${escapeHTML(item.en)}</option>`).join('');
+            const choices = topicId === 'all'
+                ? chapters.filter(item => !item.isAction).flatMap(topic => flattenedSubtopics(topic.id).map(item => ({ ...item, path: `${topic.en} › ${item.path}` })))
+                : flattenedSubtopics(topicId);
+            const options = choices.map(item => `<option value="${item.id}">${escapeHTML(item.path)}</option>`).join('');
             select.innerHTML = `<option value="all">All subtopics</option><option value="none">Uncategorised</option>${options}`;
             select.value = [...select.options].some(option => option.value === previous) ? previous : 'all';
         }
@@ -2587,10 +2730,11 @@
             list.innerHTML = cards.map(card => {
                 const topic = chapters.find(chapter => chapter.id === card.chapter);
                 const subtopic = subtopics.find(item => item.id === card.subtopicId);
+                const subtopicPath = subtopic ? flattenedSubtopics(card.chapter).find(item => item.id === subtopic.id)?.path : '';
                 return `
                     <article class="bg-white rounded-2xl border border-slate-100 shadow-sm p-4">
                         <div class="flex items-center justify-between gap-2 mb-2">
-                            <span class="text-[10px] font-black text-indigo-600 bg-indigo-50 px-2 py-1 rounded-full">${escapeHTML(topic?.en || card.chapter)}${subtopic ? ` · ${escapeHTML(subtopic.en)}` : ' · Uncategorised'}</span>
+                            <span class="text-[10px] font-black text-indigo-600 bg-indigo-50 px-2 py-1 rounded-full">${escapeHTML(topic?.en || card.chapter)}${subtopicPath ? ` · ${escapeHTML(subtopicPath)}` : ' · Uncategorised'}</span>
                             ${(card.img || card.answerImg) ? '<i class="fa-solid fa-image text-emerald-500" title="Contains an image"></i>' : ''}
                         </div>
                         <h3 class="font-black text-slate-800 text-sm leading-relaxed line-clamp-3">${escapeHTML(card.q_en)}</h3>
@@ -2608,9 +2752,9 @@
             const select = document.getElementById('admin-card-subtopic');
             const help = document.getElementById('admin-card-subtopic-help');
             const previous = preferredId == null ? select.value : String(preferredId || '');
-            const choices = subtopics.filter(item => item.topicId === topicId);
+            const choices = flattenedSubtopics(topicId);
             select.innerHTML = choices.length
-                ? choices.map(item => `<option value="${item.id}">${escapeHTML(item.zh)} / ${escapeHTML(item.en)}</option>`).join('')
+                ? choices.map(item => `<option value="${item.id}">${escapeHTML(`${'— '.repeat(item.depth)}${item.path}`)}</option>`).join('')
                 : '<option value="">No subtopic</option>';
             select.disabled = !choices.length;
             select.required = choices.length > 0;
@@ -2855,7 +2999,7 @@
             
             select.innerHTML = `<option value="all">${uiTranslations[currentLang].starFilterAll}</option>`;
             chapters.forEach(ch => {
-                if (!ch.isAction) {
+                if (!ch.isAction && ch.schoolLevel === currentSchoolLevel) {
                     let optionName = currentLang === 'en' ? ch.en : ch.zh;
                     select.innerHTML += `<option value="${ch.id}">${optionName}</option>`;
                 }
@@ -2926,7 +3070,7 @@
             const select = document.getElementById('input-topic');
             select.innerHTML = '';
             chapters.forEach(ch => {
-                if (!ch.isAction) {
+                if (!ch.isAction && ch.schoolLevel === currentSchoolLevel) {
                     let optionName = currentLang === 'en' ? ch.en : ch.zh;
                     select.innerHTML += `<option value="${ch.id}">${optionName}</option>`;
                 }
