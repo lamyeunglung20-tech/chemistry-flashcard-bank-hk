@@ -3051,8 +3051,12 @@
                 return;
             }
             const existingIndex = flashcardProgress.findIndex(item => item.card_key === cardKey);
-            if (existingIndex >= 0) flashcardProgress[existingIndex] = { ...flashcardProgress[existingIndex], ...payload };
-            else flashcardProgress.unshift({ ...payload, first_viewed_at: viewedAt });
+            if (existingIndex >= 0) {
+                const existing = flashcardProgress.splice(existingIndex, 1)[0];
+                flashcardProgress.unshift({ ...existing, ...payload });
+            } else {
+                flashcardProgress.unshift({ ...payload, first_viewed_at: viewedAt });
+            }
             flashcardProgressLoaded = true;
         }
 
