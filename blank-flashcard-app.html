@@ -253,7 +253,8 @@
                     <p id="register-error" class="min-h-[20px] text-xs font-bold text-rose-500 my-2" role="alert"></p>
                     <button id="register-resend" type="button" onclick="resendRegistrationVerification()" class="hidden btn-silky w-full mb-3 border-2 border-emerald-100 bg-emerald-50 text-emerald-700 font-black py-2.5 rounded-xl text-xs"><i class="fa-solid fa-envelope-circle-check mr-2"></i>Resend verification email</button>
                     <button id="register-submit" type="submit" class="btn-silky w-full bg-emerald-500 hover:bg-emerald-600 text-white font-black py-3.5 rounded-xl">Register</button>
-                    <button type="button" onclick="signInWithGoogle()" class="btn-silky w-full mt-3 border-2 border-slate-200 bg-white hover:bg-slate-50 text-slate-700 font-black py-3 rounded-xl"><i class="fa-brands fa-google text-red-500 mr-2"></i>Register with Google</button>
+                    <button type="button" onclick="signInWithGoogle()" class="btn-silky w-full mt-3 border-2 border-slate-200 bg-white hover:bg-slate-50 text-slate-700 font-black py-3 rounded-xl"><i class="fa-brands fa-google text-red-500 mr-2"></i>Verify Google account</button>
+                    <p class="text-[10px] leading-relaxed text-slate-400 mt-2">Google verification does not create an account by itself. After choosing a Google account, you must return here and set a unique user name and password.</p>
                     <p class="text-center text-xs text-slate-500 mt-4">Already have an account? <button type="button" onclick="setAuthMode('login')" class="font-black text-emerald-600 hover:underline">Back to sign in</button></p>
                 </form>
 
@@ -908,6 +909,7 @@
         let defaultLang = APP_LANGUAGE;
         let loginRole = 'student';
         let currentUser = null;
+        let pendingGoogleRegistration = null;
         let reviewReturnView = 'tab';
         let managedContentLoaded = false;
         let adminPanel = 'topics';
@@ -1457,6 +1459,7 @@
 
         function selectLoginRole(role) {
             loginRole = role === 'admin' ? 'admin' : 'student';
+            if (pendingGoogleRegistration) pendingGoogleRegistration.role = loginRole;
             const studentButton = document.getElementById('register-role-student');
             const adminButton = document.getElementById('register-role-admin');
             const activeClass = 'btn-silky py-2.5 rounded-xl border-2 border-emerald-500 bg-emerald-50 text-emerald-700 font-bold text-sm';
@@ -1493,7 +1496,11 @@
         }
 
         function setAuthMode(mode, message = '') {
-            authMode = ['login', 'register', 'forgot', 'otp', 'reset'].includes(mode) ? mode : 'login';
+            const nextAuthMode = ['login', 'register', 'forgot', 'otp', 'reset'].includes(mode) ? mode : 'login';
+            if (authMode === 'register' && nextAuthMode !== 'register' && pendingGoogleRegistration) {
+                void cancelPendingGoogleRegistration();
+            }
+            authMode = nextAuthMode;
             document.getElementById('login-gate').classList.toggle('auth-login-fixed', authMode === 'login');
             const formIds = {
                 login: 'auth-login-form', register: 'auth-register-form', forgot: 'auth-forgot-form',
@@ -1578,7 +1585,7 @@
             if (message.includes('invalid login credentials')) return 'Invalid email or password.';
             if (message.includes('email not confirmed')) return 'Please verify your email first.';
             if (message.includes('user already registered')) return 'This email is already registered. Sign in or use Forgot password.';
-            if (message.includes('name is already registered') || message.includes('duplicate key')) return 'This name is already used. Choose a different name.';
+            if (message.includes('name is already registered') || message.includes('duplicate key')) return 'This name has already been registered by another user. Choose a different name.';
             if (message.includes('over_email_send_rate_limit') || message.includes('can only request this after')) {
                 return 'A verification email was just requested. Wait at least 60 seconds before sending another one.';
             }
@@ -1598,6 +1605,70 @@
 
         function setRegistrationResendVisible(visible) {
             document.getElementById('register-resend')?.classList.toggle('hidden', !visible);
+        }
+
+        async function isScienceVocabNameAvailable(name, messageElement) {
+            const cleanName = String(name || '').trim();
+            if (!cleanName) {
+                messageElement.innerText = 'Enter a user name.';
+                return false;
+            }
+            const { data: isAvailable, error } = await supabaseClient.rpc(
+                'is_science_vocab_name_available',
+                { candidate_name: cleanName }
+            );
+            if (error) throw error;
+            if (!isAvailable) {
+                messageElement.innerText = 'This name has already been registered by another user. Choose a different name.';
+                return false;
+            }
+            return true;
+        }
+
+        function restoreStandardRegistrationForm() {
+            const emailInput = document.getElementById('register-email');
+            const submitButton = document.getElementById('register-submit');
+            emailInput.readOnly = false;
+            emailInput.classList.remove('bg-slate-100', 'text-slate-500');
+            submitButton.innerHTML = 'Register';
+            submitButton.dataset.originalLabel = 'Register';
+            document.getElementById('register-password').value = '';
+            document.getElementById('register-confirm').value = '';
+        }
+
+        async function cancelPendingGoogleRegistration() {
+            if (!pendingGoogleRegistration) return;
+            pendingGoogleRegistration = null;
+            sessionStorage.removeItem(AUTH_OAUTH_INTENT_KEY);
+            restoreStandardRegistrationForm();
+            if (supabaseClient) await supabaseClient.auth.signOut({ scope: 'local' });
+        }
+
+        function beginGoogleRegistrationCompletion(user, oauthIntent) {
+            currentUser = null;
+            clearAuthenticationCallbackUrl();
+            showLoginGate();
+            pendingGoogleRegistration = {
+                userId: user.id,
+                email: String(user.email || '').trim().toLowerCase(),
+                role: oauthIntent?.role === 'admin' ? 'admin' : 'student'
+            };
+            loginRole = pendingGoogleRegistration.role;
+            setAuthMode('register');
+            selectLoginRole(loginRole);
+            document.getElementById('register-name').value = String(oauthIntent?.name || '').trim();
+            const emailInput = document.getElementById('register-email');
+            emailInput.value = pendingGoogleRegistration.email;
+            emailInput.readOnly = true;
+            emailInput.classList.add('bg-slate-100', 'text-slate-500');
+            document.getElementById('register-password').value = '';
+            document.getElementById('register-confirm').value = '';
+            const submitButton = document.getElementById('register-submit');
+            submitButton.innerHTML = 'Complete Google registration';
+            submitButton.dataset.originalLabel = 'Complete Google registration';
+            const message = document.getElementById('register-error');
+            message.className = message.className.replace('text-rose-500', 'text-emerald-600');
+            message.innerText = 'Google account verified. Enter a unique user name and create a password to complete registration.';
         }
 
         function authRedirectUrl() {
@@ -1733,17 +1804,9 @@
                 oauthIntent = JSON.parse(sessionStorage.getItem(AUTH_OAUTH_INTENT_KEY) || 'null');
             } catch {}
             if (oauthIntent?.mode === 'register') {
-                const { error: registrationError } = await supabaseClient.rpc('register_science_vocab_account', {
-                    candidate_name: String(oauthIntent.name || '').trim(),
-                    requested_account_role: oauthIntent.role === 'admin' ? 'admin' : 'student'
-                });
                 sessionStorage.removeItem(AUTH_OAUTH_INTENT_KEY);
-                if (registrationError) {
-                    await supabaseClient.auth.signOut({ scope: 'local' });
-                    currentUser = null;
-                    showLoginGate(authErrorMessage(registrationError, 'Google registration failed. Choose a unique name and try again.'));
-                    return false;
-                }
+                beginGoogleRegistrationCompletion(user, oauthIntent);
+                return false;
             } else {
                 sessionStorage.removeItem(AUTH_OAUTH_INTENT_KEY);
             }
@@ -1753,6 +1816,13 @@
                 await supabaseClient.auth.signOut({ scope: 'local' });
                 currentUser = null;
                 showLoginGate('User is not registered. Select Register to create a Science Vocab account first.');
+                return false;
+            }
+            const registeredName = String(profile.display_name || '').trim();
+            if (!registeredName) {
+                await supabaseClient.auth.signOut({ scope: 'local' });
+                currentUser = null;
+                showLoginGate('User registration is incomplete. Select Register to create a user name and password.');
                 return false;
             }
             const requestedAdmin = profile.requested_role === 'admin'
@@ -1770,9 +1840,9 @@
             currentUser = {
                 id: user.id,
                 email: user.email || profile.email,
-                username: user.email || profile.email,
+                username: registeredName,
                 role: profile.role,
-                displayName: profile.display_name || user.user_metadata?.full_name || user.email
+                displayName: registeredName
             };
             showAuthTransition(currentUser.displayName);
             updateAuthTransition(28, 'Loading your account settings…');
@@ -1854,10 +1924,36 @@
             if (password.length < 8) return void (message.innerText = 'Use at least 8 characters.');
             if (password !== confirmPassword) return void (message.innerText = 'Passwords do not match.');
             try {
-                setAuthButtonBusy('register-submit', true, 'Registering…');
+                setAuthButtonBusy('register-submit', true, pendingGoogleRegistration ? 'Completing…' : 'Registering…');
                 setRegistrationResendVisible(false);
                 message.className = message.className.replace('text-emerald-600', 'text-rose-500');
                 message.innerText = '';
+                if (!await isScienceVocabNameAvailable(name, message)) return;
+
+                if (pendingGoogleRegistration) {
+                    const { data: sessionResult, error: sessionError } = await supabaseClient.auth.getSession();
+                    if (sessionError) throw sessionError;
+                    const googleUser = sessionResult.session?.user;
+                    if (!googleUser || googleUser.id !== pendingGoogleRegistration.userId) {
+                        throw new Error('Google verification expired. Start Google registration again.');
+                    }
+                    const requestedRole = pendingGoogleRegistration.role;
+                    const { error: passwordError } = await supabaseClient.auth.updateUser({
+                        password,
+                        data: { display_name: name, requested_role: requestedRole, science_vocab_registered: true }
+                    });
+                    if (passwordError) throw passwordError;
+                    const { error: registrationError } = await supabaseClient.rpc('register_science_vocab_account', {
+                        candidate_name: name,
+                        requested_account_role: requestedRole
+                    });
+                    if (registrationError) throw registrationError;
+                    pendingGoogleRegistration = null;
+                    restoreStandardRegistrationForm();
+                    await completeSupabaseLogin(googleUser);
+                    return;
+                }
+
                 const { data, error } = await supabaseClient.auth.signUp({
                     email, password,
                     options: {
@@ -1972,6 +2068,7 @@
                         target.innerText = 'Enter a unique name before registering with Google.';
                         return;
                     }
+                    if (!await isScienceVocabNameAvailable(name, target)) return;
                     sessionStorage.setItem(AUTH_OAUTH_INTENT_KEY, JSON.stringify({ mode: 'register', role: loginRole, name }));
                 } else {
                     sessionStorage.setItem(AUTH_OAUTH_INTENT_KEY, JSON.stringify({ mode: 'login' }));
