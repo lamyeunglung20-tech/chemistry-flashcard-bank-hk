@@ -1088,6 +1088,7 @@
         let supabaseClient = null;
         let authMode = 'login';
         let authenticationReady = false;
+        let authenticationCallbackPending = false;
         let authTransitionStartedAt = 0;
 
         // 鎖定 App 外框高度。觸控裝置的鍵盤 resize 不可改寫這個值；
@@ -2193,6 +2194,15 @@
                 if (event === 'PASSWORD_RECOVERY') {
                     sessionStorage.setItem(AUTH_RECOVERY_KEY, '1');
                     setTimeout(() => { showLoginGate(); setAuthMode('reset'); }, 0);
+                } else if (event === 'SIGNED_IN' && authenticationReady && authenticationCallbackPending && session?.user && !currentUser) {
+                    setTimeout(async () => {
+                        try {
+                            await completeSupabaseLogin(session.user);
+                            authenticationCallbackPending = false;
+                        } catch (error) {
+                            showLoginGate(authErrorMessage(error, '未能完成 Google 登入，請再試一次。 / Unable to complete Google sign-in.'));
+                        }
+                    }, 0);
                 } else if (event === 'SIGNED_OUT' && authenticationReady) {
                     setTimeout(() => {
                         currentUser = null;
@@ -2208,16 +2218,30 @@
                 // to be mistaken for an old session and immediately signed out.
                 const resumeAuthentication = isAuthenticationCallback()
                     || Boolean(sessionStorage.getItem(AUTH_OAUTH_INTENT_KEY));
-                await loadAppSettings();
-                const { data, error } = await supabaseClient.auth.getSession();
+                authenticationCallbackPending = resumeAuthentication;
+                const settingsPromise = loadAppSettings();
+                let data = null;
+                let error = null;
+                const deadline = Date.now() + (resumeAuthentication ? 8000 : 0);
+                do {
+                    const result = await supabaseClient.auth.getSession();
+                    data = result.data;
+                    error = result.error;
+                    if (error || data.session?.user || !resumeAuthentication || Date.now() >= deadline) break;
+                    await new Promise(resolve => setTimeout(resolve, 160));
+                } while (true);
+                await settingsPromise;
                 if (error) throw error;
                 if (data.session?.user && resumeAuthentication) {
                     await completeSupabaseLogin(data.session.user);
+                    authenticationCallbackPending = false;
                 } else {
                     if (data.session?.user) await supabaseClient.auth.signOut({ scope: 'local' });
                     currentUser = null;
                     isLoggedOut = true;
-                    showLoginGate();
+                    showLoginGate(resumeAuthentication
+                        ? '未能完成 Google 登入，請再試一次。 / Unable to complete Google sign-in. Please try again.'
+                        : '');
                     updateLoginUI();
                 }
             } catch (error) {
