@@ -1571,6 +1571,9 @@
 
         function authErrorMessage(error, fallback) {
             const message = String(error?.message || '').toLowerCase();
+            if (message.includes('user is not registered') || message.includes('user not registered')) {
+                return 'User is not registered. Select Register to create an account first.';
+            }
             if (message.includes('invalid login credentials')) return 'Invalid email or password.';
             if (message.includes('email not confirmed')) return 'Please verify your email first.';
             if (message.includes('user already registered')) return 'This email is already registered. Sign in or use Forgot password.';
@@ -1740,7 +1743,7 @@
             if (!profile.app_registered) {
                 await supabaseClient.auth.signOut({ scope: 'local' });
                 currentUser = null;
-                showLoginGate('This Google account is not registered in Science Vocab. Select Register now to create a separate Vocab account first.');
+                showLoginGate('User is not registered. Select Register to create a Science Vocab account first.');
                 return false;
             }
             const requestedAdmin = profile.requested_role === 'admin'
@@ -1795,6 +1798,14 @@
             try {
                 setAuthButtonBusy('login-submit', true, 'Signing in…');
                 error.innerText = '';
+                const { data: identifierIsRegistered, error: registrationCheckError } = await supabaseClient.rpc(
+                    'is_science_vocab_identifier_registered',
+                    { candidate_identifier: identifier }
+                );
+                if (!registrationCheckError && !identifierIsRegistered) {
+                    error.innerText = 'User is not registered. Select Register to create an account first.';
+                    return;
+                }
                 const { data: loginData, error: loginError } = await supabaseClient.functions.invoke('login-science-vocab-account', {
                     body: { identifier, password }
                 });
@@ -1880,6 +1891,10 @@
                         if (resendError) throw resendError;
                         message.className = message.className.replace('text-rose-500', 'text-emerald-600');
                         message.innerText = 'Verification email resent. Please also check your Spam folder.';
+                        return;
+                    }
+                    if (email === AUTH_APPROVER_EMAIL) {
+                        message.innerText = `This super administrator account already exists as a Google account. Return to Sign in and choose Continue with Google using ${AUTH_APPROVER_EMAIL}.`;
                         return;
                     }
                     message.innerText = 'If this email already has an account, sign in or reset the password. Otherwise check Spam and try again later.';
