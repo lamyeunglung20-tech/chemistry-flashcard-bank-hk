@@ -1990,6 +1990,14 @@
             return AUTH_PRODUCTION_REDIRECT_URL;
         }
 
+        function registrationConfirmationRedirectUrl() {
+            const redirectUrl = new URL(authRedirectUrl());
+            redirectUrl.pathname = redirectUrl.pathname.replace(/blank-flashcard-app\.html$/, 'registration-success.html');
+            redirectUrl.search = '';
+            redirectUrl.hash = '';
+            return redirectUrl.href;
+        }
+
         function showLoginGate(message = '') {
             const gate = document.getElementById('login-gate');
             document.getElementById('app-shell').classList.remove('authenticated-shell');
@@ -2257,7 +2265,7 @@
                     const { error: resendError } = await supabaseClient.auth.resend({
                         type: 'signup',
                         email,
-                        options: { emailRedirectTo: authRedirectUrl() }
+                        options: { emailRedirectTo: registrationConfirmationRedirectUrl() }
                     });
                     if (resendError) throw resendError;
                     message.className = message.className.replace('text-rose-500', 'text-emerald-600');
@@ -2336,7 +2344,7 @@
                 const { data, error } = await supabaseClient.auth.signUp({
                     email, password,
                     options: {
-                        emailRedirectTo: authRedirectUrl(),
+                        emailRedirectTo: registrationConfirmationRedirectUrl(),
                         data: { display_name: name, requested_role: loginRole, science_vocab_registered: true }
                     }
                 });
@@ -2397,7 +2405,7 @@
                 const { error } = await supabaseClient.auth.resend({
                     type: 'signup',
                     email,
-                    options: { emailRedirectTo: authRedirectUrl() }
+                    options: { emailRedirectTo: registrationConfirmationRedirectUrl() }
                 });
                 if (error) throw error;
                 message.className = message.className.replace('text-rose-500', 'text-emerald-600');
