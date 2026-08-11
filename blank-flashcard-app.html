@@ -909,47 +909,37 @@
                 <div class="h-12 flex-shrink-0 w-full"></div>
             </div>
 
-            <!-- 選擇溫習全部或指定範圍 -->
-            <div id="view-review-picker" class="absolute inset-0 bg-[#f4f6f9] p-5 hidden flex-col z-20 pb-10 overflow-y-auto no-scrollbar">
+            <!-- 學生選擇 Topic 內的 Subtopic -->
+            <div id="view-subtopic-browser" class="absolute inset-0 bg-[#f4f6f9] p-5 hidden flex-col z-20 pb-10 overflow-y-auto no-scrollbar">
                 <div class="flex items-center justify-between mb-5">
-                    <button type="button" onclick="closeReviewPicker()" class="text-slate-500 flex items-center gap-2 hover:text-slate-800 text-sm font-medium back-btn-silky">
+                    <button type="button" onclick="closeSubtopicBrowser()" class="text-slate-500 flex items-center gap-2 hover:text-slate-800 text-sm font-medium back-btn-silky">
                         <i class="fa-solid fa-chevron-left"></i> Back
                     </button>
-                    <span id="review-picker-level" class="rounded-full bg-indigo-50 px-3 py-1.5 text-xs font-black text-indigo-600">S1</span>
+                    <span id="subtopic-browser-level" class="rounded-full bg-indigo-50 px-3 py-1.5 text-xs font-black text-indigo-600">S1</span>
                 </div>
-                <section class="rounded-3xl border border-slate-100 bg-white p-6 shadow-sm">
-                    <div class="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-sky-50 text-2xl text-sky-500"><i class="fa-solid fa-layer-group"></i></div>
-                    <p class="text-center text-[10px] font-black uppercase tracking-[.2em] text-indigo-500">Choose flashcards</p>
-                    <h2 id="review-picker-title" class="mt-2 text-center text-2xl font-black leading-tight text-slate-900">Topic</h2>
-                    <p id="review-picker-total" class="mt-2 text-center text-sm font-bold text-slate-500">0 flashcards available</p>
-
-                    <button type="button" onclick="startSelectedChapterReview('all')" class="btn-silky mt-6 w-full rounded-2xl bg-indigo-500 px-4 py-4 text-base font-black text-white shadow-lg shadow-indigo-100">
-                        <i class="fa-solid fa-play mr-2"></i>View all flashcards
-                    </button>
-
-                    <div class="my-6 flex items-center gap-3 text-xs font-black uppercase tracking-wider text-slate-300"><span class="h-px flex-1 bg-slate-100"></span>or choose a range<span class="h-px flex-1 bg-slate-100"></span></div>
-                    <div class="grid grid-cols-2 gap-3">
-                        <label class="block text-sm font-black text-slate-600">From card
-                            <input id="review-range-from" type="number" inputmode="numeric" min="1" value="1" class="mt-2 min-h-[52px] w-full rounded-2xl border-2 border-slate-200 bg-slate-50 px-4 text-center text-lg font-black text-slate-800 outline-none focus:border-indigo-400">
-                        </label>
-                        <label class="block text-sm font-black text-slate-600">To card
-                            <input id="review-range-to" type="number" inputmode="numeric" min="1" value="1" class="mt-2 min-h-[52px] w-full rounded-2xl border-2 border-slate-200 bg-slate-50 px-4 text-center text-lg font-black text-slate-800 outline-none focus:border-indigo-400">
-                        </label>
-                    </div>
-                    <p id="review-range-error" class="mt-3 hidden rounded-xl bg-rose-50 p-3 text-center text-xs font-bold text-rose-600"></p>
-                    <button type="button" onclick="startSelectedChapterReview('range')" class="btn-silky mt-4 w-full rounded-2xl border-2 border-indigo-100 bg-indigo-50 px-4 py-3.5 text-sm font-black text-indigo-600">
-                        View selected range
+                <section class="rounded-3xl border border-slate-100 bg-white p-5 shadow-sm">
+                    <p class="text-[10px] font-black uppercase tracking-[.2em] text-indigo-500">Choose a subtopic</p>
+                    <h2 id="subtopic-browser-title" class="mt-2 text-2xl font-black leading-tight text-slate-900">Topic</h2>
+                    <p id="subtopic-browser-total" class="mt-2 text-sm font-bold text-slate-500">0 flashcards available</p>
+                    <button id="subtopic-browser-all" type="button" onclick="startTopicReview('all')" class="btn-silky mt-5 w-full rounded-2xl bg-indigo-500 px-4 py-4 text-left text-white shadow-lg shadow-indigo-100">
+                        <span class="flex items-center gap-3">
+                            <span class="flex h-11 w-11 items-center justify-center rounded-xl bg-white/20 text-lg"><i class="fa-solid fa-layer-group"></i></span>
+                            <span class="min-w-0 flex-1"><strong class="block text-base font-black">All flashcards</strong><small id="subtopic-browser-all-count" class="mt-1 block text-indigo-100">0 cards</small></span>
+                            <i class="fa-solid fa-chevron-right text-white/70"></i>
+                        </span>
                     </button>
                 </section>
+                <div id="student-subtopic-list" class="mt-4 flex flex-col gap-3"></div>
             </div>
 
             <!-- Flash Card 溫習介面 -->
             <div id="view-flashcards" class="absolute inset-0 bg-[#f4f6f9] p-5 hidden flex-col z-20 pb-10 overflow-y-auto no-scrollbar">
-                <div class="flex justify-between items-center mb-4">
-                    <button onclick="closeReview()" class="text-slate-500 flex items-center gap-2 hover:text-slate-800 text-sm font-medium back-btn-silky">
+                <div class="flex items-center gap-2 mb-4">
+                    <button onclick="closeReview()" class="min-w-0 flex-1 text-slate-500 flex items-center gap-2 hover:text-slate-800 text-sm font-medium back-btn-silky">
                         <i class="fa-solid fa-chevron-left"></i> <span class="back-btn-text">Back</span>
                     </button>
-                    <span id="progress-text" class="text-sm font-bold text-slate-500 bg-slate-200 px-3 py-1 rounded-full transition-all duration-300">1 / 3</span>
+                    <button type="button" onclick="openJumpToCard()" class="btn-silky min-h-[36px] rounded-xl border border-indigo-100 bg-indigo-50 px-3 text-xs font-black text-indigo-600" aria-label="Jump to a flashcard"><i class="fa-solid fa-arrow-right-to-bracket mr-1"></i>Jump</button>
+                    <span id="progress-text" class="min-w-[58px] text-center text-sm font-bold text-slate-500 bg-slate-200 px-3 py-1.5 rounded-full transition-all duration-300">1 / 3</span>
                 </div>
 
                 <div class="review-stage perspective-1000 flex flex-col justify-center cursor-pointer relative" onclick="flipCard()">
@@ -1456,7 +1446,7 @@
                     `;
                 } else {
                     const countText = `${ch.count} Cards`;
-                    const openAction = `openChapterReviewPicker('${ch.id}')`;
+                    const openAction = `openTopicSubtopics('${ch.id}')`;
                     html += `
                         <button type="button" onclick="${openAction}" class="btn-silky ${ch.color} text-white p-4 rounded-[20px] shadow-sm flex flex-col items-center justify-center text-center cursor-pointer hover:shadow-md aspect-[4/5] relative">
                             <i class="fa-solid ${ch.icon} text-[32px] mb-3 opacity-95"></i>
@@ -1684,7 +1674,7 @@
         function updateGlobalBackButton() {
             const button = document.getElementById('global-back-btn');
             if (!button) return;
-            const overlayIds = ['view-micro1-chapters', 'view-review-picker', 'view-flashcards', 'view-add-card', 'view-account', 'view-admin', 'view-admin-card-editor'];
+            const overlayIds = ['view-micro1-chapters', 'view-subtopic-browser', 'view-flashcards', 'view-add-card', 'view-account', 'view-admin', 'view-admin-card-editor'];
             const hasOverlay = overlayIds.some(id => !document.getElementById(id).classList.contains('hidden'));
             const shouldShow = hasOverlay || activeTab !== 'home';
             button.classList.toggle('hidden', !shouldShow);
@@ -1697,7 +1687,7 @@
         function goBackOnePage() {
             if (!document.getElementById('image-preview-modal').classList.contains('hidden')) return closeImagePreview();
             if (!document.getElementById('view-flashcards').classList.contains('hidden')) return closeReview();
-            if (!document.getElementById('view-review-picker').classList.contains('hidden')) return closeReviewPicker();
+            if (!document.getElementById('view-subtopic-browser').classList.contains('hidden')) return closeSubtopicBrowser();
             if (!document.getElementById('view-admin-card-editor').classList.contains('hidden')) return closeAdminCardEditor();
             if (!document.getElementById('view-admin').classList.contains('hidden')) return closeAdminManager();
             if (!document.getElementById('view-add-card').classList.contains('hidden')) return closeAddCard();
@@ -2532,8 +2522,8 @@
                 btnEl.className = `btn-silky flex-1 py-3 rounded-xl font-bold text-sm ${btn.styleClass}`;
                 btnEl.innerText = btn.text;
                 btnEl.onclick = () => {
-                    if (btn.onClick) btn.onClick();
-                    closeModal();
+                    const shouldClose = btn.onClick ? btn.onClick() : true;
+                    if (shouldClose !== false) closeModal();
                 };
                 actionsContainer.appendChild(btnEl);
             });
@@ -3123,7 +3113,7 @@
                 const topicKeys = new Set(topicCards.map(flashcardProgressKey));
                 const lastViewed = viewedRows.find(item => topicKeys.has(item.card_key))?.last_viewed_at;
                 return `
-                    <button type="button" ${topicCards.length ? `onclick="openChapterReviewPicker('${topic.id}')"` : 'disabled'} class="btn-silky w-full rounded-2xl bg-white border border-slate-100 shadow-sm p-4 text-left ${topicCards.length ? '' : 'opacity-60'}">
+                    <button type="button" ${topicCards.length ? `onclick="openTopicSubtopics('${topic.id}')"` : 'disabled'} class="btn-silky w-full rounded-2xl bg-white border border-slate-100 shadow-sm p-4 text-left ${topicCards.length ? '' : 'opacity-60'}">
                         <div class="flex items-center gap-3">
                             <span class="w-12 h-12 rounded-2xl ${topic.color} text-white flex items-center justify-center text-lg flex-shrink-0"><i class="fa-solid ${topic.icon}"></i></span>
                             <span class="min-w-0 flex-1">
@@ -4827,13 +4817,54 @@
             });
         }
 
-        function topicReviewCards(topicId) {
+        function topicReviewCards(topicId, subtopicId = null) {
+            const allowedSubtopicIds = subtopicId == null ? null : new Set(subtopicDescendantIds(Number(subtopicId)));
             return flashcards
-                .filter(card => card.chapter === topicId)
+                .filter(card => card.chapter === topicId && (!allowedSubtopicIds || allowedSubtopicIds.has(Number(card.subtopicId))))
                 .sort((left, right) => Number(left.sortOrder || 0) - Number(right.sortOrder || 0) || Number(left.id) - Number(right.id));
         }
 
-        function openChapterReviewPicker(topicId) {
+        function studentSubtopicRows(topicId) {
+            const topicSubtopics = subtopics.filter(item => item.topicId === topicId);
+            const childrenByParent = new Map();
+            topicSubtopics.forEach(item => {
+                const parentKey = item.parentSubtopicId == null ? 'root' : String(item.parentSubtopicId);
+                if (!childrenByParent.has(parentKey)) childrenByParent.set(parentKey, []);
+                childrenByParent.get(parentKey).push(item);
+            });
+            childrenByParent.forEach(items => items.sort((left, right) => Number(left.sortOrder || 0) - Number(right.sortOrder || 0) || left.id - right.id));
+            const rows = [];
+            const visit = (parentKey, depth) => {
+                (childrenByParent.get(parentKey) || []).forEach(item => {
+                    rows.push({ item, depth });
+                    visit(String(item.id), depth + 1);
+                });
+            };
+            visit('root', 0);
+            return rows;
+        }
+
+        function renderStudentSubtopics(topicId) {
+            const rows = studentSubtopicRows(topicId);
+            const container = document.getElementById('student-subtopic-list');
+            if (!rows.length) {
+                container.innerHTML = '<div class="rounded-2xl border-2 border-dashed border-slate-200 bg-white p-5 text-center text-sm font-bold text-slate-400">No subtopics have been added yet. Choose “All flashcards” above.</div>';
+                return;
+            }
+            container.innerHTML = rows.map(({ item, depth }) => {
+                const count = topicReviewCards(topicId, item.id).length;
+                return `
+                    <button type="button" ${count ? `onclick="startTopicReview('${item.id}')"` : 'disabled'} class="btn-silky rounded-2xl border border-slate-100 bg-white p-4 text-left shadow-sm ${count ? '' : 'opacity-55'}" style="margin-left:${Math.min(depth, 3) * 14}px">
+                        <span class="flex items-center gap-3">
+                            <span class="flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-xl ${item.color} text-white"><i class="fa-solid ${item.icon}"></i></span>
+                            <span class="min-w-0 flex-1"><strong class="block text-sm font-black text-slate-800">${escapeHTML(item.en)}</strong><small class="mt-1 block font-bold text-slate-400">${count} flashcard${count === 1 ? '' : 's'}</small></span>
+                            ${count ? '<i class="fa-solid fa-chevron-right text-slate-300"></i>' : ''}
+                        </span>
+                    </button>`;
+            }).join('');
+        }
+
+        function openTopicSubtopics(topicId) {
             const topic = chapters.find(chapter => chapter.id === topicId);
             const cards = topicReviewCards(topicId);
             if (!topic || cards.length === 0) {
@@ -4847,55 +4878,45 @@
             pendingReviewTopicId = topicId;
             document.getElementById(`view-${activeTab}`)?.classList.add('hidden');
             document.getElementById(`view-${activeTab}`)?.classList.remove('flex');
-            const picker = document.getElementById('view-review-picker');
-            picker.classList.remove('hidden');
-            picker.classList.add('flex');
+            const browserView = document.getElementById('view-subtopic-browser');
+            browserView.classList.remove('hidden');
+            browserView.classList.add('flex');
             document.getElementById('bottom-nav').classList.add('translate-y-24');
-            document.getElementById('review-picker-level').textContent = currentSchoolLevel;
-            document.getElementById('review-picker-title').textContent = topic.en;
-            document.getElementById('review-picker-total').textContent = `${cards.length} flashcard${cards.length === 1 ? '' : 's'} available`;
-            const fromInput = document.getElementById('review-range-from');
-            const toInput = document.getElementById('review-range-to');
-            fromInput.value = '1';
-            toInput.value = String(cards.length);
-            fromInput.max = String(cards.length);
-            toInput.max = String(cards.length);
-            document.getElementById('review-range-error').classList.add('hidden');
+            document.getElementById('subtopic-browser-level').textContent = currentSchoolLevel;
+            document.getElementById('subtopic-browser-title').textContent = topic.en;
+            document.getElementById('subtopic-browser-total').textContent = `${cards.length} flashcard${cards.length === 1 ? '' : 's'} available`;
+            document.getElementById('subtopic-browser-all-count').textContent = `${cards.length} card${cards.length === 1 ? '' : 's'}`;
+            renderStudentSubtopics(topicId);
             updateGlobalBackButton();
         }
 
-        function closeReviewPicker() {
-            const picker = document.getElementById('view-review-picker');
-            picker.classList.add('hidden');
-            picker.classList.remove('flex');
+        function closeSubtopicBrowser() {
+            const browserView = document.getElementById('view-subtopic-browser');
+            browserView.classList.add('hidden');
+            browserView.classList.remove('flex');
             pendingReviewTopicId = null;
             document.getElementById('bottom-nav').classList.remove('translate-y-24');
             switchTab(activeTab);
         }
 
-        function startSelectedChapterReview(mode) {
+        function startTopicReview(subtopicId = 'all') {
             if (!pendingReviewTopicId) return;
-            const cards = topicReviewCards(pendingReviewTopicId);
-            let start = 1;
-            let end = cards.length;
-            if (mode === 'range') {
-                start = Number(document.getElementById('review-range-from').value);
-                end = Number(document.getElementById('review-range-to').value);
-                const error = document.getElementById('review-range-error');
-                if (!Number.isInteger(start) || !Number.isInteger(end) || start < 1 || end > cards.length || start > end) {
-                    error.textContent = `Enter a valid range from 1 to ${cards.length}. The first number cannot be greater than the second.`;
-                    error.classList.remove('hidden');
-                    return;
-                }
-                error.classList.add('hidden');
+            const cards = topicReviewCards(pendingReviewTopicId, subtopicId === 'all' ? null : Number(subtopicId));
+            if (!cards.length) {
+                openModal({
+                    icon: 'fa-box-open', iconBgClass: 'bg-slate-100', iconTextClass: 'text-slate-400',
+                    title: 'No flashcards yet', desc: 'This subtopic does not contain any flashcards.',
+                    buttons: [{ text: 'Got it', styleClass: 'bg-blue-500 text-white', onClick: null }]
+                });
+                return;
             }
-            currentReviewList = cards.slice(start - 1, end);
-            reviewReturnView = 'tab';
+            currentReviewList = cards;
+            reviewReturnView = 'subtopic-browser';
             openReview();
         }
 
         function startChapter(id) {
-            openChapterReviewPicker(id);
+            openTopicSubtopics(id);
         }
 
         function startStarredReview() {
@@ -4911,7 +4932,7 @@
         }
 
         function openReview() {
-            ['home', 'micro1-chapters', 'starred', 'settings', 'add-card', 'account', 'admin', 'admin-card-editor', 'review-picker'].forEach(name => {
+            ['home', 'micro1-chapters', 'starred', 'settings', 'add-card', 'account', 'admin', 'admin-card-editor', 'subtopic-browser'].forEach(name => {
                 const el = document.getElementById(`view-${name}`);
                 if(el) { el.classList.add('hidden'); el.classList.remove('flex'); }
             });
@@ -4932,7 +4953,13 @@
             document.getElementById('view-flashcards').classList.add('hidden');
             document.getElementById('view-flashcards').classList.remove('flex');
             document.getElementById('bottom-nav').classList.remove('translate-y-24');
-            if (reviewReturnView === 'micro1-chapters') {
+            if (reviewReturnView === 'subtopic-browser' && pendingReviewTopicId) {
+                const view = document.getElementById('view-subtopic-browser');
+                view.classList.remove('hidden');
+                view.classList.add('flex');
+                document.getElementById('bottom-nav').classList.add('translate-y-24');
+                renderStudentSubtopics(pendingReviewTopicId);
+            } else if (reviewReturnView === 'micro1-chapters') {
                 const view = document.getElementById('view-micro1-chapters');
                 view.classList.remove('hidden');
                 view.classList.add('flex');
@@ -5086,6 +5113,37 @@
             isFlipped = !isFlipped;
             const inner = document.getElementById('flashcard-inner');
             isFlipped ? inner.classList.add('rotate-y-180') : inner.classList.remove('rotate-y-180');
+        }
+
+        function openJumpToCard() {
+            if (!currentReviewList.length) return;
+            openModal({
+                icon: 'fa-arrow-right-to-bracket', iconBgClass: 'bg-indigo-50', iconTextClass: 'text-indigo-500',
+                title: 'Jump to a flashcard',
+                desc: `
+                    <p class="mb-3 text-sm font-medium text-slate-500">Enter a card number from 1 to ${currentReviewList.length}.</p>
+                    <input id="jump-card-number" type="number" inputmode="numeric" min="1" max="${currentReviewList.length}" value="${currentIndex + 1}" class="min-h-[54px] w-full rounded-2xl border-2 border-slate-200 bg-slate-50 px-4 text-center text-xl font-black text-slate-800 outline-none focus:border-indigo-400">
+                    <p id="jump-card-error" class="mt-3 hidden rounded-xl bg-rose-50 p-3 text-xs font-bold text-rose-600"></p>`,
+                buttons: [
+                    { text: 'Cancel', styleClass: 'bg-slate-100 text-slate-600', onClick: null },
+                    { text: 'Go to card', styleClass: 'bg-indigo-500 text-white', onClick: jumpToSelectedCard }
+                ]
+            });
+            setTimeout(() => document.getElementById('jump-card-number')?.focus({ preventScroll: true }), 350);
+        }
+
+        function jumpToSelectedCard() {
+            const input = document.getElementById('jump-card-number');
+            const target = Number(input?.value);
+            const error = document.getElementById('jump-card-error');
+            if (!Number.isInteger(target) || target < 1 || target > currentReviewList.length) {
+                error.textContent = `Enter a whole number from 1 to ${currentReviewList.length}.`;
+                error.classList.remove('hidden');
+                return false;
+            }
+            currentIndex = target - 1;
+            resetAndUpdate();
+            return true;
         }
 
         function nextCard() {
