@@ -464,18 +464,6 @@
                 </div>
 
                 <section id="game-menu" class="flex flex-col gap-4">
-                    <div class="bg-white rounded-2xl border border-slate-100 shadow-sm p-4">
-                        <label for="game-direction" class="block text-xs font-black uppercase tracking-wider text-slate-500 mb-2">MC Quiz direction</label>
-                        <div class="relative">
-                            <select id="game-direction" class="w-full min-h-[48px] rounded-xl border-2 border-slate-200 bg-slate-50 px-4 pr-10 text-sm font-black text-slate-700 outline-none focus:border-indigo-400">
-                                <option value="zh-en">Chinese meaning → English word</option>
-                                <option value="en-zh">English word → Chinese meaning</option>
-                            </select>
-                            <i class="fa-solid fa-chevron-down absolute right-4 top-4 text-slate-400 pointer-events-none"></i>
-                        </div>
-                        <p class="mt-3 text-xs leading-relaxed text-slate-500">Flashcard question side = Chinese meaning · answer side = English word.</p>
-                    </div>
-
                     <div class="bg-white rounded-2xl border border-slate-100 shadow-sm p-4 space-y-3">
                         <div>
                             <label for="game-topic-filter" class="block text-xs font-black uppercase tracking-wider text-slate-500 mb-2">Topic</label>
@@ -490,7 +478,7 @@
                         </button>
                     </div>
 
-                    <button type="button" onclick="startVocabGame('mc')" class="btn-silky text-left bg-gradient-to-br from-indigo-500 to-violet-600 text-white rounded-3xl p-5 shadow-[0_10px_25px_rgba(99,102,241,.24)]">
+                    <button type="button" onclick="openMcDirectionPicker()" class="btn-silky text-left bg-gradient-to-br from-indigo-500 to-violet-600 text-white rounded-3xl p-5 shadow-[0_10px_25px_rgba(99,102,241,.24)]">
                         <div class="flex items-center gap-4">
                             <span class="w-14 h-14 rounded-2xl bg-white/20 flex items-center justify-center text-2xl"><i class="fa-solid fa-list-check"></i></span>
                             <span class="flex-1"><strong class="block text-xl font-black">MC Quiz</strong><small class="block text-indigo-100 mt-1">Choose the correct answer from four options.</small></span>
@@ -512,6 +500,30 @@
                         </div>
                     </button>
                     <p id="game-menu-message" class="hidden rounded-2xl border border-amber-200 bg-amber-50 p-4 text-sm font-bold leading-relaxed text-amber-800"></p>
+                </section>
+
+                <section id="mc-direction-picker" class="hidden flex-col gap-4">
+                    <button type="button" onclick="closeMcDirectionPicker()" class="btn-silky self-start min-h-[42px] rounded-xl border border-slate-200 bg-white px-4 text-sm font-black text-slate-600">
+                        <i class="fa-solid fa-chevron-left mr-2"></i>Back to games
+                    </button>
+                    <div class="rounded-3xl border border-indigo-100 bg-white p-5 shadow-sm">
+                        <div class="mb-5 text-center">
+                            <span class="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-indigo-50 text-2xl text-indigo-500"><i class="fa-solid fa-arrow-right-arrow-left"></i></span>
+                            <p class="mt-4 text-[10px] font-black uppercase tracking-[.2em] text-indigo-500">MC Quiz direction</p>
+                            <h3 class="mt-1 text-xl font-black text-slate-900">Choose the question direction</h3>
+                        </div>
+                        <div class="grid gap-3">
+                            <button type="button" onclick="startVocabGame('mc', 'zh-en')" class="btn-silky rounded-2xl border-2 border-indigo-100 bg-indigo-50 p-4 text-left text-indigo-800">
+                                <strong class="block text-base font-black">Chinese meaning → English word</strong>
+                                <small class="mt-1 block text-xs font-bold leading-relaxed text-indigo-500">Read the Chinese meaning and choose the correct English word.</small>
+                            </button>
+                            <button type="button" onclick="startVocabGame('mc', 'en-zh')" class="btn-silky rounded-2xl border-2 border-violet-100 bg-violet-50 p-4 text-left text-violet-800">
+                                <strong class="block text-base font-black">English word → Chinese meaning</strong>
+                                <small class="mt-1 block text-xs font-bold leading-relaxed text-violet-500">Read the English word and choose the correct Chinese meaning.</small>
+                            </button>
+                        </div>
+                    </div>
+                    <p id="mc-direction-message" class="hidden rounded-2xl border border-amber-200 bg-amber-50 p-4 text-sm font-bold leading-relaxed text-amber-800"></p>
                 </section>
 
                 <section id="game-session" class="hidden flex-col gap-4">
@@ -2860,9 +2872,26 @@
         }
 
         function showGameMessage(message) {
-            const element = document.getElementById('game-menu-message');
+            const picker = document.getElementById('mc-direction-picker');
+            const element = document.getElementById(picker.classList.contains('flex') ? 'mc-direction-message' : 'game-menu-message');
             element.textContent = message;
             element.classList.remove('hidden');
+        }
+
+        function openMcDirectionPicker() {
+            document.getElementById('game-menu-message').classList.add('hidden');
+            document.getElementById('mc-direction-message').classList.add('hidden');
+            document.getElementById('game-menu').classList.add('hidden');
+            document.getElementById('game-menu').classList.remove('flex');
+            document.getElementById('mc-direction-picker').classList.remove('hidden');
+            document.getElementById('mc-direction-picker').classList.add('flex');
+        }
+
+        function closeMcDirectionPicker() {
+            document.getElementById('mc-direction-picker').classList.add('hidden');
+            document.getElementById('mc-direction-picker').classList.remove('flex');
+            document.getElementById('game-menu').classList.remove('hidden');
+            document.getElementById('game-menu').classList.add('flex');
         }
 
         function resetGameMenu() {
@@ -2871,17 +2900,20 @@
             document.getElementById('game-level-badge').textContent = currentSchoolLevel;
             populateGameScopeControls();
             document.getElementById('game-menu-message').classList.add('hidden');
+            document.getElementById('mc-direction-message').classList.add('hidden');
             document.getElementById('game-menu').classList.remove('hidden');
             document.getElementById('game-menu').classList.add('flex');
+            document.getElementById('mc-direction-picker').classList.add('hidden');
+            document.getElementById('mc-direction-picker').classList.remove('flex');
             document.getElementById('game-session').classList.add('hidden');
             document.getElementById('game-session').classList.remove('flex');
             document.getElementById('game-result').classList.add('hidden');
             document.getElementById('game-result').classList.remove('flex');
         }
 
-        function startVocabGame(mode) {
+        function startVocabGame(mode, selectedDirection = null) {
             const pairs = eligibleGamePairs();
-            const direction = mode === 'mc' ? document.getElementById('game-direction').value : 'zh-en';
+            const direction = mode === 'mc' ? (selectedDirection || lastGameConfig.direction || 'zh-en') : 'zh-en';
             const distinctAnswers = new Set(pairs.map(pair => direction === 'en-zh' ? pair.zh.toLocaleLowerCase() : pair.en.toLocaleLowerCase()));
             const minimum = mode === 'mc' ? 4 : mode === 'matching' ? 2 : 1;
             if (pairs.length < minimum || (mode === 'mc' && distinctAnswers.size < 4)) {
@@ -2914,6 +2946,8 @@
             };
             document.getElementById('game-menu').classList.add('hidden');
             document.getElementById('game-menu').classList.remove('flex');
+            document.getElementById('mc-direction-picker').classList.add('hidden');
+            document.getElementById('mc-direction-picker').classList.remove('flex');
             document.getElementById('game-result').classList.add('hidden');
             document.getElementById('game-result').classList.remove('flex');
             document.getElementById('game-session').classList.remove('hidden');
@@ -3289,10 +3323,9 @@
 
         function playAgain() {
             resetGameMenu();
-            document.getElementById('game-direction').value = lastGameConfig.direction;
             document.getElementById('game-topic-filter').value = [...document.getElementById('game-topic-filter').options].some(option => option.value === lastGameConfig.topicId) ? lastGameConfig.topicId : 'all';
             updateGameSubtopicFilter(lastGameConfig.subtopicId);
-            startVocabGame(lastGameConfig.mode);
+            startVocabGame(lastGameConfig.mode, lastGameConfig.direction);
         }
 
         function handleFeedback() {
