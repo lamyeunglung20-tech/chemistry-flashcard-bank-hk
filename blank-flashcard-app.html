@@ -97,21 +97,52 @@
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
 
-        /* 全域絲滑按鈕效果 (顏色過渡 + 按壓回彈) */
+        /* 統一而克制的原生 App 按鈕動態 */
         .btn-silky {
-            transition: all 0.25s cubic-bezier(0.25, 0.8, 0.25, 1);
+            -webkit-font-smoothing: antialiased;
+            backface-visibility: hidden;
+            transform: translate3d(0, 0, 0);
+            will-change: transform, box-shadow, filter;
+            transition-property: transform, box-shadow, filter, background-color, border-color, color, opacity;
+            transition-duration: .28s;
+            transition-timing-function: cubic-bezier(.2, .8, .2, 1);
         }
         .btn-silky:active {
-            transform: scale(0.95);
+            transform: translate3d(0, 1px, 0) scale(.985);
+            filter: brightness(.97);
+            transition-duration: .08s;
+        }
+        .btn-silky:focus-visible {
+            outline: none;
+            box-shadow: 0 0 0 4px rgba(99, 102, 241, .16), 0 8px 24px rgba(15, 23, 42, .12);
+        }
+        .btn-silky:disabled {
+            transform: none !important;
+            filter: saturate(.65);
+            cursor: not-allowed;
+        }
+        .btn-silky i {
+            transition: transform .28s cubic-bezier(.2, .8, .2, 1), opacity .2s ease;
+        }
+        @media (hover: hover) and (pointer: fine) {
+            .btn-silky:not(:disabled):hover {
+                transform: translate3d(0, -2px, 0);
+                filter: brightness(1.025) saturate(1.04);
+                box-shadow: 0 10px 24px rgba(15, 23, 42, .13);
+            }
+            .btn-silky:not(:disabled):hover i {
+                transform: translateY(-1px) scale(1.045);
+            }
         }
         
         /* 返回按鈕的微小互動 */
         .back-btn-silky {
-            transition: all 0.2s ease;
+            backface-visibility: hidden;
+            transition: transform .24s cubic-bezier(.2, .8, .2, 1), color .2s ease, opacity .2s ease, background-color .2s ease;
         }
         .back-btn-silky:active {
-            transform: translateX(-3px) scale(0.96);
-            opacity: 0.7;
+            transform: translate3d(-3px, 1px, 0) scale(.985);
+            opacity: .78;
         }
 
         .safe-bottom { padding-bottom: max(9rem, calc(env(safe-area-inset-bottom) + 8rem)); }
@@ -120,9 +151,13 @@
             border: 2px solid #e2e8f0;
             background: #fff;
             color: #334155;
-            transition: border-color .2s ease, background-color .2s ease, color .2s ease, transform .2s ease;
+            backface-visibility: hidden;
+            transition: border-color .24s ease, background-color .24s ease, color .24s ease, transform .24s cubic-bezier(.2,.8,.2,1), box-shadow .24s ease;
         }
-        .game-choice:active { transform: scale(.98); }
+        .game-choice:active { transform: translateY(1px) scale(.985); }
+        @media (hover: hover) and (pointer: fine) {
+            .game-choice:not(:disabled):hover { transform: translateY(-2px); border-color: #a5b4fc; box-shadow: 0 8px 20px rgba(99,102,241,.11); }
+        }
         .game-choice.is-correct { border-color: #10b981; background: #ecfdf5; color: #047857; }
         .game-choice.is-wrong { border-color: #fb7185; background: #fff1f2; color: #be123c; }
         .match-tile {
@@ -130,7 +165,12 @@
             border: 2px solid #e2e8f0;
             background: #fff;
             color: #334155;
-            transition: all .2s ease;
+            backface-visibility: hidden;
+            transition: border-color .24s ease, background-color .24s ease, color .24s ease, opacity .24s ease, transform .24s cubic-bezier(.2,.8,.2,1), box-shadow .24s ease;
+        }
+        .match-tile:active { transform: translateY(1px) scale(.985); }
+        @media (hover: hover) and (pointer: fine) {
+            .match-tile:not(:disabled):hover { transform: translateY(-2px); border-color: #a5b4fc; box-shadow: 0 8px 20px rgba(99,102,241,.1); }
         }
         .match-tile.is-selected { border-color: #6366f1; background: #eef2ff; color: #4338ca; }
         .match-tile.is-matched { border-color: #10b981; background: #ecfdf5; color: #047857; opacity: .72; }
@@ -2558,6 +2598,41 @@
             return (node.textContent || '').replace(/\s+/g, ' ').trim();
         }
 
+        function vocabGamePairForCard(card) {
+            if (!card) return { zh: '', en: '' };
+            const candidates = [
+                { text: plainGameText(card.q_en), side: 'question', order: 0 },
+                { text: plainGameText(card.q_zh), side: 'question', order: 1 },
+                { text: plainGameText(card.a_en), side: 'answer', order: 2 },
+                { text: plainGameText(card.a_zh), side: 'answer', order: 3 }
+            ].filter(candidate => candidate.text);
+            const unique = candidates.filter((candidate, index, list) =>
+                list.findIndex(item => item.text.toLocaleLowerCase() === candidate.text.toLocaleLowerCase()) === index
+            );
+            const scored = unique.map(candidate => {
+                const chineseCharacters = (candidate.text.match(/[\u3400-\u9fff]/g) || []).length;
+                const latinLetters = (candidate.text.match(/[A-Za-z]/g) || []).length;
+                const englishWordShape = /^[A-Za-z][A-Za-z\s'’\-()/.]*$/.test(candidate.text) ? 28 : 0;
+                return {
+                    ...candidate,
+                    chineseCharacters,
+                    latinLetters,
+                    zhScore: chineseCharacters * 9 - latinLetters * 2 + (candidate.side === 'question' ? 2 : 0),
+                    enScore: latinLetters * 4 - chineseCharacters * 9 + englishWordShape + (candidate.side === 'answer' ? 2 : 0)
+                };
+            });
+            const chinese = [...scored].sort((left, right) => right.zhScore - left.zhScore || left.order - right.order)[0];
+            const english = [...scored]
+                .filter(candidate => candidate !== chinese)
+                .sort((left, right) => right.enScore - left.enScore || left.order - right.order)[0];
+            const fallbackQuestion = plainGameText(card.q_en || card.q_zh);
+            const fallbackAnswer = plainGameText(card.a_en || card.a_zh);
+            return {
+                zh: chinese?.chineseCharacters ? chinese.text : fallbackQuestion,
+                en: english?.latinLetters ? english.text : fallbackAnswer
+            };
+        }
+
         function speakVocabText(value) {
             const text = plainGameText(value);
             if (!text) return;
@@ -2588,6 +2663,8 @@
 
         function englishVocabTextForCard(card) {
             if (!card) return '';
+            const gamePair = vocabGamePairForCard(card);
+            if (gamePair.en) return gamePair.en;
             const candidates = [card.a_en, card.a_zh, card.q_en, card.q_zh]
                 .map(plainGameText)
                 .filter(Boolean);
@@ -2693,8 +2770,7 @@
                 if (selectedTopicId !== 'all' && String(card.chapter) !== selectedTopicId) return pairs;
                 if (selectedSubtopicId === 'none' && card.subtopicId != null) return pairs;
                 if (selectedSubtopicIds && !selectedSubtopicIds.has(String(card.subtopicId))) return pairs;
-                const zh = plainGameText(card.q_en || card.q_zh);
-                const en = plainGameText(card.a_en || card.a_zh);
+                const { zh, en } = vocabGamePairForCard(card);
                 if (!zh || !en) return pairs;
                 const key = `${zh.toLocaleLowerCase()}\u0000${en.toLocaleLowerCase()}`;
                 if (seen.has(key)) return pairs;
