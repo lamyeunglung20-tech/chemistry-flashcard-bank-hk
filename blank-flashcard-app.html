@@ -500,8 +500,8 @@
                 </div>
                 <div id="progress-summary" class="grid grid-cols-2 gap-3 mb-5"></div>
                 <div class="flex items-center justify-between mb-3">
-                    <h3 class="text-base font-black text-slate-800">Recent sessions</h3>
-                    <span id="progress-level-badge" class="text-[10px] font-black text-slate-400">All levels</span>
+                    <h3 class="text-base font-black text-slate-800">Topic progress</h3>
+                    <span id="progress-level-badge" class="text-[10px] font-black text-slate-400">Current level</span>
                 </div>
                 <div id="progress-history" class="flex flex-col gap-3"></div>
             </main>
@@ -909,6 +909,40 @@
                 <div class="h-12 flex-shrink-0 w-full"></div>
             </div>
 
+            <!-- 選擇溫習全部或指定範圍 -->
+            <div id="view-review-picker" class="absolute inset-0 bg-[#f4f6f9] p-5 hidden flex-col z-20 pb-10 overflow-y-auto no-scrollbar">
+                <div class="flex items-center justify-between mb-5">
+                    <button type="button" onclick="closeReviewPicker()" class="text-slate-500 flex items-center gap-2 hover:text-slate-800 text-sm font-medium back-btn-silky">
+                        <i class="fa-solid fa-chevron-left"></i> Back
+                    </button>
+                    <span id="review-picker-level" class="rounded-full bg-indigo-50 px-3 py-1.5 text-xs font-black text-indigo-600">S1</span>
+                </div>
+                <section class="rounded-3xl border border-slate-100 bg-white p-6 shadow-sm">
+                    <div class="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-sky-50 text-2xl text-sky-500"><i class="fa-solid fa-layer-group"></i></div>
+                    <p class="text-center text-[10px] font-black uppercase tracking-[.2em] text-indigo-500">Choose flashcards</p>
+                    <h2 id="review-picker-title" class="mt-2 text-center text-2xl font-black leading-tight text-slate-900">Topic</h2>
+                    <p id="review-picker-total" class="mt-2 text-center text-sm font-bold text-slate-500">0 flashcards available</p>
+
+                    <button type="button" onclick="startSelectedChapterReview('all')" class="btn-silky mt-6 w-full rounded-2xl bg-indigo-500 px-4 py-4 text-base font-black text-white shadow-lg shadow-indigo-100">
+                        <i class="fa-solid fa-play mr-2"></i>View all flashcards
+                    </button>
+
+                    <div class="my-6 flex items-center gap-3 text-xs font-black uppercase tracking-wider text-slate-300"><span class="h-px flex-1 bg-slate-100"></span>or choose a range<span class="h-px flex-1 bg-slate-100"></span></div>
+                    <div class="grid grid-cols-2 gap-3">
+                        <label class="block text-sm font-black text-slate-600">From card
+                            <input id="review-range-from" type="number" inputmode="numeric" min="1" value="1" class="mt-2 min-h-[52px] w-full rounded-2xl border-2 border-slate-200 bg-slate-50 px-4 text-center text-lg font-black text-slate-800 outline-none focus:border-indigo-400">
+                        </label>
+                        <label class="block text-sm font-black text-slate-600">To card
+                            <input id="review-range-to" type="number" inputmode="numeric" min="1" value="1" class="mt-2 min-h-[52px] w-full rounded-2xl border-2 border-slate-200 bg-slate-50 px-4 text-center text-lg font-black text-slate-800 outline-none focus:border-indigo-400">
+                        </label>
+                    </div>
+                    <p id="review-range-error" class="mt-3 hidden rounded-xl bg-rose-50 p-3 text-center text-xs font-bold text-rose-600"></p>
+                    <button type="button" onclick="startSelectedChapterReview('range')" class="btn-silky mt-4 w-full rounded-2xl border-2 border-indigo-100 bg-indigo-50 px-4 py-3.5 text-sm font-black text-indigo-600">
+                        View selected range
+                    </button>
+                </section>
+            </div>
+
             <!-- Flash Card 溫習介面 -->
             <div id="view-flashcards" class="absolute inset-0 bg-[#f4f6f9] p-5 hidden flex-col z-20 pb-10 overflow-y-auto no-scrollbar">
                 <div class="flex justify-between items-center mb-4">
@@ -1087,6 +1121,9 @@
         let gameSession = null;
         let gameTimerId = null;
         let gameResults = [];
+        let flashcardProgress = [];
+        let flashcardProgressLoaded = false;
+        let pendingReviewTopicId = null;
         let lastGameConfig = { mode: 'mc', direction: 'zh-en', topicId: 'all', subtopicId: 'all' };
         let defaultGameTopicId = 'all';
         let defaultGameSubtopicId = 'all';
@@ -1419,7 +1456,7 @@
                     `;
                 } else {
                     const countText = `${ch.count} Cards`;
-                    const openAction = ch.layout === 'micro1' ? 'openMicro1Chapters()' : `startChapter('${ch.id}')`;
+                    const openAction = `openChapterReviewPicker('${ch.id}')`;
                     html += `
                         <button type="button" onclick="${openAction}" class="btn-silky ${ch.color} text-white p-4 rounded-[20px] shadow-sm flex flex-col items-center justify-center text-center cursor-pointer hover:shadow-md aspect-[4/5] relative">
                             <i class="fa-solid ${ch.icon} text-[32px] mb-3 opacity-95"></i>
@@ -1440,6 +1477,7 @@
             refreshContentControls();
             document.getElementById('game-level-badge').textContent = level;
             updateSchoolLevelDefaultButton();
+            if (activeTab === 'progress') renderProgress();
         }
 
         function updateSchoolLevelDefaultButton() {
@@ -1646,7 +1684,7 @@
         function updateGlobalBackButton() {
             const button = document.getElementById('global-back-btn');
             if (!button) return;
-            const overlayIds = ['view-micro1-chapters', 'view-flashcards', 'view-add-card', 'view-account', 'view-admin', 'view-admin-card-editor'];
+            const overlayIds = ['view-micro1-chapters', 'view-review-picker', 'view-flashcards', 'view-add-card', 'view-account', 'view-admin', 'view-admin-card-editor'];
             const hasOverlay = overlayIds.some(id => !document.getElementById(id).classList.contains('hidden'));
             const shouldShow = hasOverlay || activeTab !== 'home';
             button.classList.toggle('hidden', !shouldShow);
@@ -1659,6 +1697,7 @@
         function goBackOnePage() {
             if (!document.getElementById('image-preview-modal').classList.contains('hidden')) return closeImagePreview();
             if (!document.getElementById('view-flashcards').classList.contains('hidden')) return closeReview();
+            if (!document.getElementById('view-review-picker').classList.contains('hidden')) return closeReviewPicker();
             if (!document.getElementById('view-admin-card-editor').classList.contains('hidden')) return closeAdminCardEditor();
             if (!document.getElementById('view-admin').classList.contains('hidden')) return closeAdminManager();
             if (!document.getElementById('view-add-card').classList.contains('hidden')) return closeAddCard();
@@ -2054,6 +2093,8 @@
                 role: profile.role,
                 displayName: registeredName
             };
+            flashcardProgress = [];
+            flashcardProgressLoaded = false;
             showAuthTransition(currentUser.displayName);
             updateAuthTransition(28, 'Loading your account settings…');
             try {
@@ -2421,6 +2462,8 @@
             stopGameTimer();
             gameSession = null;
             gameResults = [];
+            flashcardProgress = [];
+            flashcardProgressLoaded = false;
             if (initSupabaseClient()) await supabaseClient.auth.signOut({ scope: 'local' });
             currentUser = null;
             currentSchoolLevel = 'S4-6';
@@ -2539,23 +2582,46 @@
             window.speechSynthesis.cancel();
             const utterance = new SpeechSynthesisUtterance(text);
             utterance.lang = 'en-GB';
-            utterance.rate = 0.86;
+            utterance.rate = 0.82;
             utterance.pitch = 1;
             const voices = window.speechSynthesis.getVoices();
-            utterance.voice = voices.find(voice => /^en-GB/i.test(voice.lang)) || voices.find(voice => /^en/i.test(voice.lang)) || null;
+            const englishVoice = voices.find(voice => /^en-GB/i.test(voice.lang) && /Siri|Daniel|Serena|Google|Microsoft/i.test(voice.name))
+                || voices.find(voice => /^en-GB/i.test(voice.lang))
+                || voices.find(voice => /^en-(US|AU|CA|IE|NZ)/i.test(voice.lang))
+                || voices.find(voice => /^en/i.test(voice.lang));
+            if (englishVoice) {
+                utterance.voice = englishVoice;
+                utterance.lang = englishVoice.lang;
+            }
             window.speechSynthesis.speak(utterance);
+        }
+
+        function englishVocabTextForCard(card) {
+            if (!card) return '';
+            const candidates = [card.a_en, card.a_zh, card.q_en, card.q_zh]
+                .map(plainGameText)
+                .filter(Boolean);
+            const scored = candidates.map((text, index) => {
+                const latinLetters = (text.match(/[A-Za-z]/g) || []).length;
+                const chineseCharacters = (text.match(/[\u3400-\u9fff]/g) || []).length;
+                const englishWordShape = /^[A-Za-z][A-Za-z\s'’\-()/.]*$/.test(text) ? 40 : 0;
+                const answerPreference = index < 2 ? 8 : 0;
+                return { text, score: latinLetters * 2 - chineseCharacters * 5 + englishWordShape + answerPreference };
+            });
+            scored.sort((left, right) => right.score - left.score);
+            return scored[0]?.text || '';
         }
 
         function speakCurrentVocab(event) {
             event?.stopPropagation();
             const card = currentReviewList[currentIndex];
-            if (card) speakVocabText(card.a_en || card.a_zh);
+            if (card) speakVocabText(englishVocabTextForCard(card));
         }
 
         function speakVocabCard(event, cardId) {
             event?.stopPropagation();
             const card = flashcards.find(item => Number(item.id) === Number(cardId));
-            if (card) speakVocabText(card.a_en || card.a_zh);
+            if (card) speakVocabText(englishVocabTextForCard(card));
         }
 
         function shuffled(items) {
@@ -2961,44 +3027,79 @@
             return data;
         }
 
+        function flashcardProgressKey(card) {
+            if (!card) return '';
+            return card.isPersonal ? `personal:${Number(card.personalId)}` : `shared:${Number(card.id)}`;
+        }
+
+        async function recordFlashcardView(card) {
+            const cardKey = flashcardProgressKey(card);
+            if (!cardKey || !currentUser || !initSupabaseClient()) return;
+            const topic = chapters.find(chapter => chapter.id === card.chapter);
+            const viewedAt = new Date().toISOString();
+            const payload = {
+                user_id: currentUser.id,
+                card_key: cardKey,
+                topic_id: card.chapter,
+                school_level: topic?.schoolLevel || currentSchoolLevel,
+                last_viewed_at: viewedAt
+            };
+            const { error } = await supabaseClient.from('chemistry_blank_flashcard_progress')
+                .upsert(payload, { onConflict: 'user_id,card_key' });
+            if (error) {
+                console.error('Unable to save flashcard progress:', error);
+                return;
+            }
+            const existingIndex = flashcardProgress.findIndex(item => item.card_key === cardKey);
+            if (existingIndex >= 0) flashcardProgress[existingIndex] = { ...flashcardProgress[existingIndex], ...payload };
+            else flashcardProgress.unshift({ ...payload, first_viewed_at: viewedAt });
+            flashcardProgressLoaded = true;
+        }
+
         async function loadProgress(force = false) {
             const history = document.getElementById('progress-history');
             if (!currentUser || !initSupabaseClient()) {
-                gameResults = [];
+                flashcardProgress = [];
+                flashcardProgressLoaded = true;
                 renderProgress();
                 return;
             }
-            if (!force && gameResults.length) {
+            if (!force && flashcardProgressLoaded) {
                 renderProgress();
                 return;
             }
-            history.innerHTML = '<div class="rounded-2xl bg-white p-5 text-center text-sm font-bold text-slate-400"><i class="fa-solid fa-spinner fa-spin mr-2"></i>Loading progress…</div>';
-            const { data, error } = await supabaseClient.from('chemistry_blank_game_results')
-                .select('id,mode,direction,score,total,duration_seconds,school_level,topic_id,subtopic_id,completed_at')
+            history.innerHTML = '<div class="rounded-2xl bg-white p-5 text-center text-sm font-bold text-slate-400"><i class="fa-solid fa-spinner fa-spin mr-2"></i>Loading flashcard progress…</div>';
+            const { data, error } = await supabaseClient.from('chemistry_blank_flashcard_progress')
+                .select('card_key,topic_id,school_level,first_viewed_at,last_viewed_at')
                 .eq('user_id', currentUser.id)
-                .order('completed_at', { ascending: false })
-                .limit(100);
+                .order('last_viewed_at', { ascending: false });
             if (error) {
-                history.innerHTML = `<div class="rounded-2xl border border-rose-200 bg-rose-50 p-5 text-sm font-bold text-rose-700">${escapeHTML(authErrorMessage(error, 'Unable to load progress.'))}</div>`;
+                history.innerHTML = `<div class="rounded-2xl border border-rose-200 bg-rose-50 p-5 text-sm font-bold text-rose-700">${escapeHTML(authErrorMessage(error, 'Unable to load flashcard progress.'))}</div>`;
                 return;
             }
-            gameResults = data || [];
+            flashcardProgress = data || [];
+            flashcardProgressLoaded = true;
             renderProgress();
         }
 
         function renderProgress() {
             const summary = document.getElementById('progress-summary');
             const history = document.getElementById('progress-history');
-            const sessions = gameResults.length;
-            const percentages = gameResults.map(item => Math.round((Number(item.score) / Math.max(1, Number(item.total))) * 100));
-            const average = sessions ? Math.round(percentages.reduce((sum, value) => sum + value, 0) / sessions) : 0;
-            const best = sessions ? Math.max(...percentages) : 0;
-            const totalSeconds = gameResults.reduce((sum, item) => sum + Number(item.duration_seconds || 0), 0);
+            const levelTopics = chapters.filter(chapter => !chapter.isAction && chapter.schoolLevel === currentSchoolLevel);
+            const topicIds = new Set(levelTopics.map(topic => topic.id));
+            const availableCards = flashcards.filter(card => topicIds.has(card.chapter));
+            const availableKeys = new Set(availableCards.map(flashcardProgressKey));
+            const viewedRows = flashcardProgress.filter(item => availableKeys.has(item.card_key));
+            const viewedKeys = new Set(viewedRows.map(item => item.card_key));
+            const viewedCount = viewedKeys.size;
+            const totalCount = availableCards.length;
+            const completion = totalCount ? Math.round((viewedCount / totalCount) * 100) : 0;
+            const topicsStarted = levelTopics.filter(topic => availableCards.some(card => card.chapter === topic.id && viewedKeys.has(flashcardProgressKey(card)))).length;
             const cards = [
-                ['fa-gamepad', 'Sessions', sessions, 'text-indigo-500', 'bg-indigo-50'],
-                ['fa-chart-pie', 'Average', `${average}%`, 'text-sky-500', 'bg-sky-50'],
-                ['fa-trophy', 'Best', `${best}%`, 'text-amber-500', 'bg-amber-50'],
-                ['fa-clock', 'Total time', formatDuration(totalSeconds), 'text-emerald-500', 'bg-emerald-50']
+                ['fa-eye', 'Cards viewed', viewedCount, 'text-indigo-500', 'bg-indigo-50'],
+                ['fa-layer-group', 'Available', totalCount, 'text-sky-500', 'bg-sky-50'],
+                ['fa-chart-pie', 'Completion', `${completion}%`, 'text-emerald-500', 'bg-emerald-50'],
+                ['fa-book-open-reader', 'Topics started', `${topicsStarted}/${levelTopics.length}`, 'text-amber-500', 'bg-amber-50']
             ];
             summary.innerHTML = cards.map(([icon, label, value, color, bg]) => `
                 <div class="rounded-2xl bg-white border border-slate-100 shadow-sm p-4">
@@ -3006,32 +3107,30 @@
                     <strong class="block text-xl font-black text-slate-900">${escapeHTML(value)}</strong>
                     <span class="text-[10px] font-black uppercase tracking-wider text-slate-400">${escapeHTML(label)}</span>
                 </div>`).join('');
-            document.getElementById('progress-level-badge').textContent = sessions ? `${sessions} saved session${sessions === 1 ? '' : 's'}` : 'No saved sessions';
-            if (!sessions) {
-                history.innerHTML = `
-                    <div class="rounded-3xl border-2 border-dashed border-slate-200 bg-white p-8 text-center">
-                        <div class="w-16 h-16 rounded-full bg-indigo-50 text-indigo-400 flex items-center justify-center text-2xl mx-auto mb-4"><i class="fa-solid fa-chart-line"></i></div>
-                        <h4 class="font-black text-slate-800">No progress yet</h4>
-                        <p class="text-sm leading-relaxed text-slate-500 mt-2">Complete a game to save your score, time and date.</p>
-                        <button type="button" onclick="switchTab('games')" class="btn-silky mt-5 rounded-2xl bg-indigo-500 px-5 py-3 text-sm font-black text-white">Start a game</button>
-                    </div>`;
+            document.getElementById('progress-level-badge').textContent = `${currentSchoolLevel} · ${viewedCount}/${totalCount} viewed`;
+            if (!levelTopics.length) {
+                history.innerHTML = '<div class="rounded-3xl border-2 border-dashed border-slate-200 bg-white p-8 text-center text-sm font-bold text-slate-400">No topics are available for this school level.</div>';
                 return;
             }
-            history.innerHTML = gameResults.map((item, index) => {
-                const percentage = Math.round((Number(item.score) / Math.max(1, Number(item.total))) * 100);
-                const palette = item.mode === 'mc' ? ['bg-indigo-50', 'text-indigo-600', 'fa-list-check'] : item.mode === 'matching' ? ['bg-sky-50', 'text-sky-600', 'fa-table-cells-large'] : ['bg-emerald-50', 'text-emerald-600', 'fa-spell-check'];
-                const topic = chapters.find(chapter => chapter.id === item.topic_id);
-                const subtopic = subtopics.find(entry => entry.id === Number(item.subtopic_id));
-                const scope = [topic?.en, subtopic?.en].filter(Boolean).join(' › ') || 'All topics';
+            history.innerHTML = levelTopics.map(topic => {
+                const topicCards = availableCards.filter(card => card.chapter === topic.id);
+                const topicViewed = topicCards.filter(card => viewedKeys.has(flashcardProgressKey(card))).length;
+                const percentage = topicCards.length ? Math.round((topicViewed / topicCards.length) * 100) : 0;
+                const topicKeys = new Set(topicCards.map(flashcardProgressKey));
+                const lastViewed = viewedRows.find(item => topicKeys.has(item.card_key))?.last_viewed_at;
                 return `
-                    <article class="rounded-2xl bg-white border border-slate-100 shadow-sm p-4 flex items-center gap-3">
-                        <div class="w-12 h-12 rounded-2xl ${palette[0]} ${palette[1]} flex items-center justify-center text-lg flex-shrink-0"><i class="fa-solid ${palette[2]}"></i></div>
-                        <div class="min-w-0 flex-1">
-                            <div class="flex items-center justify-between gap-2"><h4 class="font-black text-slate-800">${escapeHTML(gameModeLabel(item.mode))}</h4><strong class="${palette[1]}">${percentage}%</strong></div>
-                            <p class="text-[11px] font-bold text-slate-500 mt-1 truncate">${escapeHTML(gameDirectionLabel(item.direction, item.mode))} · ${escapeHTML(item.school_level)} · ${escapeHTML(scope)}</p>
-                            <p class="text-[10px] text-slate-400 mt-1">${item.score}/${item.total} · ${formatDuration(item.duration_seconds)} · ${escapeHTML(formatResultDate(item.completed_at))}</p>
+                    <button type="button" ${topicCards.length ? `onclick="openChapterReviewPicker('${topic.id}')"` : 'disabled'} class="btn-silky w-full rounded-2xl bg-white border border-slate-100 shadow-sm p-4 text-left ${topicCards.length ? '' : 'opacity-60'}">
+                        <div class="flex items-center gap-3">
+                            <span class="w-12 h-12 rounded-2xl ${topic.color} text-white flex items-center justify-center text-lg flex-shrink-0"><i class="fa-solid ${topic.icon}"></i></span>
+                            <span class="min-w-0 flex-1">
+                                <span class="flex items-center justify-between gap-2"><strong class="truncate text-sm font-black text-slate-800">${escapeHTML(topic.en)}</strong><strong class="text-sm font-black text-indigo-600">${percentage}%</strong></span>
+                                <span class="mt-1 block text-[11px] font-bold text-slate-500">Viewed ${topicViewed} of ${topicCards.length} flashcards</span>
+                                <span class="mt-2 block h-2 overflow-hidden rounded-full bg-slate-100"><span class="block h-full rounded-full bg-gradient-to-r from-indigo-500 to-sky-400" style="width:${percentage}%"></span></span>
+                                <span class="mt-2 block text-[10px] text-slate-400">${lastViewed ? `Last viewed ${escapeHTML(formatResultDate(lastViewed))}` : 'Not started yet'}</span>
+                            </span>
+                            ${topicCards.length ? '<i class="fa-solid fa-chevron-right text-slate-300"></i>' : ''}
                         </div>
-                    </article>`;
+                    </button>`;
             }).join('');
         }
 
@@ -4724,20 +4823,75 @@
             });
         }
 
-        function startChapter(id) {
-            currentReviewList = flashcards.filter(c => c.chapter === id);
-            if (currentReviewList.length === 0) {
-                const title = currentLang === 'en' ? "Empty" : (currentLang === 'zh' ? "尚未有題目" : "尚未有題目 Empty");
-                const btn = currentLang === 'en' ? "Got it" : (currentLang === 'zh' ? "知道" : "知道 OK");
+        function topicReviewCards(topicId) {
+            return flashcards
+                .filter(card => card.chapter === topicId)
+                .sort((left, right) => Number(left.sortOrder || 0) - Number(right.sortOrder || 0) || Number(left.id) - Number(right.id));
+        }
+
+        function openChapterReviewPicker(topicId) {
+            const topic = chapters.find(chapter => chapter.id === topicId);
+            const cards = topicReviewCards(topicId);
+            if (!topic || cards.length === 0) {
                 openModal({
                     icon: 'fa-box-open', iconBgClass: 'bg-slate-100', iconTextClass: 'text-slate-400',
-                    title: title, desc: uiTranslations[currentLang].waitMsg,
-                    buttons: [{ text: btn, styleClass: 'bg-blue-500 text-white', onClick: null }]
+                    title: 'No flashcards yet', desc: uiTranslations.en.waitMsg,
+                    buttons: [{ text: 'Got it', styleClass: 'bg-blue-500 text-white', onClick: null }]
                 });
                 return;
             }
+            pendingReviewTopicId = topicId;
+            document.getElementById(`view-${activeTab}`)?.classList.add('hidden');
+            document.getElementById(`view-${activeTab}`)?.classList.remove('flex');
+            const picker = document.getElementById('view-review-picker');
+            picker.classList.remove('hidden');
+            picker.classList.add('flex');
+            document.getElementById('bottom-nav').classList.add('translate-y-24');
+            document.getElementById('review-picker-level').textContent = currentSchoolLevel;
+            document.getElementById('review-picker-title').textContent = topic.en;
+            document.getElementById('review-picker-total').textContent = `${cards.length} flashcard${cards.length === 1 ? '' : 's'} available`;
+            const fromInput = document.getElementById('review-range-from');
+            const toInput = document.getElementById('review-range-to');
+            fromInput.value = '1';
+            toInput.value = String(cards.length);
+            fromInput.max = String(cards.length);
+            toInput.max = String(cards.length);
+            document.getElementById('review-range-error').classList.add('hidden');
+            updateGlobalBackButton();
+        }
+
+        function closeReviewPicker() {
+            const picker = document.getElementById('view-review-picker');
+            picker.classList.add('hidden');
+            picker.classList.remove('flex');
+            pendingReviewTopicId = null;
+            document.getElementById('bottom-nav').classList.remove('translate-y-24');
+            switchTab(activeTab);
+        }
+
+        function startSelectedChapterReview(mode) {
+            if (!pendingReviewTopicId) return;
+            const cards = topicReviewCards(pendingReviewTopicId);
+            let start = 1;
+            let end = cards.length;
+            if (mode === 'range') {
+                start = Number(document.getElementById('review-range-from').value);
+                end = Number(document.getElementById('review-range-to').value);
+                const error = document.getElementById('review-range-error');
+                if (!Number.isInteger(start) || !Number.isInteger(end) || start < 1 || end > cards.length || start > end) {
+                    error.textContent = `Enter a valid range from 1 to ${cards.length}. The first number cannot be greater than the second.`;
+                    error.classList.remove('hidden');
+                    return;
+                }
+                error.classList.add('hidden');
+            }
+            currentReviewList = cards.slice(start - 1, end);
             reviewReturnView = 'tab';
             openReview();
+        }
+
+        function startChapter(id) {
+            openChapterReviewPicker(id);
         }
 
         function startStarredReview() {
@@ -4753,7 +4907,7 @@
         }
 
         function openReview() {
-            ['home', 'micro1-chapters', 'starred', 'settings', 'add-card', 'account', 'admin', 'admin-card-editor'].forEach(name => {
+            ['home', 'micro1-chapters', 'starred', 'settings', 'add-card', 'account', 'admin', 'admin-card-editor', 'review-picker'].forEach(name => {
                 const el = document.getElementById(`view-${name}`);
                 if(el) { el.classList.add('hidden'); el.classList.remove('flex'); }
             });
@@ -4799,6 +4953,8 @@
         function updateCard() {
             if ('speechSynthesis' in window) window.speechSynthesis.cancel();
             const card = currentReviewList[currentIndex];
+            if (!card) return;
+            void recordFlashcardView(card);
             let qHTML = '', aHTML = '';
 
             const canAdminEdit = hasAdminContentAccess() && Boolean(card?.isManaged);
