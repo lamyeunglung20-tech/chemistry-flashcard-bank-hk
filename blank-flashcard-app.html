@@ -115,6 +115,32 @@
         }
 
         .safe-bottom { padding-bottom: max(9rem, calc(env(safe-area-inset-bottom) + 8rem)); }
+        .game-choice {
+            min-height: 3.5rem;
+            border: 2px solid #e2e8f0;
+            background: #fff;
+            color: #334155;
+            transition: border-color .2s ease, background-color .2s ease, color .2s ease, transform .2s ease;
+        }
+        .game-choice:active { transform: scale(.98); }
+        .game-choice.is-correct { border-color: #10b981; background: #ecfdf5; color: #047857; }
+        .game-choice.is-wrong { border-color: #fb7185; background: #fff1f2; color: #be123c; }
+        .match-tile {
+            min-height: 4.25rem;
+            border: 2px solid #e2e8f0;
+            background: #fff;
+            color: #334155;
+            transition: all .2s ease;
+        }
+        .match-tile.is-selected { border-color: #6366f1; background: #eef2ff; color: #4338ca; }
+        .match-tile.is-matched { border-color: #10b981; background: #ecfdf5; color: #047857; opacity: .72; }
+        .match-tile.is-wrong { border-color: #fb7185; background: #fff1f2; color: #be123c; }
+        @media (max-width: 390px) {
+            #bottom-nav { width: calc(100% - 1rem) !important; }
+            #bottom-nav .nav-btn { padding-left: .1rem; padding-right: .1rem; }
+            #bottom-nav .nav-btn span { font-size: 8px !important; }
+            #bottom-nav .nav-btn i { font-size: 17px !important; }
+        }
         .review-stage { flex: 0 0 auto !important; min-height: 0 !important; height: auto; }
         .review-card-shell { height: 30rem; min-height: 0; }
         .review-face { overflow-y: auto; justify-content: flex-start; padding: 1.5rem !important; overscroll-behavior: contain; }
@@ -374,7 +400,95 @@
                 </div>
             </main>
 
-            <!-- 分頁三：設定 -->
+            <!-- 分頁三：遊戲 -->
+            <main id="view-games" class="p-5 hidden flex-col min-h-full pb-36">
+                <div class="flex items-start justify-between gap-3 mb-5 mt-2">
+                    <div>
+                        <p class="text-[10px] font-black uppercase tracking-[.2em] text-indigo-500 mb-1">Practice & play</p>
+                        <h2 class="text-2xl font-black tracking-wide text-slate-900">Game Practice</h2>
+                    </div>
+                    <span id="game-level-badge" class="bg-indigo-50 text-indigo-600 border border-indigo-100 rounded-full px-3 py-1.5 text-xs font-black">S4-6</span>
+                </div>
+
+                <section id="game-menu" class="flex flex-col gap-4">
+                    <div class="bg-white rounded-2xl border border-slate-100 shadow-sm p-4">
+                        <label for="game-direction" class="block text-xs font-black uppercase tracking-wider text-slate-500 mb-2">MC Quiz direction</label>
+                        <div class="relative">
+                            <select id="game-direction" class="w-full min-h-[48px] rounded-xl border-2 border-slate-200 bg-slate-50 px-4 pr-10 text-sm font-black text-slate-700 outline-none focus:border-indigo-400">
+                                <option value="zh-en">Chinese meaning → English word</option>
+                                <option value="en-zh">English word → Chinese meaning</option>
+                            </select>
+                            <i class="fa-solid fa-chevron-down absolute right-4 top-4 text-slate-400 pointer-events-none"></i>
+                        </div>
+                        <p class="mt-3 text-xs leading-relaxed text-slate-500">Flashcard question side = Chinese meaning · answer side = English word.</p>
+                    </div>
+
+                    <button type="button" onclick="startGame('mc')" class="btn-silky text-left bg-gradient-to-br from-indigo-500 to-violet-600 text-white rounded-3xl p-5 shadow-[0_10px_25px_rgba(99,102,241,.24)]">
+                        <div class="flex items-center gap-4">
+                            <span class="w-14 h-14 rounded-2xl bg-white/20 flex items-center justify-center text-2xl"><i class="fa-solid fa-list-check"></i></span>
+                            <span class="flex-1"><strong class="block text-xl font-black">MC Quiz</strong><small class="block text-indigo-100 mt-1">Choose the correct answer from four options.</small></span>
+                            <i class="fa-solid fa-chevron-right text-white/70"></i>
+                        </div>
+                    </button>
+                    <button type="button" onclick="startGame('matching')" class="btn-silky text-left bg-gradient-to-br from-cyan-500 to-sky-600 text-white rounded-3xl p-5 shadow-[0_10px_25px_rgba(14,165,233,.22)]">
+                        <div class="flex items-center gap-4">
+                            <span class="w-14 h-14 rounded-2xl bg-white/20 flex items-center justify-center text-2xl"><i class="fa-solid fa-table-cells-large"></i></span>
+                            <span class="flex-1"><strong class="block text-xl font-black">Matching</strong><small class="block text-cyan-50 mt-1">Match each Chinese meaning with its English word.</small></span>
+                            <i class="fa-solid fa-chevron-right text-white/70"></i>
+                        </div>
+                    </button>
+                    <button type="button" onclick="startGame('spelling')" class="btn-silky text-left bg-gradient-to-br from-emerald-500 to-teal-600 text-white rounded-3xl p-5 shadow-[0_10px_25px_rgba(16,185,129,.22)]">
+                        <div class="flex items-center gap-4">
+                            <span class="w-14 h-14 rounded-2xl bg-white/20 flex items-center justify-center text-2xl"><i class="fa-solid fa-spell-check"></i></span>
+                            <span class="flex-1"><strong class="block text-xl font-black">Spelling</strong><small class="block text-emerald-50 mt-1">Type the English word from its Chinese meaning.</small></span>
+                            <i class="fa-solid fa-chevron-right text-white/70"></i>
+                        </div>
+                    </button>
+                    <p id="game-menu-message" class="hidden rounded-2xl border border-amber-200 bg-amber-50 p-4 text-sm font-bold leading-relaxed text-amber-800"></p>
+                </section>
+
+                <section id="game-session" class="hidden flex-col gap-4">
+                    <div class="flex items-center justify-between gap-3">
+                        <button type="button" onclick="exitGame()" class="btn-silky min-h-[42px] rounded-xl border border-slate-200 bg-white px-4 text-sm font-black text-slate-600"><i class="fa-solid fa-chevron-left mr-2"></i>Exit</button>
+                        <div class="flex items-center gap-2 text-xs font-black text-slate-500">
+                            <span id="game-progress-label" class="rounded-full bg-slate-100 px-3 py-2">1 / 10</span>
+                            <span id="game-timer" class="rounded-full bg-slate-100 px-3 py-2"><i class="fa-regular fa-clock mr-1"></i>00:00</span>
+                        </div>
+                    </div>
+                    <div class="h-2 rounded-full bg-slate-200 overflow-hidden"><div id="game-progress-bar" class="h-full w-0 rounded-full bg-indigo-500 transition-all duration-300"></div></div>
+                    <div id="game-stage"></div>
+                </section>
+
+                <section id="game-result" class="hidden flex-col items-center text-center bg-white rounded-3xl border border-slate-100 shadow-sm p-6">
+                    <div class="w-20 h-20 rounded-full bg-amber-50 text-amber-500 flex items-center justify-center text-4xl mb-4"><i class="fa-solid fa-trophy"></i></div>
+                    <p class="text-xs font-black uppercase tracking-[.2em] text-indigo-500">Session complete</p>
+                    <h3 class="text-3xl font-black text-slate-900 mt-2" id="game-result-score">0 / 0</h3>
+                    <p class="text-sm font-bold text-slate-500 mt-2" id="game-result-details"></p>
+                    <div class="grid grid-cols-2 gap-3 w-full mt-6">
+                        <button type="button" onclick="playAgain()" class="btn-silky rounded-2xl bg-indigo-500 text-white py-3.5 font-black">Play again</button>
+                        <button type="button" onclick="switchTab('progress')" class="btn-silky rounded-2xl border-2 border-indigo-100 bg-indigo-50 text-indigo-600 py-3.5 font-black">View progress</button>
+                    </div>
+                </section>
+            </main>
+
+            <!-- 分頁四：進度 -->
+            <main id="view-progress" class="p-5 hidden flex-col min-h-full pb-36">
+                <div class="flex items-start justify-between gap-3 mb-5 mt-2">
+                    <div>
+                        <p class="text-[10px] font-black uppercase tracking-[.2em] text-emerald-500 mb-1">Personal records</p>
+                        <h2 class="text-2xl font-black tracking-wide text-slate-900">Progress</h2>
+                    </div>
+                    <button type="button" onclick="loadProgress(true)" class="btn-silky w-11 h-11 rounded-full border border-slate-200 bg-white text-indigo-500 shadow-sm" aria-label="Refresh progress"><i class="fa-solid fa-rotate"></i></button>
+                </div>
+                <div id="progress-summary" class="grid grid-cols-2 gap-3 mb-5"></div>
+                <div class="flex items-center justify-between mb-3">
+                    <h3 class="text-base font-black text-slate-800">Recent sessions</h3>
+                    <span id="progress-level-badge" class="text-[10px] font-black text-slate-400">All levels</span>
+                </div>
+                <div id="progress-history" class="flex flex-col gap-3"></div>
+            </main>
+
+            <!-- 分頁五：設定 -->
             <main id="view-settings" class="p-5 hidden flex-col min-h-full pb-36">
                 <h2 class="text-2xl font-black tracking-wide text-slate-900 mb-6 mt-2" id="settings-title-main">Settings</h2>
                 
@@ -825,18 +939,26 @@
         </div>
 
         <!-- 底部導航欄 -->
-        <nav id="bottom-nav" class="absolute bottom-6 left-1/2 transform -translate-x-1/2 w-[94%] max-w-[400px] bg-white/95 backdrop-blur-md shadow-[0_8px_30px_rgb(0,0,0,0.12)] rounded-full p-1.5 flex justify-around items-center z-50 border border-slate-100 gap-1 transition-transform duration-300">
-            <button onclick="switchTab('home')" id="tab-home" class="nav-btn btn-silky w-1/3 flex flex-col items-center justify-center py-2 rounded-full bg-[#fff0e6] text-[#c05a22]">
-                <i class="fa-solid fa-house text-[20px] mb-1"></i>
-                <span class="text-[10px] font-bold" id="nav-text-home">Home</span>
+        <nav id="bottom-nav" class="absolute bottom-6 left-1/2 transform -translate-x-1/2 w-[96%] max-w-[520px] bg-white/95 backdrop-blur-md shadow-[0_8px_30px_rgb(0,0,0,0.12)] rounded-full p-1.5 flex justify-around items-center z-50 border border-slate-100 gap-1 transition-transform duration-300">
+            <button onclick="switchTab('home')" id="tab-home" class="nav-btn btn-silky w-1/5 flex flex-col items-center justify-center py-2 rounded-full bg-[#fff0e6] text-[#c05a22]">
+                <i class="fa-solid fa-house text-[18px] mb-1"></i>
+                <span class="text-[9px] font-bold" id="nav-text-home">Home</span>
             </button>
-            <button onclick="switchTab('starred')" id="tab-starred" class="nav-btn btn-silky w-1/3 flex flex-col items-center justify-center py-2 rounded-full text-slate-400 hover:bg-slate-50 hover:text-slate-500">
-                <i class="fa-solid fa-star text-[20px] mb-1"></i>
-                <span class="text-[10px] font-bold" id="nav-text-starred">Starred</span>
+            <button onclick="switchTab('starred')" id="tab-starred" class="nav-btn btn-silky w-1/5 flex flex-col items-center justify-center py-2 rounded-full text-slate-400 hover:bg-slate-50 hover:text-slate-500">
+                <i class="fa-solid fa-star text-[18px] mb-1"></i>
+                <span class="text-[9px] font-bold" id="nav-text-starred">Starred</span>
             </button>
-            <button onclick="switchTab('settings')" id="tab-settings" class="nav-btn btn-silky w-1/3 flex flex-col items-center justify-center py-2 rounded-full text-slate-400 hover:bg-slate-50 hover:text-slate-500">
-                <i class="fa-solid fa-gear text-[20px] mb-1"></i>
-                <span class="text-[10px] font-bold" id="nav-text-settings">Settings</span>
+            <button onclick="switchTab('games')" id="tab-games" class="nav-btn btn-silky w-1/5 flex flex-col items-center justify-center py-2 rounded-full text-slate-400 hover:bg-slate-50 hover:text-slate-500">
+                <i class="fa-solid fa-gamepad text-[18px] mb-1"></i>
+                <span class="text-[9px] font-bold" id="nav-text-games">Games</span>
+            </button>
+            <button onclick="switchTab('progress')" id="tab-progress" class="nav-btn btn-silky w-1/5 flex flex-col items-center justify-center py-2 rounded-full text-slate-400 hover:bg-slate-50 hover:text-slate-500">
+                <i class="fa-solid fa-chart-line text-[18px] mb-1"></i>
+                <span class="text-[9px] font-bold" id="nav-text-progress">Progress</span>
+            </button>
+            <button onclick="switchTab('settings')" id="tab-settings" class="nav-btn btn-silky w-1/5 flex flex-col items-center justify-center py-2 rounded-full text-slate-400 hover:bg-slate-50 hover:text-slate-500">
+                <i class="fa-solid fa-gear text-[18px] mb-1"></i>
+                <span class="text-[9px] font-bold" id="nav-text-settings">Settings</span>
             </button>
         </nav>
 
@@ -931,6 +1053,10 @@
         let adminEditingSubtopicId = null;
         let subtopics = [];
         let managedAccounts = [];
+        let gameSession = null;
+        let gameTimerId = null;
+        let gameResults = [];
+        let lastGameConfig = { mode: 'mc', direction: 'zh-en' };
         const expandedAdminTopics = new Set();
         const managedCardIds = new Set();
         const sourceCardIds = new Set(sourceFlashcards.map(card => card.id));
@@ -1186,6 +1312,7 @@
             renderMicro1Sections();
             populateTopicSelect();
             populateStarFilter();
+            if (activeTab === 'games') resetGameMenu();
             if (!document.getElementById('view-admin').classList.contains('hidden')) renderAdminManager();
         }
 
@@ -1265,9 +1392,11 @@
 
         function changeSchoolLevel(level) {
             if (!SCHOOL_LEVELS.includes(level)) return;
+            if (gameSession) resetGameMenu();
             currentSchoolLevel = level;
             document.getElementById('school-level-select').value = level;
             refreshContentControls();
+            document.getElementById('game-level-badge').textContent = level;
             updateSchoolLevelDefaultButton();
         }
 
@@ -1397,6 +1526,8 @@
             
             document.getElementById('nav-text-home').innerText = t.navHome;
             document.getElementById('nav-text-starred').innerText = t.navStar;
+            document.getElementById('nav-text-games').innerText = 'Games';
+            document.getElementById('nav-text-progress').innerText = 'Progress';
             document.getElementById('nav-text-settings').innerText = t.navSet;
             document.getElementById('starred-title-main').innerText = t.starTitle;
 
@@ -2219,6 +2350,9 @@
         }
 
         async function logoutUser() {
+            stopGameTimer();
+            gameSession = null;
+            gameResults = [];
             if (initSupabaseClient()) await supabaseClient.auth.signOut({ scope: 'local' });
             currentUser = null;
             currentSchoolLevel = 'S4-6';
@@ -2317,6 +2451,421 @@
             }, 300);
         }
 
+        function plainGameText(value) {
+            const node = document.createElement('div');
+            node.innerHTML = String(value ?? '').replace(/<br\s*\/?>/gi, ' ');
+            return (node.textContent || '').replace(/\s+/g, ' ').trim();
+        }
+
+        function shuffled(items) {
+            const copy = [...items];
+            for (let index = copy.length - 1; index > 0; index--) {
+                const swapIndex = Math.floor(Math.random() * (index + 1));
+                [copy[index], copy[swapIndex]] = [copy[swapIndex], copy[index]];
+            }
+            return copy;
+        }
+
+        function eligibleGamePairs() {
+            const topicIds = new Set(chapters
+                .filter(chapter => !chapter.isAction && chapter.schoolLevel === currentSchoolLevel)
+                .map(chapter => String(chapter.id)));
+            const seen = new Set();
+            return flashcards.reduce((pairs, card) => {
+                if (!topicIds.has(String(card.chapter))) return pairs;
+                const zh = plainGameText(card.q_en || card.q_zh);
+                const en = plainGameText(card.a_en || card.a_zh);
+                if (!zh || !en) return pairs;
+                const key = `${zh.toLocaleLowerCase()}\u0000${en.toLocaleLowerCase()}`;
+                if (seen.has(key)) return pairs;
+                seen.add(key);
+                pairs.push({ id: card.id, topicId: String(card.chapter), zh, en });
+                return pairs;
+            }, []);
+        }
+
+        function showGameMessage(message) {
+            const element = document.getElementById('game-menu-message');
+            element.textContent = message;
+            element.classList.remove('hidden');
+        }
+
+        function resetGameMenu() {
+            stopGameTimer();
+            gameSession = null;
+            document.getElementById('game-level-badge').textContent = currentSchoolLevel;
+            document.getElementById('game-menu-message').classList.add('hidden');
+            document.getElementById('game-menu').classList.remove('hidden');
+            document.getElementById('game-menu').classList.add('flex');
+            document.getElementById('game-session').classList.add('hidden');
+            document.getElementById('game-session').classList.remove('flex');
+            document.getElementById('game-result').classList.add('hidden');
+            document.getElementById('game-result').classList.remove('flex');
+        }
+
+        function startGame(mode) {
+            const pairs = eligibleGamePairs();
+            const direction = mode === 'mc' ? document.getElementById('game-direction').value : 'zh-en';
+            const distinctAnswers = new Set(pairs.map(pair => direction === 'en-zh' ? pair.zh.toLocaleLowerCase() : pair.en.toLocaleLowerCase()));
+            const minimum = mode === 'mc' ? 4 : mode === 'matching' ? 2 : 1;
+            if (pairs.length < minimum || (mode === 'mc' && distinctAnswers.size < 4)) {
+                showGameMessage(mode === 'mc'
+                    ? `Add at least 4 flashcards with different answers to ${currentSchoolLevel} before starting MC Quiz.`
+                    : `Add at least ${minimum} flashcard${minimum > 1 ? 's' : ''} to ${currentSchoolLevel} before starting this game.`);
+                return;
+            }
+
+            const limit = mode === 'matching' ? 6 : 10;
+            gameSession = {
+                mode,
+                direction,
+                cards: shuffled(pairs).slice(0, Math.min(limit, pairs.length)),
+                index: 0,
+                score: 0,
+                attempts: 0,
+                locked: false,
+                startedAt: Date.now(),
+                matchedIds: new Set(),
+                selectedLeft: null,
+                selectedRight: null,
+                currentOptions: null
+            };
+            lastGameConfig = { mode, direction };
+            document.getElementById('game-menu').classList.add('hidden');
+            document.getElementById('game-menu').classList.remove('flex');
+            document.getElementById('game-result').classList.add('hidden');
+            document.getElementById('game-result').classList.remove('flex');
+            document.getElementById('game-session').classList.remove('hidden');
+            document.getElementById('game-session').classList.add('flex');
+            startGameTimer();
+            if (mode === 'matching') renderMatchingGame();
+            else renderGameQuestion();
+        }
+
+        function startGameTimer() {
+            stopGameTimer();
+            updateGameTimer();
+            gameTimerId = window.setInterval(updateGameTimer, 1000);
+        }
+
+        function stopGameTimer() {
+            if (gameTimerId) window.clearInterval(gameTimerId);
+            gameTimerId = null;
+        }
+
+        function formatDuration(seconds) {
+            const safe = Math.max(0, Number(seconds) || 0);
+            const minutes = Math.floor(safe / 60);
+            const remainder = Math.floor(safe % 60);
+            return `${String(minutes).padStart(2, '0')}:${String(remainder).padStart(2, '0')}`;
+        }
+
+        function updateGameTimer() {
+            if (!gameSession) return;
+            const elapsed = Math.floor((Date.now() - gameSession.startedAt) / 1000);
+            document.getElementById('game-timer').innerHTML = `<i class="fa-regular fa-clock mr-1"></i>${formatDuration(elapsed)}`;
+        }
+
+        function updateGameProgress(current, total) {
+            document.getElementById('game-progress-label').textContent = `${Math.min(current, total)} / ${total}`;
+            document.getElementById('game-progress-bar').style.width = `${total ? Math.min(100, (current / total) * 100) : 0}%`;
+        }
+
+        function mcOptionsFor(card) {
+            const answerKey = gameSession.direction === 'en-zh' ? 'zh' : 'en';
+            const correct = card[answerKey];
+            const sameTopic = gameSession.cards.filter(item => item.id !== card.id && item.topicId === card.topicId);
+            const others = eligibleGamePairs().filter(item => item.id !== card.id && item.topicId !== card.topicId);
+            const seen = new Set([correct.toLocaleLowerCase()]);
+            const distractors = [];
+            shuffled([...sameTopic, ...others]).forEach(item => {
+                const answer = item[answerKey];
+                const key = answer.toLocaleLowerCase();
+                if (distractors.length < 3 && !seen.has(key)) {
+                    seen.add(key);
+                    distractors.push(answer);
+                }
+            });
+            return shuffled([correct, ...distractors]);
+        }
+
+        function renderGameQuestion() {
+            if (!gameSession) return;
+            const card = gameSession.cards[gameSession.index];
+            const total = gameSession.cards.length;
+            updateGameProgress(gameSession.index + 1, total);
+            gameSession.locked = false;
+            if (gameSession.mode === 'mc') {
+                gameSession.currentOptions = mcOptionsFor(card);
+                const prompt = gameSession.direction === 'en-zh' ? card.en : card.zh;
+                const directionLabel = gameSession.direction === 'en-zh' ? 'Choose the Chinese meaning' : 'Choose the English word';
+                document.getElementById('game-stage').innerHTML = `
+                    <div class="bg-white rounded-3xl border border-slate-100 shadow-sm p-5">
+                        <p class="text-[10px] font-black uppercase tracking-[.18em] text-indigo-500 mb-3">${directionLabel}</p>
+                        <h3 class="text-2xl font-black leading-relaxed text-center text-slate-900 py-5">${escapeHTML(prompt)}</h3>
+                        <div class="grid grid-cols-1 gap-3 mt-3">
+                            ${gameSession.currentOptions.map((option, index) => `<button type="button" onclick="answerMcQuiz(${index})" class="game-choice rounded-2xl px-4 py-3 text-sm font-black text-left">${escapeHTML(option)}</button>`).join('')}
+                        </div>
+                    </div>`;
+            } else {
+                document.getElementById('game-stage').innerHTML = `
+                    <div class="bg-white rounded-3xl border border-slate-100 shadow-sm p-5">
+                        <p class="text-[10px] font-black uppercase tracking-[.18em] text-emerald-500 mb-3">Type the English word</p>
+                        <h3 class="text-2xl font-black leading-relaxed text-center text-slate-900 py-5">${escapeHTML(card.zh)}</h3>
+                        <form onsubmit="submitSpelling(event)" class="mt-3">
+                            <input id="spelling-answer" type="text" autocomplete="off" autocapitalize="none" spellcheck="false" class="w-full min-h-[56px] rounded-2xl border-2 border-slate-200 bg-slate-50 px-4 text-base font-black text-slate-800 outline-none focus:border-emerald-400" placeholder="Type your answer…">
+                            <div id="spelling-feedback" class="hidden mt-3 rounded-xl p-3 text-sm font-bold"></div>
+                            <button id="spelling-submit" type="submit" class="btn-silky w-full mt-4 rounded-2xl bg-emerald-500 py-3.5 font-black text-white shadow-sm">Check spelling</button>
+                        </form>
+                    </div>`;
+                window.setTimeout(() => document.getElementById('spelling-answer')?.focus(), 50);
+            }
+        }
+
+        function answerMcQuiz(optionIndex) {
+            if (!gameSession || gameSession.locked) return;
+            gameSession.locked = true;
+            gameSession.attempts++;
+            const card = gameSession.cards[gameSession.index];
+            const correct = gameSession.direction === 'en-zh' ? card.zh : card.en;
+            const selected = gameSession.currentOptions[optionIndex];
+            const buttons = [...document.querySelectorAll('#game-stage .game-choice')];
+            buttons.forEach((button, index) => {
+                if (gameSession.currentOptions[index] === correct) button.classList.add('is-correct');
+                else if (index === optionIndex) button.classList.add('is-wrong');
+                button.disabled = true;
+            });
+            if (selected === correct) gameSession.score++;
+            window.setTimeout(advanceGameQuestion, 850);
+        }
+
+        function normalizeSpelling(value) {
+            return String(value || '').trim().toLocaleLowerCase().replace(/[“”‘’'".,!?;:()]/g, '').replace(/\s+/g, ' ');
+        }
+
+        function submitSpelling(event) {
+            event.preventDefault();
+            if (!gameSession || gameSession.locked) {
+                if (gameSession?.locked) advanceGameQuestion();
+                return;
+            }
+            const card = gameSession.cards[gameSession.index];
+            const input = document.getElementById('spelling-answer');
+            const feedback = document.getElementById('spelling-feedback');
+            const isCorrect = normalizeSpelling(input.value) === normalizeSpelling(card.en);
+            gameSession.locked = true;
+            gameSession.attempts++;
+            if (isCorrect) gameSession.score++;
+            input.disabled = true;
+            input.classList.add(isCorrect ? 'border-emerald-400' : 'border-rose-400');
+            feedback.className = `mt-3 rounded-xl p-3 text-sm font-bold ${isCorrect ? 'bg-emerald-50 text-emerald-700' : 'bg-rose-50 text-rose-700'}`;
+            feedback.innerHTML = isCorrect ? '<i class="fa-solid fa-circle-check mr-2"></i>Correct!' : `Correct spelling: <strong>${escapeHTML(card.en)}</strong>`;
+            const submit = document.getElementById('spelling-submit');
+            submit.textContent = gameSession.index + 1 >= gameSession.cards.length ? 'See result' : 'Next word';
+            submit.className = 'btn-silky w-full mt-4 rounded-2xl bg-indigo-500 py-3.5 font-black text-white shadow-sm';
+        }
+
+        function advanceGameQuestion() {
+            if (!gameSession) return;
+            gameSession.index++;
+            gameSession.currentOptions = null;
+            if (gameSession.index >= gameSession.cards.length) finishGame();
+            else renderGameQuestion();
+        }
+
+        function renderMatchingGame() {
+            if (!gameSession) return;
+            const total = gameSession.cards.length;
+            updateGameProgress(gameSession.matchedIds.size, total);
+            if (!gameSession.leftOrder) {
+                gameSession.leftOrder = shuffled(gameSession.cards);
+                gameSession.rightOrder = shuffled(gameSession.cards);
+            }
+            const tile = (card, side, text) => {
+                const matched = gameSession.matchedIds.has(card.id);
+                const selected = gameSession[side === 'left' ? 'selectedLeft' : 'selectedRight'] === card.id;
+                return `<button type="button" ${matched ? 'disabled' : ''} data-match-id="${escapeHTML(card.id)}" data-match-side="${side}" onclick="selectMatch('${side}', '${escapeHTML(card.id)}')" class="match-tile rounded-2xl px-3 py-3 text-xs sm:text-sm font-black leading-relaxed ${matched ? 'is-matched' : selected ? 'is-selected' : ''}">${escapeHTML(text)}</button>`;
+            };
+            document.getElementById('game-stage').innerHTML = `
+                <div class="bg-white rounded-3xl border border-slate-100 shadow-sm p-4">
+                    <div class="flex items-center justify-between mb-4"><span class="text-xs font-black text-slate-500">Chinese meaning</span><span class="text-xs font-black text-slate-500">English word</span></div>
+                    <div class="grid grid-cols-2 gap-3">
+                        <div class="flex flex-col gap-3">${gameSession.leftOrder.map(card => tile(card, 'left', card.zh)).join('')}</div>
+                        <div class="flex flex-col gap-3">${gameSession.rightOrder.map(card => tile(card, 'right', card.en)).join('')}</div>
+                    </div>
+                    <p class="text-center text-xs font-bold text-slate-400 mt-4">Tap one tile in each column.</p>
+                </div>`;
+        }
+
+        function selectMatch(side, rawId) {
+            if (!gameSession || gameSession.locked) return;
+            const id = Number.isNaN(Number(rawId)) ? rawId : Number(rawId);
+            if (gameSession.matchedIds.has(id)) return;
+            if (side === 'left') gameSession.selectedLeft = id;
+            else gameSession.selectedRight = id;
+            renderMatchingGame();
+            if (gameSession.selectedLeft == null || gameSession.selectedRight == null) return;
+            gameSession.locked = true;
+            gameSession.attempts++;
+            const correct = String(gameSession.selectedLeft) === String(gameSession.selectedRight);
+            if (correct) {
+                gameSession.matchedIds.add(gameSession.selectedLeft);
+                gameSession.score++;
+            } else {
+                document.querySelectorAll('#game-stage .match-tile.is-selected').forEach(element => element.classList.add('is-wrong'));
+            }
+            window.setTimeout(() => {
+                if (!gameSession) return;
+                gameSession.selectedLeft = null;
+                gameSession.selectedRight = null;
+                gameSession.locked = false;
+                if (gameSession.matchedIds.size >= gameSession.cards.length) finishGame();
+                else renderMatchingGame();
+            }, correct ? 350 : 650);
+        }
+
+        async function finishGame() {
+            if (!gameSession) return;
+            stopGameTimer();
+            const finished = gameSession;
+            const durationSeconds = Math.max(1, Math.round((Date.now() - finished.startedAt) / 1000));
+            const total = finished.mode === 'matching' ? Math.max(finished.attempts, finished.score) : finished.cards.length;
+            const score = finished.score;
+            const percentage = Math.round((score / Math.max(1, total)) * 100);
+            const result = {
+                mode: finished.mode,
+                direction: finished.direction,
+                score,
+                total,
+                duration_seconds: durationSeconds,
+                school_level: currentSchoolLevel,
+                completed_at: new Date().toISOString()
+            };
+            document.getElementById('game-session').classList.add('hidden');
+            document.getElementById('game-session').classList.remove('flex');
+            document.getElementById('game-result').classList.remove('hidden');
+            document.getElementById('game-result').classList.add('flex');
+            document.getElementById('game-result-score').textContent = `${score} / ${total} · ${percentage}%`;
+            document.getElementById('game-result-details').textContent = `${gameModeLabel(finished.mode)} · ${formatDuration(durationSeconds)} · ${formatResultDate(result.completed_at)}`;
+            gameSession = null;
+            try {
+                await saveGameResult(result);
+            } catch (error) {
+                document.getElementById('game-result-details').textContent += ' · Result could not be saved';
+                console.error('Unable to save game result:', error);
+            }
+        }
+
+        function gameModeLabel(mode) {
+            return ({ mc: 'MC Quiz', matching: 'Matching', spelling: 'Spelling' })[mode] || mode;
+        }
+
+        function gameDirectionLabel(direction, mode) {
+            if (mode === 'matching') return 'Chinese ↔ English';
+            if (mode === 'spelling') return 'Chinese → English spelling';
+            return direction === 'en-zh' ? 'English → Chinese' : 'Chinese → English';
+        }
+
+        function formatResultDate(value) {
+            try {
+                return new Intl.DateTimeFormat('en-HK', { dateStyle: 'medium', timeStyle: 'short' }).format(new Date(value));
+            } catch (error) {
+                return new Date(value).toLocaleString();
+            }
+        }
+
+        async function saveGameResult(result) {
+            if (!currentUser || !initSupabaseClient()) throw new Error('Sign in is required.');
+            const { data, error } = await supabaseClient.from('chemistry_blank_game_results').insert({
+                user_id: currentUser.id,
+                ...result
+            }).select('id,mode,direction,score,total,duration_seconds,school_level,completed_at').single();
+            if (error) throw error;
+            gameResults.unshift(data);
+            return data;
+        }
+
+        async function loadProgress(force = false) {
+            const history = document.getElementById('progress-history');
+            if (!currentUser || !initSupabaseClient()) {
+                gameResults = [];
+                renderProgress();
+                return;
+            }
+            if (!force && gameResults.length) {
+                renderProgress();
+                return;
+            }
+            history.innerHTML = '<div class="rounded-2xl bg-white p-5 text-center text-sm font-bold text-slate-400"><i class="fa-solid fa-spinner fa-spin mr-2"></i>Loading progress…</div>';
+            const { data, error } = await supabaseClient.from('chemistry_blank_game_results')
+                .select('id,mode,direction,score,total,duration_seconds,school_level,completed_at')
+                .eq('user_id', currentUser.id)
+                .order('completed_at', { ascending: false })
+                .limit(100);
+            if (error) {
+                history.innerHTML = `<div class="rounded-2xl border border-rose-200 bg-rose-50 p-5 text-sm font-bold text-rose-700">${escapeHTML(authErrorMessage(error, 'Unable to load progress.'))}</div>`;
+                return;
+            }
+            gameResults = data || [];
+            renderProgress();
+        }
+
+        function renderProgress() {
+            const summary = document.getElementById('progress-summary');
+            const history = document.getElementById('progress-history');
+            const sessions = gameResults.length;
+            const percentages = gameResults.map(item => Math.round((Number(item.score) / Math.max(1, Number(item.total))) * 100));
+            const average = sessions ? Math.round(percentages.reduce((sum, value) => sum + value, 0) / sessions) : 0;
+            const best = sessions ? Math.max(...percentages) : 0;
+            const totalSeconds = gameResults.reduce((sum, item) => sum + Number(item.duration_seconds || 0), 0);
+            const cards = [
+                ['fa-gamepad', 'Sessions', sessions, 'text-indigo-500', 'bg-indigo-50'],
+                ['fa-chart-pie', 'Average', `${average}%`, 'text-sky-500', 'bg-sky-50'],
+                ['fa-trophy', 'Best', `${best}%`, 'text-amber-500', 'bg-amber-50'],
+                ['fa-clock', 'Total time', formatDuration(totalSeconds), 'text-emerald-500', 'bg-emerald-50']
+            ];
+            summary.innerHTML = cards.map(([icon, label, value, color, bg]) => `
+                <div class="rounded-2xl bg-white border border-slate-100 shadow-sm p-4">
+                    <div class="w-9 h-9 rounded-xl ${bg} ${color} flex items-center justify-center mb-3"><i class="fa-solid ${icon}"></i></div>
+                    <strong class="block text-xl font-black text-slate-900">${escapeHTML(value)}</strong>
+                    <span class="text-[10px] font-black uppercase tracking-wider text-slate-400">${escapeHTML(label)}</span>
+                </div>`).join('');
+            document.getElementById('progress-level-badge').textContent = sessions ? `${sessions} saved session${sessions === 1 ? '' : 's'}` : 'No saved sessions';
+            if (!sessions) {
+                history.innerHTML = `
+                    <div class="rounded-3xl border-2 border-dashed border-slate-200 bg-white p-8 text-center">
+                        <div class="w-16 h-16 rounded-full bg-indigo-50 text-indigo-400 flex items-center justify-center text-2xl mx-auto mb-4"><i class="fa-solid fa-chart-line"></i></div>
+                        <h4 class="font-black text-slate-800">No progress yet</h4>
+                        <p class="text-sm leading-relaxed text-slate-500 mt-2">Complete a game to save your score, time and date.</p>
+                        <button type="button" onclick="switchTab('games')" class="btn-silky mt-5 rounded-2xl bg-indigo-500 px-5 py-3 text-sm font-black text-white">Start a game</button>
+                    </div>`;
+                return;
+            }
+            history.innerHTML = gameResults.map((item, index) => {
+                const percentage = Math.round((Number(item.score) / Math.max(1, Number(item.total))) * 100);
+                const palette = item.mode === 'mc' ? ['bg-indigo-50', 'text-indigo-600', 'fa-list-check'] : item.mode === 'matching' ? ['bg-sky-50', 'text-sky-600', 'fa-table-cells-large'] : ['bg-emerald-50', 'text-emerald-600', 'fa-spell-check'];
+                return `
+                    <article class="rounded-2xl bg-white border border-slate-100 shadow-sm p-4 flex items-center gap-3">
+                        <div class="w-12 h-12 rounded-2xl ${palette[0]} ${palette[1]} flex items-center justify-center text-lg flex-shrink-0"><i class="fa-solid ${palette[2]}"></i></div>
+                        <div class="min-w-0 flex-1">
+                            <div class="flex items-center justify-between gap-2"><h4 class="font-black text-slate-800">${escapeHTML(gameModeLabel(item.mode))}</h4><strong class="${palette[1]}">${percentage}%</strong></div>
+                            <p class="text-[11px] font-bold text-slate-500 mt-1 truncate">${escapeHTML(gameDirectionLabel(item.direction, item.mode))} · ${escapeHTML(item.school_level)}</p>
+                            <p class="text-[10px] text-slate-400 mt-1">${item.score}/${item.total} · ${formatDuration(item.duration_seconds)} · ${escapeHTML(formatResultDate(item.completed_at))}</p>
+                        </div>
+                    </article>`;
+            }).join('');
+        }
+
+        function exitGame() {
+            resetGameMenu();
+        }
+
+        function playAgain() {
+            resetGameMenu();
+            document.getElementById('game-direction').value = lastGameConfig.direction;
+            startGame(lastGameConfig.mode);
+        }
+
         function handleFeedback() {
             const t = uiTranslations[currentLang];
             openModal({
@@ -2340,15 +2889,17 @@
         // ------------------------
 
         function switchTab(tabName) {
+            if (!['home', 'starred', 'games', 'progress', 'settings'].includes(tabName)) return;
+            if (activeTab === 'games' && tabName !== 'games' && gameSession) resetGameMenu();
             activeTab = tabName;
             document.getElementById('view-micro1-chapters').classList.add('hidden');
             document.getElementById('view-micro1-chapters').classList.remove('flex');
-            ['home', 'starred', 'settings'].forEach(name => {
+            ['home', 'starred', 'games', 'progress', 'settings'].forEach(name => {
                 document.getElementById(`view-${name}`).classList.add('hidden');
                 document.getElementById(`view-${name}`).classList.remove('flex');
                 
                 const btn = document.getElementById(`tab-${name}`);
-                btn.className = 'nav-btn btn-silky w-1/3 flex flex-col items-center justify-center py-2 rounded-full text-slate-400 hover:bg-slate-50 hover:text-slate-500';
+                btn.className = 'nav-btn btn-silky w-1/5 flex flex-col items-center justify-center py-2 rounded-full text-slate-400 hover:bg-slate-50 hover:text-slate-500';
             });
             
             document.getElementById('view-flashcards').classList.add('hidden');
@@ -2362,9 +2913,11 @@
             targetView.classList.remove('hidden');
             targetView.classList.add('flex');
 
-            document.getElementById(`tab-${tabName}`).className = 'nav-btn btn-silky w-1/3 flex flex-col items-center justify-center py-2 rounded-full bg-[#fff0e6] text-[#c05a22] shadow-inner';
+            document.getElementById(`tab-${tabName}`).className = 'nav-btn btn-silky w-1/5 flex flex-col items-center justify-center py-2 rounded-full bg-[#fff0e6] text-[#c05a22] shadow-inner';
 
             if (tabName === 'starred') renderStarredCards();
+            if (tabName === 'games') resetGameMenu();
+            if (tabName === 'progress') loadProgress();
             updateGlobalBackButton();
         }
 
