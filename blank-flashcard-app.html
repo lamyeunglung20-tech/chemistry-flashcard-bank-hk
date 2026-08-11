@@ -423,21 +423,21 @@
                         <p class="mt-3 text-xs leading-relaxed text-slate-500">Flashcard question side = Chinese meaning · answer side = English word.</p>
                     </div>
 
-                    <button type="button" onclick="startGame('mc')" class="btn-silky text-left bg-gradient-to-br from-indigo-500 to-violet-600 text-white rounded-3xl p-5 shadow-[0_10px_25px_rgba(99,102,241,.24)]">
+                    <button type="button" onclick="startVocabGame('mc')" class="btn-silky text-left bg-gradient-to-br from-indigo-500 to-violet-600 text-white rounded-3xl p-5 shadow-[0_10px_25px_rgba(99,102,241,.24)]">
                         <div class="flex items-center gap-4">
                             <span class="w-14 h-14 rounded-2xl bg-white/20 flex items-center justify-center text-2xl"><i class="fa-solid fa-list-check"></i></span>
                             <span class="flex-1"><strong class="block text-xl font-black">MC Quiz</strong><small class="block text-indigo-100 mt-1">Choose the correct answer from four options.</small></span>
                             <i class="fa-solid fa-chevron-right text-white/70"></i>
                         </div>
                     </button>
-                    <button type="button" onclick="startGame('matching')" class="btn-silky text-left bg-gradient-to-br from-cyan-500 to-sky-600 text-white rounded-3xl p-5 shadow-[0_10px_25px_rgba(14,165,233,.22)]">
+                    <button type="button" onclick="startVocabGame('matching')" class="btn-silky text-left bg-gradient-to-br from-cyan-500 to-sky-600 text-white rounded-3xl p-5 shadow-[0_10px_25px_rgba(14,165,233,.22)]">
                         <div class="flex items-center gap-4">
                             <span class="w-14 h-14 rounded-2xl bg-white/20 flex items-center justify-center text-2xl"><i class="fa-solid fa-table-cells-large"></i></span>
                             <span class="flex-1"><strong class="block text-xl font-black">Matching</strong><small class="block text-cyan-50 mt-1">Match each Chinese meaning with its English word.</small></span>
                             <i class="fa-solid fa-chevron-right text-white/70"></i>
                         </div>
                     </button>
-                    <button type="button" onclick="startGame('spelling')" class="btn-silky text-left bg-gradient-to-br from-emerald-500 to-teal-600 text-white rounded-3xl p-5 shadow-[0_10px_25px_rgba(16,185,129,.22)]">
+                    <button type="button" onclick="startVocabGame('spelling')" class="btn-silky text-left bg-gradient-to-br from-emerald-500 to-teal-600 text-white rounded-3xl p-5 shadow-[0_10px_25px_rgba(16,185,129,.22)]">
                         <div class="flex items-center gap-4">
                             <span class="w-14 h-14 rounded-2xl bg-white/20 flex items-center justify-center text-2xl"><i class="fa-solid fa-spell-check"></i></span>
                             <span class="flex-1"><strong class="block text-xl font-black">Spelling</strong><small class="block text-emerald-50 mt-1">Type the English word from its Chinese meaning.</small></span>
@@ -2503,7 +2503,7 @@
             document.getElementById('game-result').classList.remove('flex');
         }
 
-        function startGame(mode) {
+        function startVocabGame(mode) {
             const pairs = eligibleGamePairs();
             const direction = mode === 'mc' ? document.getElementById('game-direction').value : 'zh-en';
             const distinctAnswers = new Set(pairs.map(pair => direction === 'en-zh' ? pair.zh.toLocaleLowerCase() : pair.en.toLocaleLowerCase()));
@@ -2539,7 +2539,7 @@
             document.getElementById('game-session').classList.add('flex');
             startGameTimer();
             if (mode === 'matching') renderMatchingGame();
-            else renderGameQuestion();
+            else renderVocabGameQuestion();
         }
 
         function startGameTimer() {
@@ -2589,7 +2589,7 @@
             return shuffled([correct, ...distractors]);
         }
 
-        function renderGameQuestion() {
+        function renderVocabGameQuestion() {
             if (!gameSession) return;
             const card = gameSession.cards[gameSession.index];
             const total = gameSession.cards.length;
@@ -2670,7 +2670,7 @@
             gameSession.index++;
             gameSession.currentOptions = null;
             if (gameSession.index >= gameSession.cards.length) finishGame();
-            else renderGameQuestion();
+            else renderVocabGameQuestion();
         }
 
         function renderMatchingGame() {
