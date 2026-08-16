@@ -932,6 +932,7 @@
                         <label id="admin-card-a-remove-wrap" class="hidden mt-3 items-center gap-2 text-xs font-bold text-rose-600"><input id="admin-card-a-remove" type="checkbox" class="w-4 h-4 accent-rose-500">Remove current answer image</label>
                     </div>
 
+                    <p id="admin-card-form-success" class="hidden rounded-xl bg-emerald-50 text-emerald-700 p-3 text-xs font-bold" role="status"></p>
                     <p id="admin-card-form-error" class="hidden rounded-xl bg-rose-50 text-rose-600 p-3 text-xs font-bold" role="alert"></p>
                     <button id="admin-card-save" type="submit" class="btn-silky w-full rounded-xl bg-indigo-500 text-white py-3.5 font-black shadow-lg shadow-indigo-100">Save flashcard</button>
                 </form>
@@ -4057,7 +4058,7 @@
                 list.innerHTML = `<div class="rounded-2xl bg-white border border-slate-100 p-8 text-center text-sm text-slate-400">No ${escapeHTML(adminSchoolLevel)} topics yet. Add the first one.</div>`;
                 return;
             }
-            list.innerHTML = topics.map(topic => {
+            list.innerHTML = topics.map((topic, topicIndex) => {
                 const topicSubtopics = subtopics.filter(item => item.topicId === topic.id);
                 const expanded = expandedAdminTopics.has(topic.id);
                 const subtopicMarkup = topicSubtopics.length
@@ -4077,6 +4078,10 @@
                         <button type="button" onclick="confirmDeleteAdminTopic('${topic.id}')" class="btn-silky py-2.5 rounded-xl bg-rose-50 text-rose-600 text-xs font-black"><i class="fa-solid fa-trash mr-1"></i>Delete</button>
                         <button type="button" onclick="editAdminTopic('${topic.id}')" class="btn-silky py-2.5 rounded-xl bg-indigo-50 text-indigo-600 text-xs font-black"><i class="fa-solid fa-palette mr-1"></i>Edit topic</button>
                     </div>
+                    <div class="grid grid-cols-2 gap-2 mt-2" aria-label="Change topic order">
+                        <button type="button" onclick="moveAdminTopic('${topic.id}', -1)" ${topicIndex === 0 ? 'disabled' : ''} class="btn-silky py-2.5 rounded-xl border border-slate-200 bg-white text-slate-600 text-xs font-black disabled:opacity-35"><i class="fa-solid fa-arrow-up mr-1"></i>Move up</button>
+                        <button type="button" onclick="moveAdminTopic('${topic.id}', 1)" ${topicIndex === topics.length - 1 ? 'disabled' : ''} class="btn-silky py-2.5 rounded-xl border border-slate-200 bg-white text-slate-600 text-xs font-black disabled:opacity-35"><i class="fa-solid fa-arrow-down mr-1"></i>Move down</button>
+                    </div>
                     <div class="${expanded ? 'block' : 'hidden'} mt-3 pt-3 border-t border-slate-100 space-y-2">
                         <button type="button" onclick="openAdminSubtopicForm('${topic.id}')" class="btn-silky w-full rounded-xl bg-violet-500 text-white py-2.5 text-xs font-black"><i class="fa-solid fa-plus mr-1"></i>Add subtopic</button>
                         ${subtopicMarkup}
@@ -4086,10 +4091,11 @@
         }
 
         function renderAdminSubtopicTree(topicId, parentId = null, depth = 0) {
-            return subtopics
+            const siblings = subtopics
                 .filter(item => item.topicId === topicId && item.parentSubtopicId === parentId)
-                .sort((a, b) => (a.sortOrder - b.sortOrder) || (a.id - b.id))
-                .map(subtopic => {
+                .sort((a, b) => (a.sortOrder - b.sortOrder) || (a.id - b.id));
+            return siblings
+                .map((subtopic, siblingIndex) => {
                     const descendantIds = subtopicDescendantIds(subtopic.id);
                     const directCardCount = flashcards.filter(card => card.isManaged && card.subtopicId === subtopic.id).length;
                     const childCount = descendantIds.length - 1;
@@ -4108,6 +4114,10 @@
                                 <button type="button" onclick="confirmDeleteAdminSubtopic(${subtopic.id})" class="btn-silky min-w-0 py-2 rounded-lg bg-rose-50 text-rose-600 text-[10px] font-black"><i class="fa-solid fa-trash mr-1"></i>Delete</button>
                                 <button type="button" onclick="openAdminSubtopicForm('${topicId}', ${subtopic.id})" class="btn-silky min-w-0 py-2 rounded-lg bg-white text-violet-600 text-[10px] font-black border border-violet-100"><i class="fa-solid fa-pen mr-1"></i>Edit</button>
                             </div>
+                            <div class="grid grid-cols-2 gap-1.5 mt-1.5" aria-label="Change subtopic order">
+                                <button type="button" onclick="moveAdminSubtopic(${subtopic.id}, -1)" ${siblingIndex === 0 ? 'disabled' : ''} class="btn-silky min-w-0 py-2 rounded-lg bg-white text-slate-600 text-[10px] font-black border border-slate-200 disabled:opacity-35"><i class="fa-solid fa-arrow-up mr-1"></i>Move up</button>
+                                <button type="button" onclick="moveAdminSubtopic(${subtopic.id}, 1)" ${siblingIndex === siblings.length - 1 ? 'disabled' : ''} class="btn-silky min-w-0 py-2 rounded-lg bg-white text-slate-600 text-[10px] font-black border border-slate-200 disabled:opacity-35"><i class="fa-solid fa-arrow-down mr-1"></i>Move down</button>
+                            </div>
                         </article>
                         ${children}
                     </div>`;
@@ -4118,6 +4128,56 @@
             if (expandedAdminTopics.has(topicId)) expandedAdminTopics.delete(topicId);
             else expandedAdminTopics.add(topicId);
             renderAdminTopics();
+        }
+
+        let adminOrderUpdateInFlight = false;
+
+        async function swapAdminSortOrder(table, currentItem, adjacentItem, offset, successMessage) {
+            if (adminOrderUpdateInFlight || !hasAdminContentAccess() || !initSupabaseClient() || !currentItem || !adjacentItem) return;
+            adminOrderUpdateInFlight = true;
+            setAdminManagerStatus('Saving the new order…');
+            const currentOrder = Number(currentItem.sortOrder || 0);
+            const adjacentOrder = Number(adjacentItem.sortOrder || 0);
+            const direction = currentOrder === adjacentOrder ? Number(offset) : Math.sign(adjacentOrder - currentOrder);
+            const currentNewOrder = currentOrder === adjacentOrder ? currentOrder + direction : adjacentOrder;
+            const adjacentNewOrder = currentOrder === adjacentOrder ? adjacentOrder : currentOrder;
+            const updateMeta = { updated_by: currentUser.id, updated_at: new Date().toISOString() };
+            try {
+                const [currentResult, adjacentResult] = await Promise.all([
+                    supabaseClient.from(table).update({ sort_order: currentNewOrder, ...updateMeta }).eq('id', currentItem.id),
+                    supabaseClient.from(table).update({ sort_order: adjacentNewOrder, ...updateMeta }).eq('id', adjacentItem.id)
+                ]);
+                if (currentResult.error) throw currentResult.error;
+                if (adjacentResult.error) throw adjacentResult.error;
+                await loadManagedContent({ force: true });
+                renderAdminManager();
+                setAdminManagerStatus(successMessage, 'success');
+            } catch (error) {
+                setAdminManagerStatus(authErrorMessage(error, 'Unable to change the order.'), 'error');
+            } finally {
+                adminOrderUpdateInFlight = false;
+            }
+        }
+
+        function moveAdminTopic(topicId, offset) {
+            const topics = chapters.filter(chapter => !chapter.isAction && !chapter.isPersonalTopic && chapter.schoolLevel === adminSchoolLevel);
+            const index = topics.findIndex(topic => topic.id === topicId);
+            const adjacent = topics[index + Number(offset)];
+            if (index < 0 || !adjacent) return;
+            swapAdminSortOrder('chemistry_blank_topics', topics[index], adjacent, offset, 'Topic order updated for every user.');
+        }
+
+        function moveAdminSubtopic(subtopicId, offset) {
+            const current = subtopics.find(item => item.id === Number(subtopicId));
+            if (!current) return;
+            const siblings = subtopics
+                .filter(item => item.topicId === current.topicId && item.parentSubtopicId === current.parentSubtopicId)
+                .sort((left, right) => (left.sortOrder - right.sortOrder) || (left.id - right.id));
+            const index = siblings.findIndex(item => item.id === current.id);
+            const adjacent = siblings[index + Number(offset)];
+            if (index < 0 || !adjacent) return;
+            expandedAdminTopics.add(current.topicId);
+            swapAdminSortOrder('chemistry_blank_subtopics', current, adjacent, offset, 'Subtopic order updated for every user.');
         }
 
         function openAdminTopicForm(topicId = null) {
@@ -4344,8 +4404,7 @@
             select.value = [...select.options].some(option => option.value === previous) ? previous : 'all';
         }
 
-        function renderAdminCards() {
-            const list = document.getElementById('admin-card-list');
+        function currentAdminCardList() {
             const search = document.getElementById('admin-card-search').value.trim().toLowerCase();
             const topicId = document.getElementById('admin-card-topic-filter').value || 'all';
             const subtopicId = document.getElementById('admin-card-subtopic-filter').value || 'all';
@@ -4355,12 +4414,26 @@
             if (subtopicId === 'none') cards = cards.filter(card => !card.subtopicId);
             else if (subtopicId !== 'all') cards = cards.filter(card => card.subtopicId === Number(subtopicId));
             if (search) cards = cards.filter(card => `${card.q_en} ${card.a_en}`.toLowerCase().includes(search));
+            return cards;
+        }
+
+        function moveAdminCard(cardId, offset) {
+            const cards = currentAdminCardList();
+            const index = cards.findIndex(card => card.id === Number(cardId));
+            const adjacent = cards[index + Number(offset)];
+            if (index < 0 || !adjacent) return;
+            swapAdminSortOrder('chemistry_blank_flashcards', cards[index], adjacent, offset, 'Flashcard order updated for every user.');
+        }
+
+        function renderAdminCards() {
+            const list = document.getElementById('admin-card-list');
+            const cards = currentAdminCardList();
             document.getElementById('admin-card-count').innerText = `Showing ${cards.length} shared flashcards`;
             if (!cards.length) {
                 list.innerHTML = '<div class="rounded-2xl bg-white border border-slate-100 p-8 text-center text-sm text-slate-400">No matching shared flashcards.</div>';
                 return;
             }
-            list.innerHTML = cards.map(card => {
+            list.innerHTML = cards.map((card, cardIndex) => {
                 const topic = chapters.find(chapter => chapter.id === card.chapter);
                 const subtopic = subtopics.find(item => item.id === card.subtopicId);
                 const subtopicPath = subtopic ? flattenedSubtopics(card.chapter).find(item => item.id === subtopic.id)?.path : '';
@@ -4375,6 +4448,10 @@
                         <div class="grid grid-cols-2 gap-2 mt-3">
                             <button type="button" onclick="confirmDeleteAdminCard(${card.id})" class="btn-silky py-2.5 rounded-xl bg-rose-50 text-rose-600 text-xs font-black"><i class="fa-solid fa-trash mr-1"></i>Delete</button>
                             <button type="button" onclick="openAdminCardEditor(${card.id})" class="btn-silky py-2.5 rounded-xl bg-indigo-50 text-indigo-600 text-xs font-black"><i class="fa-solid fa-pen mr-1"></i>Edit</button>
+                        </div>
+                        <div class="grid grid-cols-2 gap-2 mt-2" aria-label="Change flashcard order">
+                            <button type="button" onclick="moveAdminCard(${card.id}, -1)" ${cardIndex === 0 ? 'disabled' : ''} class="btn-silky py-2.5 rounded-xl border border-slate-200 bg-white text-slate-600 text-xs font-black disabled:opacity-35"><i class="fa-solid fa-arrow-up mr-1"></i>Move up</button>
+                            <button type="button" onclick="moveAdminCard(${card.id}, 1)" ${cardIndex === cards.length - 1 ? 'disabled' : ''} class="btn-silky py-2.5 rounded-xl border border-slate-200 bg-white text-slate-600 text-xs font-black disabled:opacity-35"><i class="fa-solid fa-arrow-down mr-1"></i>Move down</button>
                         </div>
                     </article>`;
             }).join('');
@@ -4468,6 +4545,7 @@
             document.getElementById('admin-card-q-remove').checked = false;
             document.getElementById('admin-card-a-remove').checked = false;
             document.getElementById('admin-card-form-error').classList.add('hidden');
+            document.getElementById('admin-card-form-success').classList.add('hidden');
             setAdminImagePreview('question', card?.img || '');
             setAdminImagePreview('answer', card?.answerImg || '');
             updateAdminSubtopicField(preferredSubtopic);
@@ -4526,6 +4604,32 @@
             return { path, url: data.publicUrl };
         }
 
+        function prepareAdminCardEditorForNext(topicId, subtopicId) {
+            adminEditingCard = null;
+            document.getElementById('admin-card-id').value = '';
+            document.getElementById('admin-card-editor-title').innerText = 'Add shared flashcard';
+            populateAdminTopicControls();
+            document.getElementById('admin-card-topic').value = topicId;
+            updateAdminSubtopicField(subtopicId);
+            document.getElementById('admin-card-q-zh').value = '';
+            document.getElementById('admin-card-a-zh').value = '';
+            document.getElementById('admin-card-q-en').value = '';
+            document.getElementById('admin-card-a-en').value = '';
+            document.getElementById('admin-card-q-image').value = '';
+            document.getElementById('admin-card-a-image').value = '';
+            document.getElementById('admin-card-q-remove').checked = false;
+            document.getElementById('admin-card-a-remove').checked = false;
+            setAdminImagePreview('question', '');
+            setAdminImagePreview('answer', '');
+            document.getElementById('admin-card-form-error').classList.add('hidden');
+            const successElement = document.getElementById('admin-card-form-success');
+            successElement.className = 'rounded-xl bg-emerald-50 text-emerald-700 p-3 text-xs font-bold';
+            successElement.innerText = 'Flashcard saved. Enter the next flashcard below; the same topic and subtopic have been kept.';
+            const editor = document.getElementById('view-admin-card-editor');
+            editor.scrollTo({ top: 0, behavior: 'smooth' });
+            setTimeout(() => document.getElementById('admin-card-q-en').focus({ preventScroll: true }), 350);
+        }
+
         async function saveAdminCard(event) {
             event.preventDefault();
             if (!hasAdminContentAccess() || !initSupabaseClient()) return;
@@ -4558,6 +4662,10 @@
             button.disabled = true;
             button.innerText = 'Saving…';
             errorElement.classList.add('hidden');
+            document.getElementById('admin-card-form-success').classList.add('hidden');
+            const wasCreatingCard = !adminEditingCard;
+            const savedTopicId = topicId;
+            const savedSubtopicId = subtopicId;
             const newUploads = [];
             try {
                 let questionUrl = adminEditingCard?.img || null;
@@ -4613,8 +4721,12 @@
                 if (obsoletePaths.length) await supabaseClient.storage.from(ADMIN_IMAGE_BUCKET).remove(obsoletePaths);
                 const shouldReturnToReview = adminEditorReturnView === 'review';
                 await loadManagedContent({ force: true });
-                closeAdminCardEditor();
-                if (!shouldReturnToReview) {
+                if (wasCreatingCard && !shouldReturnToReview) {
+                    prepareAdminCardEditorForNext(savedTopicId, savedSubtopicId);
+                } else {
+                    closeAdminCardEditor();
+                }
+                if (!shouldReturnToReview && !wasCreatingCard) {
                     switchAdminPanel('cards');
                     setAdminManagerStatus('Shared flashcard saved. All students will see the latest content.', 'success');
                 }
