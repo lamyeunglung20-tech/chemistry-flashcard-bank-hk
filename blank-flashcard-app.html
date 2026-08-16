@@ -124,6 +124,27 @@
         .btn-silky i {
             transition: transform .28s cubic-bezier(.2, .8, .2, 1), opacity .2s ease;
         }
+        .admin-drag-handle {
+            touch-action: none;
+            cursor: grab;
+            -webkit-user-select: none;
+            user-select: none;
+        }
+        .admin-drag-handle:active { cursor: grabbing; }
+        [data-admin-sort-item] {
+            transition: transform .2s cubic-bezier(.2,.8,.2,1), box-shadow .2s ease, opacity .2s ease;
+        }
+        [data-admin-sort-item].admin-is-dragging {
+            position: relative;
+            z-index: 20;
+            opacity: .9;
+            transform: scale(1.015);
+            box-shadow: 0 18px 36px rgba(79,70,229,.2);
+        }
+        [data-admin-sort-container].admin-sort-saving .admin-drag-handle {
+            pointer-events: none;
+            opacity: .35;
+        }
         @media (hover: hover) and (pointer: fine) {
             .btn-silky:not(:disabled):hover {
                 transform: translate3d(0, -2px, 0);
@@ -782,6 +803,7 @@
 
                 <section id="admin-topics-panel" class="flex flex-col gap-3 pb-12">
                     <button type="button" onclick="openAdminTopicForm()" class="btn-silky w-full rounded-2xl bg-indigo-500 text-white py-3.5 font-black shadow-lg shadow-indigo-100"><i class="fa-solid fa-plus mr-2"></i>Add topic</button>
+                    <p class="rounded-xl border border-indigo-100 bg-indigo-50 px-3 py-2.5 text-[11px] font-bold leading-relaxed text-indigo-700"><i class="fa-solid fa-grip-lines mr-2"></i>Press and hold the drag handle, then slide up or down to reorder a topic or subtopic.</p>
                     <form id="admin-topic-form" onsubmit="saveAdminTopic(event)" class="hidden bg-white rounded-2xl border border-indigo-100 shadow-sm p-4 space-y-3">
                         <input id="admin-topic-edit-id" type="hidden">
                         <div class="flex items-center justify-between">
@@ -855,11 +877,12 @@
                         </div>
                         <button id="admin-subtopic-save" type="submit" class="btn-silky w-full rounded-xl bg-violet-500 text-white py-3 font-black">Save subtopic</button>
                     </form>
-                    <div id="admin-topic-list" class="space-y-3"><p class="text-xs text-slate-400 text-center py-8">Loading…</p></div>
+                    <div id="admin-topic-list" data-admin-sort-container data-sort-kind="topic" class="space-y-3"><p class="text-xs text-slate-400 text-center py-8">Loading…</p></div>
                 </section>
 
                 <section id="admin-cards-panel" class="hidden flex-col gap-3 pb-12">
                     <button type="button" onclick="openAdminCardEditor()" class="btn-silky w-full rounded-2xl bg-indigo-500 text-white py-3.5 font-black shadow-lg shadow-indigo-100"><i class="fa-solid fa-plus mr-2"></i>Add shared flashcard</button>
+                    <p class="rounded-xl border border-indigo-100 bg-indigo-50 px-3 py-2.5 text-[11px] font-bold leading-relaxed text-indigo-700"><i class="fa-solid fa-grip-lines mr-2"></i>Press and hold a flashcard's drag handle, then slide it to the required position.</p>
                     <div class="bg-white rounded-2xl border border-slate-100 p-3 space-y-2 shadow-sm">
                         <div class="relative">
                             <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-3.5 text-slate-300"></i>
@@ -875,7 +898,7 @@
                         </div>
                     </div>
                     <p id="admin-card-count" class="text-[11px] text-slate-500 font-bold px-1"></p>
-                    <div id="admin-card-list" class="space-y-3"><p class="text-xs text-slate-400 text-center py-8">Loading…</p></div>
+                    <div id="admin-card-list" data-admin-sort-container data-sort-kind="flashcard" class="space-y-3"><p class="text-xs text-slate-400 text-center py-8">Loading…</p></div>
                 </section>
             </div>
 
@@ -4058,29 +4081,28 @@
                 list.innerHTML = `<div class="rounded-2xl bg-white border border-slate-100 p-8 text-center text-sm text-slate-400">No ${escapeHTML(adminSchoolLevel)} topics yet. Add the first one.</div>`;
                 return;
             }
-            list.innerHTML = topics.map((topic, topicIndex) => {
+            list.innerHTML = topics.map(topic => {
                 const topicSubtopics = subtopics.filter(item => item.topicId === topic.id);
                 const expanded = expandedAdminTopics.has(topic.id);
                 const subtopicMarkup = topicSubtopics.length
                     ? renderAdminSubtopicTree(topic.id)
                     : '<p class="rounded-xl bg-slate-50 p-4 text-center text-xs text-slate-400">This topic has no subtopics yet.</p>';
                 return `
-                <article class="bg-white rounded-2xl border border-slate-100 shadow-sm p-4">
-                    <button type="button" onclick="toggleAdminTopicSubtopics('${topic.id}')" class="w-full flex items-start gap-3 text-left">
-                        <div class="w-11 h-11 rounded-xl ${topic.color} text-white flex items-center justify-center flex-shrink-0"><i class="fa-solid ${topic.icon}"></i></div>
-                        <div class="flex-1 min-w-0">
-                            <h3 class="font-black text-slate-800 break-words">${escapeHTML(topic.en)}</h3>
-                            <p class="text-[10px] font-bold text-indigo-500 mt-1">${escapeHTML(topic.schoolLevel)} · ${topicSubtopics.length} subtopics · ${topic.count} shared flashcards</p>
-                        </div>
-                        <i class="fa-solid fa-chevron-${expanded ? 'up' : 'down'} text-slate-400 mt-3"></i>
-                    </button>
+                <article data-admin-sort-item data-sort-id="${topic.id}" class="bg-white rounded-2xl border border-slate-100 shadow-sm p-4">
+                    <div class="flex items-start gap-2">
+                        <button type="button" onclick="toggleAdminTopicSubtopics('${topic.id}')" class="min-w-0 flex-1 flex items-start gap-3 text-left">
+                            <div class="w-11 h-11 rounded-xl ${topic.color} text-white flex items-center justify-center flex-shrink-0"><i class="fa-solid ${topic.icon}"></i></div>
+                            <div class="flex-1 min-w-0">
+                                <h3 class="font-black text-slate-800 break-words">${escapeHTML(topic.en)}</h3>
+                                <p class="text-[10px] font-bold text-indigo-500 mt-1">${escapeHTML(topic.schoolLevel)} · ${topicSubtopics.length} subtopics · ${topic.count} shared flashcards</p>
+                            </div>
+                            <i class="fa-solid fa-chevron-${expanded ? 'up' : 'down'} text-slate-400 mt-3"></i>
+                        </button>
+                        <button type="button" onpointerdown="beginAdminDrag(event)" class="admin-drag-handle btn-silky flex h-11 w-10 flex-shrink-0 items-center justify-center rounded-xl bg-slate-100 text-slate-500" aria-label="Hold and drag to reorder ${escapeHTML(topic.en)}" title="Hold and drag to reorder"><i class="fa-solid fa-grip-lines text-lg"></i></button>
+                    </div>
                     <div class="grid grid-cols-2 gap-2 mt-3">
                         <button type="button" onclick="confirmDeleteAdminTopic('${topic.id}')" class="btn-silky py-2.5 rounded-xl bg-rose-50 text-rose-600 text-xs font-black"><i class="fa-solid fa-trash mr-1"></i>Delete</button>
                         <button type="button" onclick="editAdminTopic('${topic.id}')" class="btn-silky py-2.5 rounded-xl bg-indigo-50 text-indigo-600 text-xs font-black"><i class="fa-solid fa-palette mr-1"></i>Edit topic</button>
-                    </div>
-                    <div class="grid grid-cols-2 gap-2 mt-2" aria-label="Change topic order">
-                        <button type="button" onclick="moveAdminTopic('${topic.id}', -1)" ${topicIndex === 0 ? 'disabled' : ''} class="btn-silky py-2.5 rounded-xl border border-slate-200 bg-white text-slate-600 text-xs font-black disabled:opacity-35"><i class="fa-solid fa-arrow-up mr-1"></i>Move up</button>
-                        <button type="button" onclick="moveAdminTopic('${topic.id}', 1)" ${topicIndex === topics.length - 1 ? 'disabled' : ''} class="btn-silky py-2.5 rounded-xl border border-slate-200 bg-white text-slate-600 text-xs font-black disabled:opacity-35"><i class="fa-solid fa-arrow-down mr-1"></i>Move down</button>
                     </div>
                     <div class="${expanded ? 'block' : 'hidden'} mt-3 pt-3 border-t border-slate-100 space-y-2">
                         <button type="button" onclick="openAdminSubtopicForm('${topic.id}')" class="btn-silky w-full rounded-xl bg-violet-500 text-white py-2.5 text-xs font-black"><i class="fa-solid fa-plus mr-1"></i>Add subtopic</button>
@@ -4094,13 +4116,13 @@
             const siblings = subtopics
                 .filter(item => item.topicId === topicId && item.parentSubtopicId === parentId)
                 .sort((a, b) => (a.sortOrder - b.sortOrder) || (a.id - b.id));
-            return siblings
-                .map((subtopic, siblingIndex) => {
+            const items = siblings
+                .map(subtopic => {
                     const descendantIds = subtopicDescendantIds(subtopic.id);
                     const directCardCount = flashcards.filter(card => card.isManaged && card.subtopicId === subtopic.id).length;
                     const childCount = descendantIds.length - 1;
                     const children = renderAdminSubtopicTree(topicId, subtopic.id, depth + 1);
-                    return `<div class="space-y-2" style="margin-left:${Math.min(depth, 4) * 12}px">
+                    return `<div data-admin-sort-item data-sort-id="${subtopic.id}" class="space-y-2" style="margin-left:${Math.min(depth, 4) * 12}px">
                         <article class="rounded-xl border border-violet-100 bg-violet-50/40 p-3">
                             <div class="flex items-start gap-2">
                                 <div class="w-8 h-8 rounded-lg ${subtopic.color} text-white flex items-center justify-center flex-shrink-0"><i class="fa-solid ${subtopic.icon} text-xs"></i></div>
@@ -4108,20 +4130,19 @@
                                     <p class="text-xs font-black text-slate-700 break-words">${escapeHTML(subtopic.en)}</p>
                                     <p class="text-[10px] font-bold text-violet-600 mt-1">${directCardCount} shared flashcards${childCount ? ` · ${childCount} nested` : ''}</p>
                                 </div>
+                                <button type="button" onpointerdown="beginAdminDrag(event)" class="admin-drag-handle btn-silky flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-lg bg-white text-violet-500 border border-violet-100" aria-label="Hold and drag to reorder ${escapeHTML(subtopic.en)}" title="Hold and drag to reorder"><i class="fa-solid fa-grip-lines"></i></button>
                             </div>
                             <div class="grid grid-cols-3 gap-1.5 mt-2">
                                 <button type="button" onclick="openAdminSubtopicForm('${topicId}', null, ${subtopic.id})" class="btn-silky min-w-0 py-2 rounded-lg bg-violet-500 text-white text-[10px] font-black"><i class="fa-solid fa-plus mr-1"></i>Add</button>
                                 <button type="button" onclick="confirmDeleteAdminSubtopic(${subtopic.id})" class="btn-silky min-w-0 py-2 rounded-lg bg-rose-50 text-rose-600 text-[10px] font-black"><i class="fa-solid fa-trash mr-1"></i>Delete</button>
                                 <button type="button" onclick="openAdminSubtopicForm('${topicId}', ${subtopic.id})" class="btn-silky min-w-0 py-2 rounded-lg bg-white text-violet-600 text-[10px] font-black border border-violet-100"><i class="fa-solid fa-pen mr-1"></i>Edit</button>
                             </div>
-                            <div class="grid grid-cols-2 gap-1.5 mt-1.5" aria-label="Change subtopic order">
-                                <button type="button" onclick="moveAdminSubtopic(${subtopic.id}, -1)" ${siblingIndex === 0 ? 'disabled' : ''} class="btn-silky min-w-0 py-2 rounded-lg bg-white text-slate-600 text-[10px] font-black border border-slate-200 disabled:opacity-35"><i class="fa-solid fa-arrow-up mr-1"></i>Move up</button>
-                                <button type="button" onclick="moveAdminSubtopic(${subtopic.id}, 1)" ${siblingIndex === siblings.length - 1 ? 'disabled' : ''} class="btn-silky min-w-0 py-2 rounded-lg bg-white text-slate-600 text-[10px] font-black border border-slate-200 disabled:opacity-35"><i class="fa-solid fa-arrow-down mr-1"></i>Move down</button>
-                            </div>
                         </article>
                         ${children}
                     </div>`;
                 }).join('');
+            const groupId = `${topicId}:${parentId == null ? 'root' : parentId}`;
+            return `<div data-admin-sort-container data-sort-kind="subtopic" data-sort-group="${escapeHTML(groupId)}" class="space-y-2">${items}</div>`;
         }
 
         function toggleAdminTopicSubtopics(topicId) {
@@ -4131,53 +4152,105 @@
         }
 
         let adminOrderUpdateInFlight = false;
+        let adminDragState = null;
 
-        async function swapAdminSortOrder(table, currentItem, adjacentItem, offset, successMessage) {
-            if (adminOrderUpdateInFlight || !hasAdminContentAccess() || !initSupabaseClient() || !currentItem || !adjacentItem) return;
+        function adminSortItemIds(container) {
+            return [...container.children]
+                .filter(item => item.matches('[data-admin-sort-item]'))
+                .map(item => String(item.dataset.sortId));
+        }
+
+        function beginAdminDrag(event) {
+            if (adminOrderUpdateInFlight || !hasAdminContentAccess()) return;
+            const item = event.currentTarget.closest('[data-admin-sort-item]');
+            const container = item?.parentElement;
+            if (!item || !container?.matches('[data-admin-sort-container]')) return;
+            event.preventDefault();
+            event.stopPropagation();
+            const originalIds = adminSortItemIds(container);
+            adminDragState = { item, container, pointerId: event.pointerId, originalIds };
+            event.currentTarget.setPointerCapture?.(event.pointerId);
+            item.classList.add('admin-is-dragging');
+            document.body.style.cursor = 'grabbing';
+            document.body.style.userSelect = 'none';
+            document.addEventListener('pointermove', moveAdminDrag, { passive: false });
+            document.addEventListener('pointerup', finishAdminDrag, { once: true });
+            document.addEventListener('pointercancel', cancelAdminDrag, { once: true });
+        }
+
+        function moveAdminDrag(event) {
+            const state = adminDragState;
+            if (!state || event.pointerId !== state.pointerId) return;
+            event.preventDefault();
+            const candidates = [...state.container.children].filter(item => item.matches('[data-admin-sort-item]') && item !== state.item);
+            const pointedElement = document.elementFromPoint(event.clientX, event.clientY);
+            const target = candidates.find(item => item === pointedElement || item.contains(pointedElement));
+            if (target) {
+                const rect = target.getBoundingClientRect();
+                if (event.clientY < rect.top + rect.height / 2) state.container.insertBefore(state.item, target);
+                else state.container.insertBefore(state.item, target.nextElementSibling);
+            }
+            const adminView = document.getElementById('view-admin');
+            const viewRect = adminView.getBoundingClientRect();
+            if (event.clientY < viewRect.top + 90) adminView.scrollBy({ top: -14, behavior: 'auto' });
+            else if (event.clientY > viewRect.bottom - 90) adminView.scrollBy({ top: 14, behavior: 'auto' });
+        }
+
+        async function finishAdminDrag(event) {
+            const state = adminDragState;
+            if (!state || event.pointerId !== state.pointerId) return;
+            cleanupAdminDragState();
+            const orderedIds = adminSortItemIds(state.container);
+            if (orderedIds.join('|') === state.originalIds.join('|')) return;
+            await persistAdminDraggedOrder(state.container.dataset.sortKind, orderedIds, state.originalIds, state.container);
+        }
+
+        function cancelAdminDrag(event) {
+            if (!adminDragState || event.pointerId !== adminDragState.pointerId) return;
+            cleanupAdminDragState();
+            renderAdminManager();
+        }
+
+        function cleanupAdminDragState() {
+            if (adminDragState?.item) adminDragState.item.classList.remove('admin-is-dragging');
+            adminDragState = null;
+            document.body.style.cursor = '';
+            document.body.style.userSelect = '';
+            document.removeEventListener('pointermove', moveAdminDrag);
+            document.removeEventListener('pointerup', finishAdminDrag);
+            document.removeEventListener('pointercancel', cancelAdminDrag);
+        }
+
+        async function persistAdminDraggedOrder(kind, orderedIds, originalIds, container) {
+            if (adminOrderUpdateInFlight || !initSupabaseClient()) return;
             adminOrderUpdateInFlight = true;
+            container.classList.add('admin-sort-saving');
             setAdminManagerStatus('Saving the new order…');
-            const currentOrder = Number(currentItem.sortOrder || 0);
-            const adjacentOrder = Number(adjacentItem.sortOrder || 0);
-            const direction = currentOrder === adjacentOrder ? Number(offset) : Math.sign(adjacentOrder - currentOrder);
-            const currentNewOrder = currentOrder === adjacentOrder ? currentOrder + direction : adjacentOrder;
-            const adjacentNewOrder = currentOrder === adjacentOrder ? adjacentOrder : currentOrder;
-            const updateMeta = { updated_by: currentUser.id, updated_at: new Date().toISOString() };
+            let idsToSave = orderedIds;
+            if (kind === 'flashcard') {
+                const visibleIds = new Set(originalIds);
+                let replacementIndex = 0;
+                idsToSave = flashcards
+                    .filter(card => card.isManaged)
+                    .sort((left, right) => (left.sortOrder - right.sortOrder) || (left.id - right.id))
+                    .map(card => visibleIds.has(String(card.id)) ? orderedIds[replacementIndex++] : String(card.id));
+            }
             try {
-                const [currentResult, adjacentResult] = await Promise.all([
-                    supabaseClient.from(table).update({ sort_order: currentNewOrder, ...updateMeta }).eq('id', currentItem.id),
-                    supabaseClient.from(table).update({ sort_order: adjacentNewOrder, ...updateMeta }).eq('id', adjacentItem.id)
-                ]);
-                if (currentResult.error) throw currentResult.error;
-                if (adjacentResult.error) throw adjacentResult.error;
+                const { error } = await supabaseClient.rpc('reorder_science_vocab_shared_content', {
+                    p_item_kind: kind,
+                    p_ordered_ids: idsToSave
+                });
+                if (error) throw error;
                 await loadManagedContent({ force: true });
                 renderAdminManager();
-                setAdminManagerStatus(successMessage, 'success');
+                setAdminManagerStatus(`${kind === 'flashcard' ? 'Flashcard' : kind === 'subtopic' ? 'Subtopic' : 'Topic'} order updated for every user.`, 'success');
             } catch (error) {
-                setAdminManagerStatus(authErrorMessage(error, 'Unable to change the order.'), 'error');
+                renderAdminManager();
+                setAdminManagerStatus(authErrorMessage(error, 'Unable to save the new order.'), 'error');
             } finally {
+                container.classList.remove('admin-sort-saving');
                 adminOrderUpdateInFlight = false;
             }
-        }
-
-        function moveAdminTopic(topicId, offset) {
-            const topics = chapters.filter(chapter => !chapter.isAction && !chapter.isPersonalTopic && chapter.schoolLevel === adminSchoolLevel);
-            const index = topics.findIndex(topic => topic.id === topicId);
-            const adjacent = topics[index + Number(offset)];
-            if (index < 0 || !adjacent) return;
-            swapAdminSortOrder('chemistry_blank_topics', topics[index], adjacent, offset, 'Topic order updated for every user.');
-        }
-
-        function moveAdminSubtopic(subtopicId, offset) {
-            const current = subtopics.find(item => item.id === Number(subtopicId));
-            if (!current) return;
-            const siblings = subtopics
-                .filter(item => item.topicId === current.topicId && item.parentSubtopicId === current.parentSubtopicId)
-                .sort((left, right) => (left.sortOrder - right.sortOrder) || (left.id - right.id));
-            const index = siblings.findIndex(item => item.id === current.id);
-            const adjacent = siblings[index + Number(offset)];
-            if (index < 0 || !adjacent) return;
-            expandedAdminTopics.add(current.topicId);
-            swapAdminSortOrder('chemistry_blank_subtopics', current, adjacent, offset, 'Subtopic order updated for every user.');
         }
 
         function openAdminTopicForm(topicId = null) {
@@ -4417,14 +4490,6 @@
             return cards;
         }
 
-        function moveAdminCard(cardId, offset) {
-            const cards = currentAdminCardList();
-            const index = cards.findIndex(card => card.id === Number(cardId));
-            const adjacent = cards[index + Number(offset)];
-            if (index < 0 || !adjacent) return;
-            swapAdminSortOrder('chemistry_blank_flashcards', cards[index], adjacent, offset, 'Flashcard order updated for every user.');
-        }
-
         function renderAdminCards() {
             const list = document.getElementById('admin-card-list');
             const cards = currentAdminCardList();
@@ -4433,25 +4498,24 @@
                 list.innerHTML = '<div class="rounded-2xl bg-white border border-slate-100 p-8 text-center text-sm text-slate-400">No matching shared flashcards.</div>';
                 return;
             }
-            list.innerHTML = cards.map((card, cardIndex) => {
+            list.innerHTML = cards.map(card => {
                 const topic = chapters.find(chapter => chapter.id === card.chapter);
                 const subtopic = subtopics.find(item => item.id === card.subtopicId);
                 const subtopicPath = subtopic ? flattenedSubtopics(card.chapter).find(item => item.id === subtopic.id)?.path : '';
                 return `
-                    <article class="bg-white rounded-2xl border border-slate-100 shadow-sm p-4">
+                    <article data-admin-sort-item data-sort-id="${card.id}" class="bg-white rounded-2xl border border-slate-100 shadow-sm p-4">
                         <div class="flex items-center justify-between gap-2 mb-2">
                             <span class="text-[10px] font-black text-indigo-600 bg-indigo-50 px-2 py-1 rounded-full">${escapeHTML(topic?.en || card.chapter)}${subtopicPath ? ` · ${escapeHTML(subtopicPath)}` : ' · Uncategorised'}</span>
-                            ${(card.img || card.answerImg) ? '<i class="fa-solid fa-image text-emerald-500" title="Contains an image"></i>' : ''}
+                            <span class="flex items-center gap-2">
+                                ${(card.img || card.answerImg) ? '<i class="fa-solid fa-image text-emerald-500" title="Contains an image"></i>' : ''}
+                                <button type="button" onpointerdown="beginAdminDrag(event)" class="admin-drag-handle btn-silky flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-lg bg-slate-100 text-slate-500" aria-label="Hold and drag to reorder this flashcard" title="Hold and drag to reorder"><i class="fa-solid fa-grip-lines"></i></button>
+                            </span>
                         </div>
                         <h3 class="font-black text-slate-800 text-sm leading-relaxed line-clamp-3">${escapeHTML(card.q_en)}</h3>
                         <p class="text-xs text-slate-500 leading-relaxed mt-2 line-clamp-2">${escapeHTML(card.a_en)}</p>
                         <div class="grid grid-cols-2 gap-2 mt-3">
                             <button type="button" onclick="confirmDeleteAdminCard(${card.id})" class="btn-silky py-2.5 rounded-xl bg-rose-50 text-rose-600 text-xs font-black"><i class="fa-solid fa-trash mr-1"></i>Delete</button>
                             <button type="button" onclick="openAdminCardEditor(${card.id})" class="btn-silky py-2.5 rounded-xl bg-indigo-50 text-indigo-600 text-xs font-black"><i class="fa-solid fa-pen mr-1"></i>Edit</button>
-                        </div>
-                        <div class="grid grid-cols-2 gap-2 mt-2" aria-label="Change flashcard order">
-                            <button type="button" onclick="moveAdminCard(${card.id}, -1)" ${cardIndex === 0 ? 'disabled' : ''} class="btn-silky py-2.5 rounded-xl border border-slate-200 bg-white text-slate-600 text-xs font-black disabled:opacity-35"><i class="fa-solid fa-arrow-up mr-1"></i>Move up</button>
-                            <button type="button" onclick="moveAdminCard(${card.id}, 1)" ${cardIndex === cards.length - 1 ? 'disabled' : ''} class="btn-silky py-2.5 rounded-xl border border-slate-200 bg-white text-slate-600 text-xs font-black disabled:opacity-35"><i class="fa-solid fa-arrow-down mr-1"></i>Move down</button>
                         </div>
                     </article>`;
             }).join('');
