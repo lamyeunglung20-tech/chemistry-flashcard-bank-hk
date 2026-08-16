@@ -4221,6 +4221,39 @@
             document.removeEventListener('pointercancel', cancelAdminDrag);
         }
 
+        function adminSortTable(kind) {
+            return {
+                topic: 'chemistry_blank_topics',
+                subtopic: 'chemistry_blank_subtopics',
+                flashcard: 'chemistry_blank_flashcards'
+            }[kind] || null;
+        }
+
+        async function adminOrderWasSaved(kind, orderedIds) {
+            const table = adminSortTable(kind);
+            if (!table || !orderedIds.length) return false;
+            const { data, error } = await supabaseClient
+                .from(table)
+                .select('id,sort_order')
+                .in('id', orderedIds);
+            if (error) throw error;
+            const savedIds = (data || [])
+                .sort((left, right) => (Number(left.sort_order) - Number(right.sort_order)) || String(left.id).localeCompare(String(right.id)))
+                .map(item => String(item.id));
+            return savedIds.length === orderedIds.length
+                && savedIds.every((id, index) => id === String(orderedIds[index]));
+        }
+
+        async function saveAdminOrderDirectly(kind, orderedIds) {
+            const table = adminSortTable(kind);
+            if (!table) throw new Error('Unknown content type.');
+            const results = await Promise.all(orderedIds.map((id, sortOrder) =>
+                supabaseClient.from(table).update({ sort_order: sortOrder }).eq('id', id)
+            ));
+            const failedResult = results.find(result => result.error);
+            if (failedResult?.error) throw failedResult.error;
+        }
+
         async function persistAdminDraggedOrder(kind, orderedIds, originalIds, container) {
             if (adminOrderUpdateInFlight || !initSupabaseClient()) return;
             adminOrderUpdateInFlight = true;
@@ -4236,11 +4269,23 @@
                     .map(card => visibleIds.has(String(card.id)) ? orderedIds[replacementIndex++] : String(card.id));
             }
             try {
-                const { error } = await supabaseClient.rpc('reorder_science_vocab_shared_content', {
+                const { error: rpcError } = await supabaseClient.rpc('reorder_science_vocab_shared_content', {
                     p_item_kind: kind,
                     p_ordered_ids: idsToSave
                 });
-                if (error) throw error;
+                let orderSaved = false;
+                if (!rpcError) {
+                    try {
+                        orderSaved = await adminOrderWasSaved(kind, idsToSave);
+                    } catch (verificationError) {
+                        console.warn('Unable to verify RPC order; trying direct updates.', verificationError);
+                    }
+                }
+                if (!orderSaved) {
+                    await saveAdminOrderDirectly(kind, idsToSave);
+                    orderSaved = await adminOrderWasSaved(kind, idsToSave);
+                }
+                if (!orderSaved) throw rpcError || new Error('The database did not retain the new order.');
                 await loadManagedContent({ force: true });
                 renderAdminManager();
                 setAdminManagerStatus(`${kind === 'flashcard' ? 'Flashcard' : kind === 'subtopic' ? 'Subtopic' : 'Topic'} order updated for every user.`, 'success');
