@@ -396,7 +396,7 @@
             <div class="flex items-center gap-1.5 flex-shrink-0">
                 <div class="relative flex items-center">
                     <label for="school-level-select" class="sr-only">School level</label>
-                    <select id="school-level-select" onchange="changeSchoolLevel(this.value)" class="min-w-[68px] appearance-none rounded-xl border-2 border-emerald-100 bg-emerald-50 py-2 pl-2.5 pr-7 text-xs font-black tracking-wide text-emerald-700 outline-none focus:border-emerald-400" aria-label="School level">
+                    <select id="school-level-select" onchange="changeSchoolLevel(this.value)" class="min-w-[68px] max-w-[92px] sm:max-w-[140px] appearance-none rounded-xl border-2 border-emerald-100 bg-emerald-50 py-2 pl-2.5 pr-7 text-xs font-black tracking-wide text-emerald-700 outline-none focus:border-emerald-400" aria-label="School level">
                         <option value="S1">S1</option>
                         <option value="S2">S2</option>
                         <option value="S3">S3</option>
@@ -406,6 +406,9 @@
                 </div>
                 <button id="school-level-default-btn" type="button" onclick="setDefaultSchoolLevel()" class="btn-silky min-h-[36px] rounded-xl border-2 border-emerald-100 bg-white px-2 text-[9px] font-black leading-tight text-emerald-700" aria-label="Set selected school level as default" title="Set selected school level as default">
                     <i class="fa-regular fa-circle-check mr-1"></i><span id="school-level-default-text">Set default</span>
+                </button>
+                <button id="personal-menu-manage-btn" type="button" onclick="openPersonalMenuEditorForCurrent()" class="hidden btn-silky h-9 w-9 flex-shrink-0 items-center justify-center rounded-xl border-2 border-sky-100 bg-sky-50 text-xs text-sky-600" aria-label="Edit this personal menu" title="Edit this personal menu">
+                    <i class="fa-solid fa-pen"></i>
                 </button>
             </div>
         </header>
@@ -979,6 +982,50 @@
                 <div class="h-12 flex-shrink-0 w-full"></div>
             </div>
 
+            <!-- 學生個人選單／Topic 編輯器；所有資料均由 RLS 限制至目前帳號 -->
+            <div id="view-personal-content-editor" class="absolute inset-0 bg-[#f4f6f9] p-5 hidden flex-col z-40 overflow-y-auto no-scrollbar">
+                <div class="grid grid-cols-[5rem_1fr_5rem] items-center gap-3 mb-6 mt-2 flex-shrink-0">
+                    <button type="button" onclick="closePersonalContentEditor()" class="back-btn-silky w-20 text-slate-500 flex items-center gap-2 text-sm font-bold">
+                        <i class="fa-solid fa-chevron-left"></i><span>Back</span>
+                    </button>
+                    <h2 id="personal-content-editor-title" class="text-center text-lg font-black text-slate-900">Add personal topic</h2>
+                    <div class="w-20"></div>
+                </div>
+                <form id="personal-content-form" onsubmit="savePersonalContent(event)" class="rounded-3xl border border-sky-100 bg-white p-5 shadow-sm">
+                    <input id="personal-content-kind" type="hidden" value="topic">
+                    <input id="personal-content-id" type="hidden" value="">
+                    <div class="mb-5 rounded-2xl border border-emerald-100 bg-emerald-50 p-4 text-xs font-bold leading-relaxed text-emerald-800">
+                        <i class="fa-solid fa-lock mr-2"></i>This is personal content. It is saved only in your account and is never shown to another student.
+                    </div>
+                    <div>
+                        <label id="personal-content-name-label" for="personal-content-name" class="mb-2 block text-sm font-black text-slate-700">Topic name</label>
+                        <input id="personal-content-name" maxlength="100" required autocomplete="off" class="w-full rounded-xl border-2 border-slate-200 bg-slate-50 p-3.5 text-sm font-bold text-slate-800 outline-none focus:border-sky-400" placeholder="Enter a topic name">
+                    </div>
+                    <div id="personal-topic-colour-wrap" class="mt-5">
+                        <label for="personal-topic-colour" class="mb-2 block text-sm font-black text-slate-700">Topic colour</label>
+                        <select id="personal-topic-colour" class="w-full rounded-xl border-2 border-slate-200 bg-slate-50 p-3.5 text-sm font-bold text-slate-700 outline-none focus:border-sky-400">
+                            <option value="bg-sky-500">Sky blue</option>
+                            <option value="bg-blue-500">Blue</option>
+                            <option value="bg-indigo-500">Indigo</option>
+                            <option value="bg-violet-500">Violet</option>
+                            <option value="bg-fuchsia-500">Pink</option>
+                            <option value="bg-rose-500">Rose</option>
+                            <option value="bg-orange-500">Orange</option>
+                            <option value="bg-amber-500">Amber</option>
+                            <option value="bg-emerald-500">Emerald</option>
+                            <option value="bg-teal-500">Teal</option>
+                        </select>
+                    </div>
+                    <p id="personal-content-status" class="hidden mt-4 rounded-xl p-3 text-xs font-bold" role="status"></p>
+                    <button id="personal-content-save" type="submit" class="btn-silky mt-6 w-full rounded-2xl bg-sky-500 py-3.5 font-black text-white shadow-lg shadow-sky-100"><i class="fa-solid fa-floppy-disk mr-2"></i>Save</button>
+                    <button id="personal-content-delete" type="button" onclick="confirmDeletePersonalContent()" class="hidden btn-silky mt-3 w-full rounded-2xl border-2 border-rose-100 bg-rose-50 py-3 font-black text-rose-600"><i class="fa-solid fa-trash mr-2"></i>Delete</button>
+                </form>
+                <p id="personal-default-lock-note" class="mt-4 rounded-2xl border border-slate-200 bg-white p-4 text-xs font-bold leading-relaxed text-slate-500">
+                    Administrator default menus and topics are protected. Students cannot rename, recolour or delete them.
+                </p>
+                <div class="h-12 flex-shrink-0"></div>
+            </div>
+
             <!-- 學生選擇 Topic 內的 Subtopic -->
             <div id="view-subtopic-browser" class="absolute inset-0 bg-[#f4f6f9] p-5 hidden flex-col z-20 pb-10 overflow-y-auto no-scrollbar">
                 <div class="flex items-center justify-between mb-5">
@@ -1123,7 +1170,8 @@
             : [];
         let flashcards = sourceFlashcards.map(card => ({ ...card }));
 
-        const addCardChapter = { id: 'add_card', zh: '新增記憶卡', en: 'Add Card', icon: 'fa-plus', color: 'bg-blue-500', isAction: true };
+        const addCardChapter = { id: 'add_card', zh: '新增記憶卡', en: 'Add Card', icon: 'fa-plus', color: 'bg-blue-500', isAction: true, actionKind: 'card' };
+        const addTopicChapter = { id: 'add_personal_topic', zh: '新增個人課題', en: 'Add Topic', icon: 'fa-folder-plus', color: 'bg-violet-500', isAction: true, actionKind: 'topic' };
         const defaultChapters = [
             { id: 'earth', zh: '地球', en: 'Planet Earth', icon: 'fa-earth-americas', color: 'bg-red-500', count: 0 },
             { id: 'micro1', zh: '微觀世界I', en: 'Microscopic World I', icon: 'fa-microscope', color: 'bg-orange-500', count: 0, layout: 'micro1' },
@@ -1142,7 +1190,7 @@
             { id: 'industrial', zh: '工業化學', en: 'Industrial Chemistry', icon: 'fa-industry', color: 'bg-amber-600', count: 0 },
             { id: 'analytical', zh: '分析化學', en: 'Analytical Chemistry', icon: 'fa-magnifying-glass-chart', color: 'bg-emerald-600', count: 0 }
         ];
-        let chapters = [addCardChapter, ...defaultChapters.map(chapter => ({ ...chapter, schoolLevel: 'S4-6' }))];
+        let chapters = [addCardChapter, addTopicChapter, ...defaultChapters.map(chapter => ({ ...chapter, schoolLevel: 'S4-6' }))];
 
         let micro1Sections = [
             { id: 'Ch.5', zh: '章節5：原子結構', en: 'Chapter 5: Atomic Structure', icon: 'fa-atom', color: 'bg-orange-500' },
@@ -1177,6 +1225,7 @@
         let adminEditingTopicId = null;
         let adminEditingSubtopicId = null;
         let subtopics = [];
+        let personalMenus = [];
         let managedAccounts = [];
         let gameSession = null;
         let gameTimerId = null;
@@ -1393,7 +1442,55 @@
                 layout: topic.layout || 'regular',
                 schoolLevel: SCHOOL_LEVELS.includes(topic.school_level) ? topic.school_level : 'S4-6',
                 count: 0,
-                sortOrder: topic.sort_order || 0
+                sortOrder: topic.sort_order || 0,
+                isPersonalTopic: false
+            };
+        }
+
+        function personalMenuKey(menuId) {
+            return `personal-menu:${Number(menuId)}`;
+        }
+
+        function personalTopicKey(topicId) {
+            return `personal-topic:${Number(topicId)}`;
+        }
+
+        function personalMenuIdFromKey(value) {
+            const match = String(value || '').match(/^personal-menu:(\d+)$/);
+            return match ? Number(match[1]) : null;
+        }
+
+        function personalTopicIdFromKey(value) {
+            const match = String(value || '').match(/^personal-topic:(\d+)$/);
+            return match ? Number(match[1]) : null;
+        }
+
+        function isAvailableSchoolLevel(value) {
+            const personalMenuId = personalMenuIdFromKey(value);
+            return SCHOOL_LEVELS.includes(value) || (personalMenuId != null && personalMenus.some(menu => menu.id === personalMenuId));
+        }
+
+        function schoolLevelLabel(value) {
+            const menuId = personalMenuIdFromKey(value);
+            return menuId == null ? value : (personalMenus.find(menu => menu.id === menuId)?.name || 'Personal menu');
+        }
+
+        function personalTopicToChapter(topic) {
+            const schoolLevel = topic.personal_menu_id == null
+                ? topic.school_level
+                : personalMenuKey(topic.personal_menu_id);
+            return {
+                id: personalTopicKey(topic.id),
+                personalTopicId: Number(topic.id),
+                zh: topic.name,
+                en: topic.name,
+                icon: topic.icon || 'fa-book-open',
+                color: topic.color || 'bg-sky-500',
+                layout: 'regular',
+                schoolLevel,
+                count: 0,
+                sortOrder: topic.sort_order || 0,
+                isPersonalTopic: true
             };
         }
 
@@ -1421,7 +1518,8 @@
             return {
                 id: -Number(row.id),
                 personalId: Number(row.id),
-                chapter: row.topic_id,
+                chapter: row.personal_topic_id == null ? row.topic_id : personalTopicKey(row.personal_topic_id),
+                personalTopicId: row.personal_topic_id == null ? null : Number(row.personal_topic_id),
                 section: null,
                 subtopicId: null,
                 q_zh: row.question_zh,
@@ -1457,13 +1555,15 @@
             const preservedSchoolLevel = currentSchoolLevel;
             const preservedAdminLevel = adminSchoolLevel;
 
-            const [topicResult, subtopicResult, cardResult, starResult, personalResult, preferenceResult] = await Promise.all([
+            const [topicResult, subtopicResult, cardResult, starResult, personalResult, preferenceResult, personalMenuResult, personalTopicResult] = await Promise.all([
                 supabaseClient.from('chemistry_blank_topics').select('id,name_zh,name_en,icon,color,school_level,sort_order,layout').order('sort_order', { ascending: true }).order('id', { ascending: true }),
                 supabaseClient.from('chemistry_blank_subtopics').select('id,topic_id,parent_subtopic_id,legacy_section,name_zh,name_en,icon,color,sort_order').order('sort_order', { ascending: true }).order('id', { ascending: true }),
                 supabaseClient.from('chemistry_blank_flashcards').select('id,topic_id,subtopic_id,section,question_zh,answer_zh,question_en,answer_en,question_image_url,question_image_path,answer_image_url,answer_image_path,sort_order').order('sort_order', { ascending: true }).order('id', { ascending: true }),
                 supabaseClient.from('chemistry_blank_user_flashcard_state').select('flashcard_id,is_starred').eq('user_id', currentUser.id),
-                supabaseClient.from('chemistry_blank_personal_flashcards').select('id,topic_id,question_zh,answer_zh,question_en,answer_en,question_image_url,question_image_path,answer_image_url,answer_image_path,is_starred,sort_order').eq('user_id', currentUser.id).order('sort_order', { ascending: true }).order('id', { ascending: true }),
-                supabaseClient.from('chemistry_blank_user_preferences').select('school_level,shared_topic_id,shared_subtopic_id,game_topic_id,game_subtopic_id').eq('user_id', currentUser.id).maybeSingle()
+                supabaseClient.from('chemistry_blank_personal_flashcards').select('id,topic_id,personal_topic_id,question_zh,answer_zh,question_en,answer_en,question_image_url,question_image_path,answer_image_url,answer_image_path,is_starred,sort_order').eq('user_id', currentUser.id).order('sort_order', { ascending: true }).order('id', { ascending: true }),
+                supabaseClient.from('chemistry_blank_user_preferences').select('school_level,personal_menu_id,shared_topic_id,shared_subtopic_id,game_topic_id,game_personal_topic_id,game_subtopic_id').eq('user_id', currentUser.id).maybeSingle(),
+                supabaseClient.from('science_vocab_personal_menus').select('id,name,sort_order').eq('user_id', currentUser.id).order('sort_order', { ascending: true }).order('id', { ascending: true }),
+                supabaseClient.from('science_vocab_personal_topics').select('id,school_level,personal_menu_id,name,icon,color,sort_order').eq('user_id', currentUser.id).order('sort_order', { ascending: true }).order('id', { ascending: true })
             ]);
             if (topicResult.error) throw topicResult.error;
             if (subtopicResult.error) throw subtopicResult.error;
@@ -1471,6 +1571,8 @@
             if (starResult.error) throw starResult.error;
             if (personalResult.error) throw personalResult.error;
             if (preferenceResult.error) throw preferenceResult.error;
+            if (personalMenuResult.error) throw personalMenuResult.error;
+            if (personalTopicResult.error) throw personalTopicResult.error;
 
             const starredById = new Map((starResult.data || []).map(item => [Number(item.flashcard_id), Boolean(item.is_starred)]));
             managedCardIds.clear();
@@ -1478,7 +1580,13 @@
                 managedCardIds.add(Number(row.id));
                 return managedRowToCard(row, starredById);
             });
-            chapters = [addCardChapter, ...topicResult.data.map(managedTopicToChapter)];
+            personalMenus = (personalMenuResult.data || []).map(item => ({ id: Number(item.id), name: item.name, sortOrder: item.sort_order || 0 }));
+            chapters = [
+                addCardChapter,
+                addTopicChapter,
+                ...topicResult.data.map(managedTopicToChapter),
+                ...(personalTopicResult.data || []).map(personalTopicToChapter)
+            ];
             subtopics = subtopicResult.data.map(item => ({
                 id: Number(item.id), topicId: item.topic_id, legacySection: item.legacy_section || null,
                 parentSubtopicId: item.parent_subtopic_id == null ? null : Number(item.parent_subtopic_id),
@@ -1489,14 +1597,19 @@
             flashcards = [...managedCards, ...(personalResult.data || []).map(personalRowToCard)];
             defaultLang = APP_LANGUAGE;
             currentLang = APP_LANGUAGE;
-            defaultSchoolLevel = SCHOOL_LEVELS.includes(preferenceResult.data?.school_level) ? preferenceResult.data.school_level : 'S4-6';
-            currentSchoolLevel = wasAlreadyLoaded && SCHOOL_LEVELS.includes(preservedSchoolLevel) ? preservedSchoolLevel : defaultSchoolLevel;
-            adminSchoolLevel = wasAlreadyLoaded && SCHOOL_LEVELS.includes(preservedAdminLevel) ? preservedAdminLevel : currentSchoolLevel;
+            const savedPersonalMenuKey = preferenceResult.data?.personal_menu_id == null ? null : personalMenuKey(preferenceResult.data.personal_menu_id);
+            defaultSchoolLevel = savedPersonalMenuKey && isAvailableSchoolLevel(savedPersonalMenuKey)
+                ? savedPersonalMenuKey
+                : (SCHOOL_LEVELS.includes(preferenceResult.data?.school_level) ? preferenceResult.data.school_level : 'S4-6');
+            currentSchoolLevel = wasAlreadyLoaded && isAvailableSchoolLevel(preservedSchoolLevel) ? preservedSchoolLevel : defaultSchoolLevel;
+            adminSchoolLevel = wasAlreadyLoaded && SCHOOL_LEVELS.includes(preservedAdminLevel) ? preservedAdminLevel : (SCHOOL_LEVELS.includes(currentSchoolLevel) ? currentSchoolLevel : 'S4-6');
             defaultAdminCardTopicId = preferenceResult.data?.shared_topic_id || '';
             defaultAdminCardSubtopicId = preferenceResult.data?.shared_subtopic_id == null ? '' : String(preferenceResult.data.shared_subtopic_id);
-            defaultGameTopicId = preferenceResult.data?.game_topic_id || 'all';
+            defaultGameTopicId = preferenceResult.data?.game_personal_topic_id == null
+                ? (preferenceResult.data?.game_topic_id || 'all')
+                : personalTopicKey(preferenceResult.data.game_personal_topic_id);
             defaultGameSubtopicId = preferenceResult.data?.game_subtopic_id == null ? 'all' : String(preferenceResult.data.game_subtopic_id);
-            document.getElementById('school-level-select').value = currentSchoolLevel;
+            refreshSchoolLevelSelect();
             updateSchoolLevelDefaultButton();
             managedContentLoaded = true;
             refreshContentControls();
@@ -1510,8 +1623,9 @@
             
             chapters.filter(ch => ch.isAction || ch.schoolLevel === currentSchoolLevel).forEach(ch => {
                 if (ch.isAction) {
+                    const action = ch.actionKind === 'topic' ? 'openPersonalTopicEditor()' : 'openAddCard()';
                     html += `
-                        <button type="button" onclick="openAddCard()" class="btn-silky ${ch.color} text-white p-4 rounded-[20px] shadow-[0_4px_14px_0_rgba(59,130,246,0.39)] flex flex-col items-center justify-center text-center cursor-pointer hover:bg-blue-600 hover:shadow-lg aspect-[4/5] relative">
+                        <button type="button" onclick="${action}" class="btn-silky ${ch.color} text-white p-4 rounded-[20px] shadow-[0_4px_14px_0_rgba(59,130,246,0.25)] flex flex-col items-center justify-center text-center cursor-pointer hover:shadow-lg aspect-[4/5] relative">
                             <i class="fa-solid ${ch.icon} text-[36px] mb-3 opacity-100"></i>
                             <div class="font-bold text-[16px] tracking-wide leading-tight w-full">${ch.en}</div>
                         </button>
@@ -1519,10 +1633,20 @@
                 } else {
                     const countText = `${ch.count} Cards`;
                     const openAction = `openTopicSubtopics('${ch.id}')`;
-                    html += `
+                    html += ch.isPersonalTopic ? `
+                        <div class="${ch.color} text-white rounded-[20px] shadow-sm aspect-[4/5] relative overflow-hidden">
+                            <button type="button" onclick="${openAction}" class="btn-silky absolute inset-0 w-full p-4 flex flex-col items-center justify-center text-center cursor-pointer hover:shadow-md">
+                                <i class="fa-solid ${ch.icon} text-[32px] mb-3 opacity-95"></i>
+                                <div class="font-bold text-[15px] tracking-wide mb-5 leading-tight w-full">${escapeHTML(ch.en)}</div>
+                                <div class="absolute bottom-4 text-[10px] font-bold bg-white/20 px-3 py-1 rounded-full backdrop-blur-sm tracking-wider">${countText}</div>
+                            </button>
+                            <button type="button" onclick="event.stopPropagation(); openPersonalTopicEditor(${ch.personalTopicId})" class="btn-silky absolute right-3 top-3 z-10 flex h-9 w-9 items-center justify-center rounded-full bg-white/25 text-sm text-white backdrop-blur-sm" aria-label="Edit ${escapeHTML(ch.en)}" title="Edit this personal topic"><i class="fa-solid fa-pen"></i></button>
+                            <span class="pointer-events-none absolute left-3 top-3 rounded-full bg-white/20 px-2 py-1 text-[8px] font-black uppercase tracking-wider backdrop-blur-sm">Personal</span>
+                        </div>
+                    ` : `
                         <button type="button" onclick="${openAction}" class="btn-silky ${ch.color} text-white p-4 rounded-[20px] shadow-sm flex flex-col items-center justify-center text-center cursor-pointer hover:shadow-md aspect-[4/5] relative">
                             <i class="fa-solid ${ch.icon} text-[32px] mb-3 opacity-95"></i>
-                            <div class="font-bold text-[15px] tracking-wide mb-5 leading-tight w-full">${ch.en}</div>
+                            <div class="font-bold text-[15px] tracking-wide mb-5 leading-tight w-full">${escapeHTML(ch.en)}</div>
                             <div class="absolute bottom-4 text-[10px] font-bold bg-white/20 px-3 py-1 rounded-full backdrop-blur-sm tracking-wider">${countText}</div>
                         </button>
                     `;
@@ -1531,14 +1655,40 @@
             grid.innerHTML = html;
         }
 
+        function refreshSchoolLevelSelect() {
+            const select = document.getElementById('school-level-select');
+            if (!select) return;
+            select.innerHTML = [
+                ...SCHOOL_LEVELS.map(level => `<option value="${level}">${level}</option>`),
+                ...personalMenus.map(menu => `<option value="${personalMenuKey(menu.id)}">${escapeHTML(menu.name)}</option>`),
+                '<option value="__add_personal_menu__">＋ Add personal menu…</option>'
+            ].join('');
+            select.value = isAvailableSchoolLevel(currentSchoolLevel) ? currentSchoolLevel : defaultSchoolLevel;
+            updatePersonalMenuManageButton();
+        }
+
+        function updatePersonalMenuManageButton() {
+            const button = document.getElementById('personal-menu-manage-btn');
+            if (!button) return;
+            const isPersonalMenu = personalMenuIdFromKey(currentSchoolLevel) != null;
+            button.classList.toggle('hidden', !isPersonalMenu);
+            button.classList.toggle('flex', isPersonalMenu);
+        }
+
         function changeSchoolLevel(level) {
-            if (!SCHOOL_LEVELS.includes(level)) return;
+            if (level === '__add_personal_menu__') {
+                document.getElementById('school-level-select').value = currentSchoolLevel;
+                openPersonalMenuEditor();
+                return;
+            }
+            if (!isAvailableSchoolLevel(level)) return;
             if (gameSession) resetGameMenu();
             currentSchoolLevel = level;
             document.getElementById('school-level-select').value = level;
             refreshContentControls();
-            document.getElementById('game-level-badge').textContent = level;
+            document.getElementById('game-level-badge').textContent = schoolLevelLabel(level);
             updateSchoolLevelDefaultButton();
+            updatePersonalMenuManageButton();
             if (activeTab === 'progress') renderProgress();
         }
 
@@ -1556,7 +1706,11 @@
             if (!currentUser || !initSupabaseClient()) return;
             const button = document.getElementById('school-level-default-btn');
             button.disabled = true;
-            const { error } = await persistPreferenceFields({ school_level: currentSchoolLevel });
+            const personalMenuId = personalMenuIdFromKey(currentSchoolLevel);
+            const { error } = await persistPreferenceFields({
+                school_level: personalMenuId == null ? currentSchoolLevel : (SCHOOL_LEVELS.includes(defaultSchoolLevel) ? defaultSchoolLevel : 'S4-6'),
+                personal_menu_id: personalMenuId
+            });
             button.disabled = false;
             if (error) {
                 openModal({
@@ -1746,7 +1900,7 @@
         function updateGlobalBackButton() {
             const button = document.getElementById('global-back-btn');
             if (!button) return;
-            const overlayIds = ['view-micro1-chapters', 'view-subtopic-browser', 'view-flashcards', 'view-add-card', 'view-account', 'view-admin', 'view-admin-card-editor'];
+            const overlayIds = ['view-micro1-chapters', 'view-subtopic-browser', 'view-flashcards', 'view-add-card', 'view-personal-content-editor', 'view-account', 'view-admin', 'view-admin-card-editor'];
             const hasOverlay = overlayIds.some(id => !document.getElementById(id).classList.contains('hidden'));
             const shouldShow = hasOverlay || activeTab !== 'home';
             button.classList.toggle('hidden', !shouldShow);
@@ -1762,6 +1916,7 @@
             if (!document.getElementById('view-subtopic-browser').classList.contains('hidden')) return closeSubtopicBrowser();
             if (!document.getElementById('view-admin-card-editor').classList.contains('hidden')) return closeAdminCardEditor();
             if (!document.getElementById('view-admin').classList.contains('hidden')) return closeAdminManager();
+            if (!document.getElementById('view-personal-content-editor').classList.contains('hidden')) return closePersonalContentEditor();
             if (!document.getElementById('view-add-card').classList.contains('hidden')) return closeAddCard();
             if (!document.getElementById('view-account').classList.contains('hidden')) return closeAccountView();
             if (!document.getElementById('view-micro1-chapters').classList.contains('hidden')) return closeMicro1Chapters();
@@ -2590,7 +2745,12 @@
             currentSchoolLevel = 'S4-6';
             defaultSchoolLevel = 'S4-6';
             adminSchoolLevel = 'S4-6';
-            document.getElementById('school-level-select').value = currentSchoolLevel;
+            personalMenus = [];
+            chapters = [addCardChapter, addTopicChapter, ...defaultChapters.map(chapter => ({ ...chapter, schoolLevel: 'S4-6' }))];
+            flashcards = sourceFlashcards.map(card => ({ ...card }));
+            subtopics = [];
+            managedContentLoaded = false;
+            refreshSchoolLevelSelect();
             updateSchoolLevelDefaultButton();
             isLoggedOut = true;
             switchTab('home');
@@ -2830,10 +2990,12 @@
             if (!currentUser) return;
             const topicId = document.getElementById('game-topic-filter').value || 'all';
             const subtopicId = document.getElementById('game-subtopic-filter').value || 'all';
+            const selectedPersonalTopicId = personalTopicIdFromKey(topicId);
             const button = document.getElementById('game-scope-default-btn');
             button.disabled = true;
             const { error } = await persistPreferenceFields({
-                game_topic_id: topicId === 'all' ? null : topicId,
+                game_topic_id: topicId === 'all' || selectedPersonalTopicId != null ? null : topicId,
+                game_personal_topic_id: selectedPersonalTopicId,
                 game_subtopic_id: ['all', 'none'].includes(subtopicId) ? null : Number(subtopicId)
             });
             button.disabled = false;
@@ -2897,7 +3059,7 @@
         function resetGameMenu() {
             stopGameTimer();
             gameSession = null;
-            document.getElementById('game-level-badge').textContent = currentSchoolLevel;
+            document.getElementById('game-level-badge').textContent = schoolLevelLabel(currentSchoolLevel);
             populateGameScopeControls();
             document.getElementById('game-menu-message').classList.add('hidden');
             document.getElementById('mc-direction-message').classList.add('hidden');
@@ -3149,14 +3311,18 @@
             const percentage = Math.round((score / Math.max(1, total)) * 100);
             const selectedTopicId = document.getElementById('game-topic-filter')?.value || 'all';
             const selectedSubtopicId = document.getElementById('game-subtopic-filter')?.value || 'all';
+            const selectedPersonalTopicId = personalTopicIdFromKey(selectedTopicId);
+            const selectedPersonalMenuId = personalMenuIdFromKey(currentSchoolLevel);
             const result = {
                 mode: finished.mode,
                 direction: finished.direction,
                 score,
                 total,
                 duration_seconds: durationSeconds,
-                school_level: currentSchoolLevel,
-                topic_id: selectedTopicId === 'all' ? null : selectedTopicId,
+                school_level: SCHOOL_LEVELS.includes(currentSchoolLevel) ? currentSchoolLevel : null,
+                personal_menu_id: selectedPersonalMenuId,
+                topic_id: selectedTopicId === 'all' || selectedPersonalTopicId != null ? null : selectedTopicId,
+                personal_topic_id: selectedPersonalTopicId,
                 subtopic_id: ['all', 'none'].includes(selectedSubtopicId) ? null : Number(selectedSubtopicId),
                 completed_at: new Date().toISOString()
             };
@@ -3200,7 +3366,7 @@
             const { data, error } = await supabaseClient.from('chemistry_blank_game_results').insert({
                 user_id: currentUser.id,
                 ...result
-            }).select('id,mode,direction,score,total,duration_seconds,school_level,topic_id,subtopic_id,completed_at').single();
+            }).select('id,mode,direction,score,total,duration_seconds,school_level,personal_menu_id,topic_id,personal_topic_id,subtopic_id,completed_at').single();
             if (error) throw error;
             gameResults.unshift(data);
             return data;
@@ -3215,12 +3381,15 @@
             const cardKey = flashcardProgressKey(card);
             if (!cardKey || !currentUser || !initSupabaseClient()) return;
             const topic = chapters.find(chapter => chapter.id === card.chapter);
+            const selectedPersonalTopicId = personalTopicIdFromKey(card.chapter);
             const viewedAt = new Date().toISOString();
             const payload = {
                 user_id: currentUser.id,
                 card_key: cardKey,
-                topic_id: card.chapter,
-                school_level: topic?.schoolLevel || currentSchoolLevel,
+                topic_id: selectedPersonalTopicId == null ? card.chapter : null,
+                personal_topic_id: selectedPersonalTopicId,
+                school_level: SCHOOL_LEVELS.includes(topic?.schoolLevel) ? topic.schoolLevel : null,
+                personal_menu_id: personalMenuIdFromKey(topic?.schoolLevel),
                 last_viewed_at: viewedAt
             };
             const { error } = await supabaseClient.from('chemistry_blank_flashcard_progress')
@@ -3253,7 +3422,7 @@
             }
             history.innerHTML = '<div class="rounded-2xl bg-white p-5 text-center text-sm font-bold text-slate-400"><i class="fa-solid fa-spinner fa-spin mr-2"></i>Loading flashcard progress…</div>';
             const { data, error } = await supabaseClient.from('chemistry_blank_flashcard_progress')
-                .select('card_key,topic_id,school_level,first_viewed_at,last_viewed_at')
+                .select('card_key,topic_id,personal_topic_id,school_level,personal_menu_id,first_viewed_at,last_viewed_at')
                 .eq('user_id', currentUser.id)
                 .order('last_viewed_at', { ascending: false });
             if (error) {
@@ -3290,7 +3459,7 @@
                     <strong class="block text-xl font-black text-slate-900">${escapeHTML(value)}</strong>
                     <span class="text-[10px] font-black uppercase tracking-wider text-slate-400">${escapeHTML(label)}</span>
                 </div>`).join('');
-            document.getElementById('progress-level-badge').textContent = `${currentSchoolLevel} · ${viewedCount}/${totalCount} viewed`;
+            document.getElementById('progress-level-badge').textContent = `${schoolLevelLabel(currentSchoolLevel)} · ${viewedCount}/${totalCount} viewed`;
             if (!levelTopics.length) {
                 history.innerHTML = '<div class="rounded-3xl border-2 border-dashed border-slate-200 bg-white p-8 text-center text-sm font-bold text-slate-400">No topics are available for this school level.</div>';
                 return;
@@ -3883,7 +4052,7 @@
 
         function renderAdminTopics() {
             const list = document.getElementById('admin-topic-list');
-            const topics = chapters.filter(chapter => !chapter.isAction && chapter.schoolLevel === adminSchoolLevel);
+            const topics = chapters.filter(chapter => !chapter.isAction && !chapter.isPersonalTopic && chapter.schoolLevel === adminSchoolLevel);
             if (!topics.length) {
                 list.innerHTML = `<div class="rounded-2xl bg-white border border-slate-100 p-8 text-center text-sm text-slate-400">No ${escapeHTML(adminSchoolLevel)} topics yet. Add the first one.</div>`;
                 return;
@@ -4149,7 +4318,7 @@
         }
 
         function populateAdminTopicControls() {
-            const topics = chapters.filter(chapter => !chapter.isAction && chapter.schoolLevel === adminSchoolLevel);
+            const topics = chapters.filter(chapter => !chapter.isAction && !chapter.isPersonalTopic && chapter.schoolLevel === adminSchoolLevel);
             const options = topics.map(topic => `<option value="${topic.id}">${escapeHTML(topic.en)}</option>`).join('');
             const filter = document.getElementById('admin-card-topic-filter');
             const previousFilter = filter.value || 'all';
@@ -4180,7 +4349,7 @@
             const search = document.getElementById('admin-card-search').value.trim().toLowerCase();
             const topicId = document.getElementById('admin-card-topic-filter').value || 'all';
             const subtopicId = document.getElementById('admin-card-subtopic-filter').value || 'all';
-            const levelTopicIds = new Set(chapters.filter(chapter => !chapter.isAction && chapter.schoolLevel === adminSchoolLevel).map(chapter => chapter.id));
+            const levelTopicIds = new Set(chapters.filter(chapter => !chapter.isAction && !chapter.isPersonalTopic && chapter.schoolLevel === adminSchoolLevel).map(chapter => chapter.id));
             let cards = flashcards.filter(card => card.isManaged && levelTopicIds.has(card.chapter));
             if (topicId !== 'all') cards = cards.filter(card => card.chapter === topicId);
             if (subtopicId === 'none') cards = cards.filter(card => !card.subtopicId);
@@ -4285,7 +4454,7 @@
             populateAdminTopicControls();
             document.getElementById('admin-card-id').value = card?.id || '';
             document.getElementById('admin-card-editor-title').innerText = card ? 'Edit shared flashcard' : 'Add shared flashcard';
-            const levelTopics = chapters.filter(chapter => !chapter.isAction && chapter.schoolLevel === adminSchoolLevel);
+            const levelTopics = chapters.filter(chapter => !chapter.isAction && !chapter.isPersonalTopic && chapter.schoolLevel === adminSchoolLevel);
             const preferredTopic = card?.chapter || (levelTopics.some(topic => topic.id === defaultAdminCardTopicId) ? defaultAdminCardTopicId : levelTopics[0]?.id) || '';
             document.getElementById('admin-card-topic').value = preferredTopic;
             const preferredSubtopic = card?.subtopicId || (preferredTopic === defaultAdminCardTopicId ? defaultAdminCardSubtopicId : null);
@@ -4908,6 +5077,154 @@
             updateGlobalBackButton();
         }
 
+        function setPersonalContentStatus(message = '', type = 'error') {
+            const status = document.getElementById('personal-content-status');
+            status.textContent = message;
+            status.className = `mt-4 rounded-xl p-3 text-xs font-bold ${message ? '' : 'hidden'} ${type === 'success' ? 'bg-emerald-50 text-emerald-700' : 'bg-rose-50 text-rose-700'}`;
+        }
+
+        function showPersonalContentEditor({ kind, id = null, name = '', color = 'bg-sky-500' }) {
+            const isMenu = kind === 'menu';
+            document.getElementById('personal-content-kind').value = kind;
+            document.getElementById('personal-content-id').value = id == null ? '' : String(id);
+            document.getElementById('personal-content-editor-title').textContent = `${id == null ? 'Add' : 'Edit'} personal ${isMenu ? 'menu' : 'topic'}`;
+            document.getElementById('personal-content-name-label').textContent = isMenu ? 'Menu name' : 'Topic name';
+            const nameInput = document.getElementById('personal-content-name');
+            nameInput.value = name;
+            nameInput.maxLength = isMenu ? 40 : 100;
+            nameInput.placeholder = isMenu ? 'Enter a menu name' : 'Enter a topic name';
+            document.getElementById('personal-topic-colour-wrap').classList.toggle('hidden', isMenu);
+            document.getElementById('personal-topic-colour').value = color;
+            document.getElementById('personal-content-delete').classList.toggle('hidden', id == null);
+            setPersonalContentStatus();
+            document.getElementById('view-personal-content-editor').classList.remove('hidden');
+            document.getElementById('view-personal-content-editor').classList.add('flex');
+            document.getElementById('bottom-nav').classList.add('translate-y-24');
+            setTimeout(() => nameInput.focus({ preventScroll: true }), 80);
+            updateGlobalBackButton();
+        }
+
+        function openPersonalMenuEditor(menuId = null) {
+            const menu = menuId == null ? null : personalMenus.find(item => item.id === Number(menuId));
+            if (menuId != null && !menu) return;
+            showPersonalContentEditor({ kind: 'menu', id: menu?.id ?? null, name: menu?.name || '' });
+        }
+
+        function openPersonalMenuEditorForCurrent() {
+            const menuId = personalMenuIdFromKey(currentSchoolLevel);
+            if (menuId != null) openPersonalMenuEditor(menuId);
+        }
+
+        function openPersonalTopicEditor(topicId = null) {
+            const topic = topicId == null ? null : chapters.find(item => item.isPersonalTopic && item.personalTopicId === Number(topicId));
+            if (topicId != null && !topic) return;
+            showPersonalContentEditor({ kind: 'topic', id: topic?.personalTopicId ?? null, name: topic?.en || '', color: topic?.color || 'bg-sky-500' });
+        }
+
+        function closePersonalContentEditor() {
+            const view = document.getElementById('view-personal-content-editor');
+            view.classList.add('hidden');
+            view.classList.remove('flex');
+            document.getElementById('bottom-nav').classList.remove('translate-y-24');
+            document.getElementById(`view-${activeTab}`)?.classList.remove('hidden');
+            document.getElementById(`view-${activeTab}`)?.classList.add('flex');
+            updateGlobalBackButton();
+        }
+
+        async function savePersonalContent(event) {
+            event.preventDefault();
+            if (!currentUser || !initSupabaseClient()) return showLoginGate('Sign in before saving personal content.');
+            const kind = document.getElementById('personal-content-kind').value;
+            const idValue = document.getElementById('personal-content-id').value;
+            const editingId = idValue ? Number(idValue) : null;
+            const name = document.getElementById('personal-content-name').value.trim();
+            const button = document.getElementById('personal-content-save');
+            if (!name) return setPersonalContentStatus(`Enter a ${kind} name.`);
+            button.disabled = true;
+            setPersonalContentStatus();
+            try {
+                if (kind === 'menu') {
+                    const payload = { user_id: currentUser.id, name, updated_at: new Date().toISOString() };
+                    let result;
+                    if (editingId != null) {
+                        result = await supabaseClient.from('science_vocab_personal_menus').update(payload).eq('id', editingId).eq('user_id', currentUser.id).select('id').single();
+                    } else {
+                        result = await supabaseClient.from('science_vocab_personal_menus').insert({ ...payload, sort_order: personalMenus.length }).select('id').single();
+                    }
+                    if (result.error) throw result.error;
+                    currentSchoolLevel = personalMenuKey(result.data.id);
+                } else {
+                    const personalMenuId = personalMenuIdFromKey(currentSchoolLevel);
+                    const color = document.getElementById('personal-topic-colour').value;
+                    const payload = {
+                        user_id: currentUser.id,
+                        school_level: personalMenuId == null ? currentSchoolLevel : null,
+                        personal_menu_id: personalMenuId,
+                        name,
+                        icon: 'fa-book-open',
+                        color,
+                        updated_at: new Date().toISOString()
+                    };
+                    let result;
+                    if (editingId != null) {
+                        result = await supabaseClient.from('science_vocab_personal_topics').update({ name, color, updated_at: payload.updated_at }).eq('id', editingId).eq('user_id', currentUser.id).select('id').single();
+                    } else {
+                        const topicCount = chapters.filter(item => item.isPersonalTopic && item.schoolLevel === currentSchoolLevel).length;
+                        result = await supabaseClient.from('science_vocab_personal_topics').insert({ ...payload, sort_order: topicCount }).select('id').single();
+                    }
+                    if (result.error) throw result.error;
+                }
+                await loadManagedContent({ force: true });
+                closePersonalContentEditor();
+            } catch (error) {
+                const message = authErrorMessage(error, `Unable to save this personal ${kind}.`);
+                setPersonalContentStatus(message.includes('duplicate') || message.includes('unique') ? `You already have a ${kind} with this name in the selected menu.` : message);
+            } finally {
+                button.disabled = false;
+            }
+        }
+
+        function confirmDeletePersonalContent() {
+            const kind = document.getElementById('personal-content-kind').value;
+            const name = document.getElementById('personal-content-name').value.trim();
+            openModal({
+                icon: 'fa-trash', iconBgClass: 'bg-rose-50', iconTextClass: 'text-rose-500',
+                title: `Delete personal ${kind}?`,
+                desc: kind === 'menu'
+                    ? `“${escapeHTML(name)}” and all personal topics and flashcards inside it will be permanently deleted from your account only.`
+                    : `“${escapeHTML(name)}” and all personal flashcards inside it will be permanently deleted from your account only.`,
+                buttons: [
+                    { text: 'Cancel', styleClass: 'bg-slate-100 text-slate-600', onClick: null },
+                    { text: 'Delete', styleClass: 'bg-rose-500 text-white', onClick: deletePersonalContent }
+                ]
+            });
+        }
+
+        async function deletePersonalContent() {
+            if (!currentUser || !initSupabaseClient()) return;
+            const kind = document.getElementById('personal-content-kind').value;
+            const editingId = Number(document.getElementById('personal-content-id').value);
+            if (!editingId) return;
+            const topicKeys = kind === 'menu'
+                ? new Set(chapters.filter(item => item.isPersonalTopic && item.schoolLevel === personalMenuKey(editingId)).map(item => item.id))
+                : new Set([personalTopicKey(editingId)]);
+            const imagePaths = flashcards.filter(card => card.isPersonal && topicKeys.has(card.chapter)).flatMap(card => [card.imagePath, card.answerImagePath]).filter(Boolean);
+            try {
+                const table = kind === 'menu' ? 'science_vocab_personal_menus' : 'science_vocab_personal_topics';
+                const { error } = await supabaseClient.from(table).delete().eq('id', editingId).eq('user_id', currentUser.id);
+                if (error) throw error;
+                if (imagePaths.length) await supabaseClient.storage.from(ADMIN_IMAGE_BUCKET).remove(imagePaths);
+                if (kind === 'menu') {
+                    if (defaultSchoolLevel === personalMenuKey(editingId)) defaultSchoolLevel = 'S4-6';
+                    currentSchoolLevel = SCHOOL_LEVELS.includes(defaultSchoolLevel) ? defaultSchoolLevel : 'S4-6';
+                }
+                await loadManagedContent({ force: true });
+                closePersonalContentEditor();
+            } catch (error) {
+                setPersonalContentStatus(authErrorMessage(error, `Unable to delete this personal ${kind}.`));
+            }
+        }
+
         function openAddCard() {
             document.getElementById('view-home').classList.add('hidden');
             document.getElementById('view-add-card').classList.remove('hidden');
@@ -4971,12 +5288,13 @@
 
         async function saveNewCard() {
             const topicId = document.getElementById('input-topic').value;
+            const selectedPersonalTopicId = personalTopicIdFromKey(topicId);
             const qText = document.getElementById('input-qtext').value.trim();
             const aText = document.getElementById('input-atext').value.trim();
 
-            if (!qText || !aText) {
+            if (!topicId || !qText || !aText) {
                 const title = currentLang === 'en' ? "Missing Details" : (currentLang === 'zh' ? "資料不完整" : "資料不完整 Missing Details");
-                const desc = currentLang === 'en' ? "Please enter both Question and Answer!" : (currentLang === 'zh' ? "請填寫題目及答案！" : "請填寫題目及答案！<br>Please enter both!");
+                const desc = !topicId ? 'Add or select a topic before saving this flashcard.' : (currentLang === 'en' ? "Please enter both Question and Answer!" : (currentLang === 'zh' ? "請填寫題目及答案！" : "請填寫題目及答案！<br>Please enter both!"));
                 const btn = currentLang === 'en' ? "OK" : (currentLang === 'zh' ? "知道" : "知道 OK");
                 
                 openModal({
@@ -5001,7 +5319,8 @@
                 if (answerUpload.path) uploadedPaths.push(answerUpload.path);
                 const { error } = await supabaseClient.from('chemistry_blank_personal_flashcards').insert({
                     user_id: currentUser.id,
-                    topic_id: topicId,
+                    topic_id: selectedPersonalTopicId == null ? topicId : null,
+                    personal_topic_id: selectedPersonalTopicId,
                     question_zh: qText,
                     answer_zh: aText,
                     question_en: qText,
@@ -5109,7 +5428,7 @@
             browserView.classList.remove('hidden');
             browserView.classList.add('flex');
             document.getElementById('bottom-nav').classList.add('translate-y-24');
-            document.getElementById('subtopic-browser-level').textContent = currentSchoolLevel;
+            document.getElementById('subtopic-browser-level').textContent = schoolLevelLabel(currentSchoolLevel);
             document.getElementById('subtopic-browser-title').textContent = topic.en;
             document.getElementById('subtopic-browser-total').textContent = `${cards.length} flashcard${cards.length === 1 ? '' : 's'} available`;
             document.getElementById('subtopic-browser-all-count').textContent = `${cards.length} card${cards.length === 1 ? '' : 's'}`;
