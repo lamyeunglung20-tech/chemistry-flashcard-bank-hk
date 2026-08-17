@@ -932,27 +932,27 @@
                         <textarea id="admin-card-a-zh" rows="5" maxlength="8000"></textarea>
                     </div>
                     <div>
-                        <label for="admin-card-q-en" class="block text-xs font-bold text-slate-600 mb-1.5">Chinese meaning</label>
-                        <textarea id="admin-card-q-en" rows="4" maxlength="5000" required class="w-full border-2 border-slate-200 rounded-xl p-3 text-sm leading-relaxed outline-none focus:border-indigo-400" placeholder="Enter the Chinese meaning…"></textarea>
-                    </div>
-                    <div>
-                        <label for="admin-card-a-en" class="block text-xs font-bold text-slate-600 mb-1.5">English vocab word</label>
+                        <label for="admin-card-a-en" class="block text-xs font-bold text-slate-600 mb-1.5">Question — English vocab word</label>
                         <textarea id="admin-card-a-en" rows="5" maxlength="8000" required class="w-full border-2 border-slate-200 rounded-xl p-3 text-sm leading-relaxed outline-none focus:border-emerald-400" placeholder="Enter the English vocab word…"></textarea>
                         <button type="button" onclick="speakVocabText(document.getElementById('admin-card-a-en').value)" class="btn-silky mt-2 min-h-[40px] rounded-xl bg-sky-50 px-4 text-xs font-black text-sky-700"><i class="fa-solid fa-volume-high mr-2"></i>Preview pronunciation</button>
                     </div>
+                    <div>
+                        <label for="admin-card-q-en" class="block text-xs font-bold text-slate-600 mb-1.5">Answer — Chinese meaning</label>
+                        <textarea id="admin-card-q-en" rows="4" maxlength="5000" required class="w-full border-2 border-slate-200 rounded-xl p-3 text-sm leading-relaxed outline-none focus:border-indigo-400" placeholder="Enter the Chinese meaning…"></textarea>
+                    </div>
 
                     <div class="rounded-2xl bg-blue-50/70 border border-blue-100 p-4">
-                        <label for="admin-card-q-image" class="block text-xs font-black text-blue-800 mb-2">Question image</label>
-                        <img id="admin-card-q-preview" src="" class="hidden w-full max-h-52 object-contain bg-white rounded-xl border border-blue-100 mb-3" alt="Question image preview">
-                        <input id="admin-card-q-image" type="file" accept="image/jpeg,image/png,image/webp,image/gif" onchange="previewAdminImage('question')" class="w-full text-xs text-slate-500 file:mr-2 file:py-2 file:px-3 file:rounded-lg file:border-0 file:font-bold file:bg-blue-100 file:text-blue-700">
-                        <label id="admin-card-q-remove-wrap" class="hidden mt-3 items-center gap-2 text-xs font-bold text-rose-600"><input id="admin-card-q-remove" type="checkbox" class="w-4 h-4 accent-rose-500">Remove current question image</label>
+                        <label for="admin-card-a-image" class="block text-xs font-black text-blue-800 mb-2">Question image</label>
+                        <img id="admin-card-a-preview" src="" class="hidden w-full max-h-52 object-contain bg-white rounded-xl border border-blue-100 mb-3" alt="Question image preview">
+                        <input id="admin-card-a-image" type="file" accept="image/jpeg,image/png,image/webp,image/gif" onchange="previewAdminImage('answer')" class="w-full text-xs text-slate-500 file:mr-2 file:py-2 file:px-3 file:rounded-lg file:border-0 file:font-bold file:bg-blue-100 file:text-blue-700">
+                        <label id="admin-card-a-remove-wrap" class="hidden mt-3 items-center gap-2 text-xs font-bold text-rose-600"><input id="admin-card-a-remove" type="checkbox" class="w-4 h-4 accent-rose-500">Remove current question image</label>
                     </div>
 
                     <div class="rounded-2xl bg-emerald-50/70 border border-emerald-100 p-4">
-                        <label for="admin-card-a-image" class="block text-xs font-black text-emerald-800 mb-2">Answer image</label>
-                        <img id="admin-card-a-preview" src="" class="hidden w-full max-h-52 object-contain bg-white rounded-xl border border-emerald-100 mb-3" alt="Answer image preview">
-                        <input id="admin-card-a-image" type="file" accept="image/jpeg,image/png,image/webp,image/gif" onchange="previewAdminImage('answer')" class="w-full text-xs text-slate-500 file:mr-2 file:py-2 file:px-3 file:rounded-lg file:border-0 file:font-bold file:bg-emerald-100 file:text-emerald-700">
-                        <label id="admin-card-a-remove-wrap" class="hidden mt-3 items-center gap-2 text-xs font-bold text-rose-600"><input id="admin-card-a-remove" type="checkbox" class="w-4 h-4 accent-rose-500">Remove current answer image</label>
+                        <label for="admin-card-q-image" class="block text-xs font-black text-emerald-800 mb-2">Answer image</label>
+                        <img id="admin-card-q-preview" src="" class="hidden w-full max-h-52 object-contain bg-white rounded-xl border border-emerald-100 mb-3" alt="Answer image preview">
+                        <input id="admin-card-q-image" type="file" accept="image/jpeg,image/png,image/webp,image/gif" onchange="previewAdminImage('question')" class="w-full text-xs text-slate-500 file:mr-2 file:py-2 file:px-3 file:rounded-lg file:border-0 file:font-bold file:bg-emerald-100 file:text-emerald-700">
+                        <label id="admin-card-q-remove-wrap" class="hidden mt-3 items-center gap-2 text-xs font-bold text-rose-600"><input id="admin-card-q-remove" type="checkbox" class="w-4 h-4 accent-rose-500">Remove current answer image</label>
                     </div>
 
                     <p id="admin-card-form-success" class="hidden rounded-xl bg-emerald-50 text-emerald-700 p-3 text-xs font-bold" role="status"></p>
@@ -981,22 +981,22 @@
                         </div>
                     </div>
                     <div>
-                        <label class="block text-sm font-bold text-slate-700 mb-2" id="label-qtext">Chinese meaning</label>
-                        <textarea id="input-qtext" rows="3" class="w-full border border-slate-200 rounded-xl p-3 bg-slate-50 text-slate-700 outline-none focus:border-blue-500 transition-colors duration-300 placeholder:text-slate-400" placeholder="Enter the Chinese meaning…"></textarea>
-                    </div>
-                    <div>
-                        <label class="block text-sm font-bold text-slate-700 mb-2" id="label-qimg">Question Image (Optional)</label>
-                        <input type="file" id="input-qimg" accept="image/*" class="w-full text-sm text-slate-500 file:mr-4 file:py-2.5 file:px-4 file:rounded-xl file:border-0 file:text-sm file:font-bold file:bg-blue-50 file:text-blue-600 hover:file:bg-blue-100 transition-colors duration-300 cursor-pointer btn-silky">
-                        <img id="preview-img" src="" class="mt-3 max-h-40 hidden rounded-xl border border-slate-200 object-contain w-full bg-slate-50 transition-opacity duration-300">
-                    </div>
-                    <div>
-                        <label class="block text-sm font-bold text-slate-700 mb-2" id="label-atext">English vocab word</label>
+                        <label class="block text-sm font-bold text-slate-700 mb-2" id="label-atext">Question — English vocab word</label>
                         <textarea id="input-atext" rows="3" class="w-full border border-slate-200 rounded-xl p-3 bg-slate-50 text-slate-700 outline-none focus:border-emerald-500 transition-colors duration-300 placeholder:text-slate-400" placeholder="Enter the English vocab word…"></textarea>
                     </div>
                     <div>
-                        <label class="block text-sm font-bold text-slate-700 mb-2" id="label-aimg">Answer Image (Optional)</label>
+                        <label class="block text-sm font-bold text-slate-700 mb-2" id="label-aimg">Question Image (Optional)</label>
                         <input type="file" id="input-aimg" accept="image/*" class="w-full text-sm text-slate-500 file:mr-4 file:py-2.5 file:px-4 file:rounded-xl file:border-0 file:text-sm file:font-bold file:bg-emerald-50 file:text-emerald-600 hover:file:bg-emerald-100 transition-colors duration-300 cursor-pointer btn-silky">
-                        <img id="preview-answer-img" src="" class="mt-3 max-h-40 hidden rounded-xl border border-slate-200 object-contain w-full bg-slate-50 transition-opacity duration-300" alt="Answer image preview">
+                        <img id="preview-answer-img" src="" class="mt-3 max-h-40 hidden rounded-xl border border-slate-200 object-contain w-full bg-slate-50 transition-opacity duration-300" alt="Question image preview">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-bold text-slate-700 mb-2" id="label-qtext">Answer — Chinese meaning</label>
+                        <textarea id="input-qtext" rows="3" class="w-full border border-slate-200 rounded-xl p-3 bg-slate-50 text-slate-700 outline-none focus:border-blue-500 transition-colors duration-300 placeholder:text-slate-400" placeholder="Enter the Chinese meaning…"></textarea>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-bold text-slate-700 mb-2" id="label-qimg">Answer Image (Optional)</label>
+                        <input type="file" id="input-qimg" accept="image/*" class="w-full text-sm text-slate-500 file:mr-4 file:py-2.5 file:px-4 file:rounded-xl file:border-0 file:text-sm file:font-bold file:bg-blue-50 file:text-blue-600 hover:file:bg-blue-100 transition-colors duration-300 cursor-pointer btn-silky">
+                        <img id="preview-img" src="" class="mt-3 max-h-40 hidden rounded-xl border border-slate-200 object-contain w-full bg-slate-50 transition-opacity duration-300" alt="Answer image preview">
                     </div>
                     
                     <button onclick="saveNewCard()" class="btn-silky w-full bg-blue-500 text-white font-bold py-3.5 rounded-xl shadow-[0_4px_14px_0_rgba(59,130,246,0.39)] hover:bg-blue-600 hover:shadow-[0_6px_20px_rgba(59,130,246,0.23)] mt-6" id="btn-save-card">
@@ -1879,10 +1879,10 @@
 
             document.getElementById('add-card-title').innerText = t.addTitle;
             document.getElementById('label-topic').innerText = t.addTopic;
-            document.getElementById('label-qtext').innerText = t.addQ;
-            document.getElementById('label-qimg').innerText = t.addImg;
-            document.getElementById('label-atext').innerText = t.addA;
-            document.getElementById('label-aimg').innerText = t.addAnswerImg;
+            document.getElementById('label-qtext').innerText = 'Answer — Chinese meaning';
+            document.getElementById('label-qimg').innerText = 'Answer Image (Optional)';
+            document.getElementById('label-atext').innerText = 'Question — English vocab word';
+            document.getElementById('label-aimg').innerText = 'Question Image (Optional)';
             document.getElementById('btn-save-card').innerText = t.addBtn;
 
             document.getElementById('settings-title-main').innerText = t.setMain;
@@ -2905,6 +2905,14 @@
             return {
                 zh: chinese?.chineseCharacters ? chinese.text : fallbackQuestion,
                 en: english?.latinLetters ? english.text : fallbackAnswer
+            };
+        }
+
+        function vocabReviewPairForCard(card) {
+            const pair = vocabGamePairForCard(card);
+            return {
+                question: pair.en,
+                answer: pair.zh
             };
         }
 
@@ -4547,6 +4555,7 @@
                 const topic = chapters.find(chapter => chapter.id === card.chapter);
                 const subtopic = subtopics.find(item => item.id === card.subtopicId);
                 const subtopicPath = subtopic ? flattenedSubtopics(card.chapter).find(item => item.id === subtopic.id)?.path : '';
+                const displayPair = vocabReviewPairForCard(card);
                 return `
                     <article data-admin-sort-item data-sort-id="${card.id}" class="bg-white rounded-2xl border border-slate-100 shadow-sm p-4">
                         <div class="flex items-center justify-between gap-2 mb-2">
@@ -4556,8 +4565,8 @@
                                 <button type="button" onpointerdown="beginAdminDrag(event)" class="admin-drag-handle btn-silky flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-lg bg-slate-100 text-slate-500" aria-label="Hold and drag to reorder this flashcard" title="Hold and drag to reorder"><i class="fa-solid fa-grip-lines"></i></button>
                             </span>
                         </div>
-                        <h3 class="font-black text-slate-800 text-sm leading-relaxed line-clamp-3">${escapeHTML(card.q_en)}</h3>
-                        <p class="text-xs text-slate-500 leading-relaxed mt-2 line-clamp-2">${escapeHTML(card.a_en)}</p>
+                        <h3 class="font-black text-slate-800 text-sm leading-relaxed line-clamp-3">${escapeHTML(displayPair.question)}</h3>
+                        <p class="text-xs text-slate-500 leading-relaxed mt-2 line-clamp-2">${escapeHTML(displayPair.answer)}</p>
                         <div class="grid grid-cols-2 gap-2 mt-3">
                             <button type="button" onclick="confirmDeleteAdminCard(${card.id})" class="btn-silky py-2.5 rounded-xl bg-rose-50 text-rose-600 text-xs font-black"><i class="fa-solid fa-trash mr-1"></i>Delete</button>
                             <button type="button" onclick="openAdminCardEditor(${card.id})" class="btn-silky py-2.5 rounded-xl bg-indigo-50 text-indigo-600 text-xs font-black"><i class="fa-solid fa-pen mr-1"></i>Edit</button>
@@ -4736,7 +4745,7 @@
             successElement.innerText = 'Flashcard saved. Enter the next flashcard below; the same topic and subtopic have been kept.';
             const editor = document.getElementById('view-admin-card-editor');
             editor.scrollTo({ top: 0, behavior: 'smooth' });
-            setTimeout(() => document.getElementById('admin-card-q-en').focus({ preventScroll: true }), 350);
+            setTimeout(() => document.getElementById('admin-card-a-en').focus({ preventScroll: true }), 350);
         }
 
         async function saveAdminCard(event) {
@@ -4852,10 +4861,11 @@
         function confirmDeleteAdminCard(cardId) {
             const card = flashcards.find(item => item.isManaged && item.id === Number(cardId));
             if (!card) return;
+            const displayPair = vocabReviewPairForCard(card);
             openModal({
                 icon: 'fa-trash', iconBgClass: 'bg-rose-50', iconTextClass: 'text-rose-500',
                 title: 'Delete shared flashcard?',
-                desc: escapeHTML(card.q_zh),
+                desc: escapeHTML(displayPair.question),
                 buttons: [
                     { text: 'Cancel', styleClass: 'bg-slate-100 text-slate-600', onClick: null },
                     { text: 'Delete permanently', styleClass: 'bg-rose-500 text-white', onClick: () => deleteAdminCard(card.id) }
@@ -4925,8 +4935,9 @@
             `;
 
             starred.forEach(card => {
-                let qText = currentLang === 'en' ? formatCardHTML(card.q_en) : (currentLang === 'zh' ? formatCardHTML(card.q_zh) : formatCardHTML(card.q_zh) + ' <span class="text-slate-400 text-xs ml-1">/ ' + formatCardHTML(card.q_en) + '</span>');
-                let aText = currentLang === 'en' ? formatCardHTML(card.a_en) : (currentLang === 'zh' ? formatCardHTML(card.a_zh) : formatCardHTML(card.a_zh) + ' <span class="text-slate-400 text-xs ml-1">/ ' + formatCardHTML(card.a_en) + '</span>');
+                const displayPair = vocabReviewPairForCard(card);
+                let qText = formatCardHTML(displayPair.question);
+                let aText = formatCardHTML(displayPair.answer);
                 let imgIcon = (card.img || card.answerImg) ? `<i class="fa-solid fa-image text-slate-300 text-xs ml-2"></i>` : '';
                 
                 let chapterName = "";
@@ -4940,7 +4951,7 @@
                         </button>
                         <div class="flex items-center justify-between gap-2 pr-8 mb-3">
                             <span class="text-[10px] text-slate-400 font-medium">${chapterName}</span>
-                            <button type="button" onclick="speakVocabCard(event, ${card.id})" class="btn-silky min-h-[34px] min-w-[34px] rounded-full bg-sky-50 text-sky-600" aria-label="Pronounce ${escapeHTML(card.a_en || card.a_zh)}" title="Pronounce English vocab"><i class="fa-solid fa-volume-high"></i></button>
+                            <button type="button" onclick="speakVocabCard(event, ${card.id})" class="btn-silky min-h-[34px] min-w-[34px] rounded-full bg-sky-50 text-sky-600" aria-label="Pronounce ${escapeHTML(displayPair.question)}" title="Pronounce English vocab"><i class="fa-solid fa-volume-high"></i></button>
                         </div>
                         <div class="mb-3">
                             <span class="text-[10px] bg-emerald-50 text-emerald-600 font-bold px-2 py-1 rounded uppercase tracking-wider mb-1 inline-block">Q</span>
@@ -5753,22 +5764,15 @@
             const card = currentReviewList[currentIndex];
             if (!card) return;
             void recordFlashcardView(card);
-            let qHTML = '', aHTML = '';
+            const displayPair = vocabReviewPairForCard(card);
+            const qHTML = formatCardHTML(displayPair.question);
+            const aHTML = formatCardHTML(displayPair.answer);
 
             const canAdminEdit = hasAdminContentAccess() && Boolean(card?.isManaged);
             document.querySelectorAll('.admin-review-edit').forEach(button => {
                 button.classList.toggle('hidden', !canAdminEdit);
                 button.classList.toggle('flex', canAdminEdit);
             });
-
-            if (currentLang === 'zh') {
-                qHTML = formatCardHTML(card.q_zh); aHTML = formatCardHTML(card.a_zh);
-            } else if (currentLang === 'en') {
-                qHTML = formatCardHTML(card.q_en); aHTML = formatCardHTML(card.a_en);
-            } else if (currentLang === 'bi') {
-                qHTML = `${formatCardHTML(card.q_zh)}<div class="text-[18px] text-slate-800 mt-4 font-medium">${formatCardHTML(card.q_en)}</div>`;
-                aHTML = `${formatCardHTML(card.a_zh)}<div class="text-[18px] text-emerald-900 mt-4 font-medium">${formatCardHTML(card.a_en)}</div>`;
-            }
 
             const qEl = document.getElementById('question-text');
             const aEl = document.getElementById('answer-text');
@@ -5785,9 +5789,9 @@
                 
                 const imgContainer = document.getElementById('question-image-container');
                 const imgEl = document.getElementById('question-image');
-                if (card.img) {
+                if (card.answerImg) {
                     imgEl.onload = fitReviewCard;
-                    imgEl.src = card.img;
+                    imgEl.src = card.answerImg;
                     imgContainer.classList.remove('hidden');
                     qEl.classList.add('has-diagram');
                 } else {
@@ -5799,9 +5803,9 @@
 
                 const answerImgContainer = document.getElementById('answer-image-container');
                 const answerImgEl = document.getElementById('answer-image');
-                if (card.answerImg) {
+                if (card.img) {
                     answerImgEl.onload = fitReviewCard;
-                    answerImgEl.src = card.answerImg;
+                    answerImgEl.src = card.img;
                     answerImgContainer.classList.remove('hidden');
                     aEl.classList.add('has-diagram');
                 } else {
