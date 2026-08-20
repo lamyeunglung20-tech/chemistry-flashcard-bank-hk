@@ -729,7 +729,7 @@
                     <div class="flex items-center justify-between gap-3 mb-3">
                         <div>
                             <h3 class="font-black text-violet-700 text-sm">Account management</h3>
-                            <p class="text-[11px] text-slate-500 mt-1">Only accounts from the independent Science Vocab system appear here. Incomplete registrations are shown and labelled; Chemistry App accounts are never included. Deletions take effect immediately without a confirmation email.</p>
+                            <p id="account-management-permission-note" class="text-[11px] text-slate-500 mt-1">Only accounts from the independent Science Vocab system appear here; Chemistry App accounts are never included. Deletions take effect immediately without a confirmation email.</p>
                         </div>
                         <button type="button" onclick="loadManagedAccounts()" class="btn-silky w-9 h-9 rounded-full bg-violet-50 text-violet-600" aria-label="Reload all accounts"><i class="fa-solid fa-rotate"></i></button>
                     </div>
@@ -1272,6 +1272,7 @@
         const SUPABASE_PUBLISHABLE_KEY = 'sb_publishable_JjQAcXeAIN_66sgCK9Ifcw_tP_Jus8l';
         const AUTH_PRODUCTION_REDIRECT_URL = 'https://lamyeunglung20-tech.github.io/chemistry-flashcard-bank-hk/blank-flashcard-app.html';
         const AUTH_APPROVER_EMAIL = 'lamyeunglung20@gmail.com';
+        const AUTH_STUDENT_ACCOUNT_MANAGER_EMAIL = 'science_ai@fss.edu.hk';
         const AUTH_OAUTH_INTENT_KEY = 'science-vocab-flashcards-oauth-intent-v2';
         const AUTH_RECOVERY_KEY = 'science-vocab-flashcards-password-recovery-v1';
         const AUTH_RECOVERY_EMAIL_KEY = 'science-vocab-flashcards-password-recovery-email-v1';
@@ -3605,8 +3606,14 @@
             approvalPanel.classList.toggle('hidden', !canApprove);
             if (canApprove) loadAdminRequests();
             const accountsPanel = document.getElementById('super-admin-accounts-panel');
-            accountsPanel.classList.toggle('hidden', !canApprove);
-            if (canApprove) loadManagedAccounts();
+            const canManage = canManageAccounts();
+            accountsPanel.classList.toggle('hidden', !canManage);
+            if (canManage) {
+                document.getElementById('account-management-permission-note').innerText = isPrimarySuperAdministrator()
+                    ? 'Chemistry App accounts are never included. You may permanently delete student and administrator accounts, including the restricted super administrator. Your own primary super-administrator account is protected.'
+                    : 'Chemistry App accounts are never included. You may permanently delete student accounts only. Administrator accounts are visible but protected and cannot be deleted by this account.';
+                loadManagedAccounts();
+            }
             updateGlobalBackButton();
         }
 
@@ -3738,8 +3745,8 @@
         }
 
         function confirmManagedAccountDeletion(userId) {
-            if (currentUser?.email?.toLowerCase() !== AUTH_APPROVER_EMAIL) return;
-            const account = managedAccounts.find(item => item.id === userId && item.email.toLowerCase() !== AUTH_APPROVER_EMAIL);
+            const account = managedAccounts.find(item => item.id === userId);
+            if (!canDeleteManagedAccount(account)) return;
             if (!account) return;
             const roleLabel = account.role === 'student' ? 'Student' : 'Administrator';
             openModal({
@@ -3756,9 +3763,9 @@
         }
 
         async function directDeleteManagedAccount(userId) {
-            if (!currentUser || currentUser.email.toLowerCase() !== AUTH_APPROVER_EMAIL || !initSupabaseClient()) return;
-            const account = managedAccounts.find(item => item.id === userId && item.email.toLowerCase() !== AUTH_APPROVER_EMAIL);
-            if (!account) return;
+            if (!currentUser || !initSupabaseClient()) return;
+            const account = managedAccounts.find(item => item.id === userId);
+            if (!canDeleteManagedAccount(account)) return;
             const button = document.getElementById(`managed-delete-${userId}`);
             if (button) {
                 button.disabled = true;
@@ -3795,7 +3802,7 @@
         async function loadManagedAccounts() {
             const panel = document.getElementById('super-admin-accounts-panel');
             const list = document.getElementById('super-admin-account-list');
-            if (!currentUser || currentUser.email.toLowerCase() !== AUTH_APPROVER_EMAIL || !initSupabaseClient()) {
+            if (!currentUser || !canManageAccounts() || !initSupabaseClient()) {
                 panel.classList.add('hidden');
                 return;
             }
@@ -3811,16 +3818,21 @@
             }
             managedAccounts = data || [];
             list.innerHTML = managedAccounts.map(account => {
-                const isSuper = account.email.toLowerCase() === AUTH_APPROVER_EMAIL;
+                const accountEmail = account.email.toLowerCase();
+                const isPrimarySuper = accountEmail === AUTH_APPROVER_EMAIL;
+                const isRestrictedSuper = accountEmail === AUTH_STUDENT_ACCOUNT_MANAGER_EMAIL;
+                const isSuper = isPrimarySuper || isRestrictedSuper;
                 const isStudent = account.role === 'student';
                 const isComplete = account.app_registered === true && Boolean(String(account.display_name || '').trim());
                 const accountName = isComplete ? account.display_name : 'Registration incomplete';
+                const canDelete = canDeleteManagedAccount(account);
+                const roleBadge = !isComplete ? 'Vocab registration incomplete' : isPrimarySuper ? 'Primary super administrator' : isRestrictedSuper ? 'Super administrator · students only' : isStudent ? 'Student' : 'Administrator';
                 return `<article class="rounded-xl border ${isSuper ? 'border-violet-200 bg-violet-50' : 'border-slate-100 bg-slate-50'} p-3">
                     <div class="flex items-start gap-3">
                         <div class="w-9 h-9 rounded-full ${!isComplete ? 'bg-amber-500' : isSuper ? 'bg-violet-500' : isStudent ? 'bg-emerald-500' : 'bg-indigo-500'} text-white flex items-center justify-center flex-shrink-0"><i class="fa-solid ${!isComplete ? 'fa-user-clock' : isStudent ? 'fa-user-graduate' : 'fa-user-shield'} text-sm"></i></div>
-                        <div class="flex-1 min-w-0"><p class="text-sm font-black ${isComplete ? 'text-slate-700' : 'text-amber-700'} break-words">${escapeHTML(accountName)}</p><p class="text-[11px] text-slate-500 break-all mt-0.5">${escapeHTML(account.email)}</p><span class="inline-block mt-1 rounded-full bg-white px-2 py-1 text-[9px] font-black ${!isComplete ? 'text-amber-700' : isSuper ? 'text-violet-700' : isStudent ? 'text-emerald-700' : 'text-indigo-700'}">${!isComplete ? 'Vocab registration incomplete' : isSuper ? 'Super administrator' : isStudent ? 'Student' : 'Administrator'}</span></div>
+                        <div class="flex-1 min-w-0"><p class="text-sm font-black ${isComplete ? 'text-slate-700' : 'text-amber-700'} break-words">${escapeHTML(accountName)}</p><p class="text-[11px] text-slate-500 break-all mt-0.5">${escapeHTML(account.email)}</p><span class="inline-block mt-1 rounded-full bg-white px-2 py-1 text-[9px] font-black ${!isComplete ? 'text-amber-700' : isSuper ? 'text-violet-700' : isStudent ? 'text-emerald-700' : 'text-indigo-700'}">${roleBadge}</span></div>
                     </div>
-                    ${isSuper ? '' : `<button id="managed-delete-${account.id}" type="button" onclick="confirmManagedAccountDeletion('${account.id}')" class="btn-silky w-full min-h-[42px] mt-3 rounded-lg bg-rose-50 text-rose-600 px-3 py-2 text-xs leading-relaxed font-black disabled:opacity-60"><i class="fa-solid fa-user-xmark mr-1"></i>Delete this ${isStudent ? 'student' : 'administrator'} account</button>`}
+                    ${canDelete ? `<button id="managed-delete-${account.id}" type="button" onclick="confirmManagedAccountDeletion('${account.id}')" class="btn-silky w-full min-h-[42px] mt-3 rounded-lg bg-rose-50 text-rose-600 px-3 py-2 text-xs leading-relaxed font-black disabled:opacity-60"><i class="fa-solid fa-user-xmark mr-1"></i>Delete this ${isStudent ? 'student' : 'administrator'} account</button>` : ''}
                 </article>`;
             }).join('') || '<p class="text-xs text-slate-400">No accounts.</p>';
         }
@@ -3952,6 +3964,27 @@
 
         function isSuperAdministrator() {
             return currentUser?.email?.toLowerCase() === AUTH_APPROVER_EMAIL;
+        }
+
+        function isPrimarySuperAdministrator() {
+            return currentUser?.email?.toLowerCase() === AUTH_APPROVER_EMAIL;
+        }
+
+        function isStudentAccountManager() {
+            return currentUser?.email?.toLowerCase() === AUTH_STUDENT_ACCOUNT_MANAGER_EMAIL
+                && currentUser?.role === 'admin';
+        }
+
+        function canManageAccounts() {
+            return isPrimarySuperAdministrator() || isStudentAccountManager();
+        }
+
+        function canDeleteManagedAccount(account) {
+            if (!account || !currentUser || account.id === currentUser.id) return false;
+            const targetEmail = String(account.email || '').toLowerCase();
+            if (targetEmail === AUTH_APPROVER_EMAIL) return false;
+            if (isPrimarySuperAdministrator()) return true;
+            return isStudentAccountManager() && account.role === 'student';
         }
 
         function populateAdminBrandingForm() {
